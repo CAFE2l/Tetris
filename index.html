@@ -660,6 +660,12 @@
   Seu navegador não suporta o elemento de áudio.
 </audio>
 
+<!-- Elemento de áudio para efeito sonoro da peça -->
+<audio id="piece-sound" preload="auto">
+  <source src="./piece.mp3" type="audio/mpeg">
+  Seu navegador não suporta o elemento de áudio.
+</audio>
+
 <div id="app">
 
   <!-- ═══════════ MENU ═══════════ -->
@@ -1138,6 +1144,11 @@ class TetrisGame {
   }
 
   lock() {
+    // Tocar efeito sonoro da peça
+    const pieceAudio = document.getElementById('piece-sound');
+    pieceAudio.currentTime = 0; // Reiniciar o áudio para tocar novamente
+    pieceAudio.play().catch(e => console.log('Erro ao tocar som da peça:', e));
+
     this.cur.mat.forEach((row, r) =>
       row.forEach((v, c) => {
         if (v) this.board[this.cur.y+r][this.cur.x+c] = v;
