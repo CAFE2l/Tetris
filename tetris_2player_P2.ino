@@ -4,14 +4,19 @@
 // Baud Rate: 9600
 //
 // MAPEAMENTO DOS BOTÕES:
-//   BTN_LFT (pino 5)  → Mover peça para ESQUERDA
-//   BTN_RGT (pino 3)  → Mover peça para DIREITA
-//   BTN_DWN (pino 4)  → Descer peça rápido (soft drop)
-//   BTN_UP  (pino 2)  → GIRAR peça
+//   BTN_LFT (pino 5)  → Mover peça para ESQUERDA / SCROLL MENU
+//   BTN_RGT (pino 3)  → Mover peça para DIREITA / SCROLL MENU
+//   BTN_DWN (pino 4)  → Descer peça rápido (soft drop) / SCROLL MENU
+//   BTN_UP  (pino 2)  → GIRAR peça / SCROLL MENU
 //   BTN_B   (pino 9)  → Hard Drop (queda instantânea)
-//   BTN_SEL (pino 6)  → Pausar / Continuar
-//   BTN_A   (pino 8)  → (reservado)
+//   BTN_SEL (pino 6)  → Pausar / Continuar / SELECIONAR MENU
+//   BTN_A   (pino 8)  → GIRAR peça / SELECIONAR MENU
 //   BTN_STR (pino 7)  → (reservado)
+//
+// ◈ NOVO: NAVEGAÇÃO DE MENU COM JOYSTICK
+//   • Use UP/DOWN para scrollar entre as opções do menu
+//   • Pressione SELECT ou BTN_A para selecionar uma opção
+//   • Os botões direcionais também funcionam para scroll no menu
 //
 // Joystick analógico DESABILITADO.
 // ============================================

@@ -359,6 +359,19 @@
     .menu-btn:nth-child(4) { animation: buttonSlideIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) 1.2s both; }
     .menu-btn:nth-child(5) { animation: buttonSlideIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) 1.3s both; }
 
+    /* Menu navigation highlight */
+    .menu-btn.menu-selected {
+      transform: scale(1.05) translateY(-3px);
+      box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.4),
+        0 0 40px currentColor,
+        inset 0 1px 0 rgba(255, 255, 255, 0.4),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+      filter: brightness(1.2);
+      border-color: currentColor;
+      border-width: 2px;
+    }
+
     @keyframes buttonSlideIn {
       0% {
         opacity: 0;
@@ -685,10 +698,10 @@
       </div>
     </div>
 
-    <button class="menu-btn btn-connect" onclick="connectArduino(1)">
+    <button class="menu-btn btn-connect" id="btn-connect-p1" onclick="connectArduino(1)">
       ► CONECTAR ARDUINO P1
     </button>
-    <button class="menu-btn btn-connect" id="btn-conn-p2" onclick="connectArduino(2)" style="color:var(--magenta);border-color:var(--magenta);text-shadow:0 0 8px var(--magenta)">
+    <button class="menu-btn btn-connect" id="btn-connect-p2" onclick="connectArduino(2)" style="color:var(--magenta);border-color:var(--magenta);text-shadow:0 0 8px var(--magenta)">
       ► CONECTAR ARDUINO P2
     </button>
     <button class="menu-btn btn-1p" id="btn-1p" onclick="startGame(1)" disabled>
@@ -997,6 +1010,12 @@ async function readPort(port, player) {
 }
 
 function routeCommand(player, cmd) {
+  // Verificar se estamos no menu (jogos não iniciados)
+  if (!game1 || game1.over) {
+    if (handleMenuCommand(cmd)) return;
+  }
+  
+  // Se estamos no jogo, rotear por player
   if (playerCount === 1) {
     if (!game1 || game1.over) return;
     doCommand(game1, cmd);
@@ -1022,6 +1041,67 @@ function setConnPill(player, on) {
     dot.style.boxShadow  = '0 0 8px var(--red)';
     txt.textContent = 'P' + player + ' — DESCONECTADO';
   }
+}
+
+// ═══════════════════════════════════════════════
+//  MENU NAVIGATION CONTROLLER
+// ═══════════════════════════════════════════════
+let menuSelectedIndex = -1;
+const menuItems = ['btn-connect-p1', 'btn-connect-p2', 'btn-1p', 'btn-2p'];
+
+function initMenuNavigation() {
+  menuSelectedIndex = 0;
+  updateMenuHighlight();
+}
+
+function updateMenuHighlight() {
+  menuItems.forEach((id, idx) => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      if (idx === menuSelectedIndex) {
+        btn.classList.add('menu-selected');
+      } else {
+        btn.classList.remove('menu-selected');
+      }
+    }
+  });
+}
+
+function handleMenuCommand(cmd) {
+  const menu = document.getElementById('menu');
+  
+  // Se o menu não está visível, não processar
+  if (!menu || menu.classList.contains('hidden')) {
+    return false;
+  }
+  
+  // Se ainda não inicializou, inicializar
+  if (menuSelectedIndex === -1) {
+    initMenuNavigation();
+  }
+
+  switch(cmd) {
+    case 'UP':
+      menuSelectedIndex = (menuSelectedIndex - 1 + menuItems.length) % menuItems.length;
+      updateMenuHighlight();
+      return true;
+    
+    case 'DOWN':
+      menuSelectedIndex = (menuSelectedIndex + 1) % menuItems.length;
+      updateMenuHighlight();
+      return true;
+    
+    case 'SELECT':
+    case 'BTN_A':
+      // Simular clique no botão selecionado
+      const selectedBtn = document.getElementById(menuItems[menuSelectedIndex]);
+      if (selectedBtn && !selectedBtn.disabled) {
+        selectedBtn.click();
+      }
+      return true;
+  }
+  
+  return false;
 }
 
 // ═══════════════════════════════════════════════
@@ -1416,6 +1496,7 @@ function backToMenu() {
   document.getElementById('vs-div').classList.add('hidden');
   document.getElementById('side-p2').style.display = 'none';
   document.getElementById('menu').classList.remove('hidden');
+  initMenuNavigation();
 }
 
 // ═══════════════════════════════════════════════
@@ -1482,4 +1563,4 @@ window.addEventListener('beforeunload', async () => {
 });
 </script>
 </body>
-</html>
+</html> 
