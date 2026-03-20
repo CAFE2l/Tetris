@@ -1,6 +1,5 @@
 // ============================================
-// TETRIS ARDUINO — 2 JOGADORES
-// ESTE ARQUIVO: JOGADOR 2 (P2)
+// TETRIS ARDUINO — JOGADOR 2 (P2)
 // Joystick Shield + Arduino UNO
 // Baud Rate: 9600
 //
@@ -11,50 +10,56 @@
 //   BTN_UP  (pino 2)  → GIRAR peça
 //   BTN_B   (pino 9)  → Hard Drop (queda instantânea)
 //   BTN_SEL (pino 6)  → Pausar / Continuar
+//   BTN_A   (pino 8)  → (reservado)
+//   BTN_STR (pino 7)  → (reservado)
 //
 // Joystick analógico DESABILITADO.
 // ============================================
 
-#define BTN_UP  2
-#define BTN_DWN 4
-#define BTN_LFT 5
-#define BTN_RGT 3
-#define BTN_SEL 6
-#define BTN_STR 7   // reservado
-#define BTN_A   8   // reservado
-#define BTN_B   9   // Hard Drop
+// Definição dos pinos dos botões (MESMOS PINOS DO P1)
+#define BTN_UP   2
+#define BTN_DWN  4
+#define BTN_LFT  5
+#define BTN_RGT  3
+#define BTN_SEL  6
+#define BTN_STR  7
+#define BTN_A    8
+#define BTN_B    9
 
-// Timings
-const unsigned long DEBOUNCE_MS    = 100;
-const unsigned long HOLD_DELAY_MS  = 280;  // espera antes de repetir ao segurar
-const unsigned long HOLD_REPEAT_MS = 90;   // intervalo de repeticao
+// Timings para debounce e repetição
+const unsigned long DEBOUNCE_MS    = 50;
+const unsigned long HOLD_DELAY_MS  = 200;
+const unsigned long HOLD_REPEAT_MS = 80;
 
-// Struct para botoes com hold-repeat
-struct DirBtn {
+// Estrutura para botões direcionais com hold-repeat
+struct DirectionalButton {
   int           pin;
-  const char*   cmd;
+  const char*   command;
   bool          lastState;
   bool          holding;
   unsigned long pressTime;
   unsigned long lastRepeat;
 };
 
-DirBtn dirBtns[] = {
+// Configuração dos botões direcionais
+DirectionalButton dirButtons[] = {
   { BTN_LFT, "LEFT",  HIGH, false, 0, 0 },
   { BTN_RGT, "RIGHT", HIGH, false, 0, 0 },
   { BTN_DWN, "DOWN",  HIGH, false, 0, 0 },
 };
 const int DIR_COUNT = 3;
 
-// Botoes fire-once (borda de descida)
-bool upLast  = HIGH;
-bool bLast   = HIGH;
-bool selLast = HIGH;
+// Estados dos botões de ação única
+bool upLast   = HIGH;
+bool bLast    = HIGH;
+bool aLast    = HIGH;
+bool selLast  = HIGH;
 
 // ─────────────────────────────────────────────
 void setup() {
   Serial.begin(9600);
-
+  
+  // Configurar todos os pinos como INPUT_PULLUP
   pinMode(BTN_UP,  INPUT_PULLUP);
   pinMode(BTN_DWN, INPUT_PULLUP);
   pinMode(BTN_LFT, INPUT_PULLUP);
@@ -63,66 +68,86 @@ void setup() {
   pinMode(BTN_STR, INPUT_PULLUP);
   pinMode(BTN_A,   INPUT_PULLUP);
   pinMode(BTN_B,   INPUT_PULLUP);
-
+  
+  // Aguardar estabilização
   delay(1500);
+  
+  // Sinalizar que o Arduino está pronto
   Serial.println("ARDUINO_P2_READY");
+  Serial.flush();
 }
 
-void sendCmd(const char* cmd) {
+// Função para enviar comando formatado
+void sendCommand(const char* cmd) {
   Serial.print("P2:");
   Serial.println(cmd);
+  Serial.flush();
 }
 
 // ─────────────────────────────────────────────
 void loop() {
   unsigned long now = millis();
-
-  // BTN_UP → GIRAR (fire-once na borda de descida)
+  
+  // ── BTN_UP → GIRAR (fire-once) ──
   bool upNow = digitalRead(BTN_UP);
   if (upNow == LOW && upLast == HIGH) {
-    sendCmd("BTN_A");
+    sendCommand("UP");
+    delay(DEBOUNCE_MS);
   }
   upLast = upNow;
-
-  // BTN_B → HARD DROP (fire-once)
+  
+  // ── BTN_B → HARD DROP (fire-once) ──
   bool bNow = digitalRead(BTN_B);
   if (bNow == LOW && bLast == HIGH) {
-    sendCmd("BTN_B");
+    sendCommand("BTN_B");
+    delay(DEBOUNCE_MS);
   }
   bLast = bNow;
-
-  // BTN_SEL → PAUSAR (fire-once)
+  
+  // ── BTN_A → (reservado) ──
+  bool aNow = digitalRead(BTN_A);
+  if (aNow == LOW && aLast == HIGH) {
+    sendCommand("BTN_A");
+    delay(DEBOUNCE_MS);
+  }
+  aLast = aNow;
+  
+  // ── BTN_SEL → PAUSAR (fire-once) ──
   bool selNow = digitalRead(BTN_SEL);
   if (selNow == LOW && selLast == HIGH) {
-    sendCmd("SELECT");
+    sendCommand("SELECT");
+    delay(DEBOUNCE_MS);
   }
   selLast = selNow;
-
-  // LEFT / RIGHT / DOWN com hold-repeat
+  
+  // ── Botões direcionais LEFT, RIGHT, DOWN com hold-repeat ──
   for (int i = 0; i < DIR_COUNT; i++) {
-    DirBtn& b = dirBtns[i];
-    bool cur = digitalRead(b.pin);
-
-    if (cur == LOW) {
-      if (b.lastState == HIGH) {
-        // primeiro toque: envia imediatamente
-        sendCmd(b.cmd);
-        b.holding    = true;
-        b.pressTime  = now;
-        b.lastRepeat = now;
-      } else if (b.holding &&
-                 (now - b.pressTime  >= HOLD_DELAY_MS) &&
-                 (now - b.lastRepeat >= HOLD_REPEAT_MS)) {
-        // segurado: repete
-        sendCmd(b.cmd);
-        b.lastRepeat = now;
+    DirectionalButton& btn = dirButtons[i];
+    bool currentState = digitalRead(btn.pin);
+    
+    if (currentState == LOW) {  // Botão pressionado
+      if (btn.lastState == HIGH) {
+        // Primeiro toque: envia comando imediatamente
+        sendCommand(btn.command);
+        btn.holding = true;
+        btn.pressTime = now;
+        btn.lastRepeat = now;
+      } 
+      else if (btn.holding && 
+               (now - btn.pressTime >= HOLD_DELAY_MS) && 
+               (now - btn.lastRepeat >= HOLD_REPEAT_MS)) {
+        // Botão segurado: repete comando
+        sendCommand(btn.command);
+        btn.lastRepeat = now;
       }
-    } else {
-      b.holding = false;
+    } 
+    else {  // Botão solto
+      btn.holding = false;
     }
-
-    b.lastState = cur;
+    
+    btn.lastState = currentState;
   }
-
+  
+  // Pequeno delay para evitar envio excessivo
   delay(8);
 }
