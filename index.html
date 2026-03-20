@@ -28,7 +28,8 @@
 
     body {
       font-family: 'Press Start 2P', monospace;
-      background: var(--bg);
+      background: var(--bg) url('background.jpg') no-repeat center center fixed;
+      background-size: cover;
       color: var(--text);
       min-height: 100vh;
       display: flex;
@@ -36,6 +37,23 @@
       justify-content: center;
       overflow: hidden;
       position: relative;
+    }
+
+    /* ── BACKGROUND OVERLAY ── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: rgba(5,5,16,0.3);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ── VIGNETTE ── */
+    #vignette {
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,5,0.85) 100%);
+      pointer-events: none;
+      z-index: 99;
     }
 
     /* ── SCANLINES ── */
@@ -93,12 +111,49 @@
       justify-content: center;
     }
 
-    /* ── GLASS PANEL ── */
+    /* ── CLAYMORPHISM GLASS PANEL ── */
     .panel {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      box-shadow: 0 0 20px rgba(0,245,255,0.08), inset 0 0 40px rgba(0,0,0,0.4);
+      background: rgba(0, 0, 0, 0.95);
+      border: 2px solid rgba(0, 245, 255, 0.3);
+      border-radius: 20px;
+      box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        0 16px 64px rgba(0, 245, 255, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(15px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::after {
+      content: '';
+      position: absolute;
+      top: -2px; left: -2px; right: -2px; bottom: -2px;
+      background: var(--cyan);
+      border-radius: 22px;
+      z-index: -1;
+      filter: blur(6px);
+      opacity: 0.4;
+      animation: ledGlow 2s ease-in-out infinite alternate;
+    }
+
+    .panel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg,
+        rgba(0, 245, 255, 0.02) 0%,
+        transparent 50%,
+        rgba(0, 245, 255, 0.02) 100%
+      );
+      border-radius: 18px;
+      pointer-events: none;
+    }
+
+    @keyframes ledGlow {
+      0% { opacity: 0.3; filter: blur(4px); }
+      100% { opacity: 0.6; filter: blur(8px); }
     }
 
     /* ── NEON TEXT ── */
@@ -113,88 +168,209 @@
     ───────────────────────────────────────── */
     #menu {
       text-align: center;
-      padding: 3rem 2.5rem;
-      min-width: 380px;
-      max-width: 480px;
+      padding: 2rem 2rem;
+      min-width: 360px;
+      max-width: 420px;
       width: 100%;
+      animation: menuEntrance 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes menuEntrance {
+      0% {
+        opacity: 0;
+        transform: translateY(30px) scale(0.9);
+        filter: blur(10px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+      }
     }
 
     .menu-logo {
-      font-size: clamp(2.2rem, 6vw, 3.5rem);
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
       letter-spacing: 6px;
       line-height: 1.2;
-      animation: logoGlow 2.5s ease-in-out infinite alternate;
+      color: var(--orange);
+      animation: logoGlow 3s ease-in-out infinite alternate, logoFloat 4s ease-in-out infinite;
+      text-shadow: 0 0 20px var(--orange), 0 0 40px var(orange), 0 0 60px var(--orange);
     }
+
     @keyframes logoGlow {
-      0%   { text-shadow: 0 0 10px var(--cyan), 0 0 30px var(--cyan); color: var(--cyan); }
-      50%  { text-shadow: 0 0 20px var(--magenta), 0 0 50px var(--magenta); color: #fff; }
-      100% { text-shadow: 0 0 10px var(--yellow), 0 0 30px var(--yellow); color: var(--yellow); }
+      0%   { text-shadow: 0 0 10px var(--red), 0 0 30px var(--red), 0 0 50px var(--red); }
+      50%  { text-shadow: 0 0 20px var(--red), 0 0 50px var(--red), 0 0 80px var(--red); }
+      100% { text-shadow: 0 0 10px var(--red), 0 0 30px var(--red), 0 0 50px var(--red); }
+    }
+
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
     }
 
     .menu-sub {
-      font-size: 0.55rem;
+      font-size: 0.45rem;
       color: var(--muted);
       letter-spacing: 3px;
       margin-top: 0.5rem;
-      margin-bottom: 2.5rem;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeInUp 1s ease 0.5s forwards;
     }
 
-    /* Connection pill */
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Connection pill - Enhanced */
     .conn-pill {
       display: inline-flex;
       align-items: center;
       gap: 8px;
       font-size: 0.5rem;
       letter-spacing: 2px;
-      padding: 8px 16px;
-      border-radius: 2px;
+      padding: 10px 18px;
+      border-radius: 25px;
       border: 1px solid var(--border);
-      background: rgba(0,0,0,0.4);
+      background: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(0, 0, 0, 0.3) 100%
+      );
       margin-bottom: 2rem;
       cursor: default;
-      transition: border-color 0.3s;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      animation: fadeInUp 1s ease 0.7s forwards;
     }
-    .conn-pill.connected { border-color: var(--green); }
-    .conn-pill.connected .dot { background: var(--green); box-shadow: 0 0 8px var(--green); }
+
+    .conn-pill:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .conn-pill.connected {
+      border-color: var(--green);
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+    }
+
+    .conn-pill.connected .dot {
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green), 0 0 16px var(--green);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
     .dot {
       width: 8px; height: 8px;
       border-radius: 50%;
       background: var(--red);
       box-shadow: 0 0 8px var(--red);
       animation: blink 1.2s ease-in-out infinite;
+      transition: all 0.3s ease;
     }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    /* Menu buttons */
+    @keyframes blink {
+      0%,100%{opacity:1; transform: scale(1);}
+      50%{opacity:0.3; transform: scale(0.8);}
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    /* Menu buttons - Claymorphism Style */
     .menu-btn {
       display: block;
       width: 100%;
-      padding: 16px 20px;
+      padding: 14px 20px;
       margin-bottom: 12px;
       font-family: 'Press Start 2P', monospace;
-      font-size: 0.6rem;
+      font-size: 0.55rem;
       letter-spacing: 2px;
       text-align: center;
-      border: 1px solid;
-      border-radius: 2px;
-      background: transparent;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.05) 50%,
+        rgba(0, 0, 0, 0.1) 100%
+      );
       cursor: pointer;
-      transition: all 0.15s;
       position: relative;
       overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
     }
+
     .menu-btn::before {
       content: '';
-      position: absolute; inset: 0;
-      background: currentColor;
-      opacity: 0;
-      transition: opacity 0.15s;
+      position: absolute;
+      top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+      );
+      transition: left 0.6s ease;
     }
-    .menu-btn:hover::before { opacity: 0.08; }
-    .menu-btn:active::before { opacity: 0.18; }
-    .menu-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-    .menu-btn:disabled::before { display: none; }
-    .menu-btn:hover:not(:disabled) { transform: translateX(4px); }
+
+    .menu-btn:hover::before {
+      left: 100%;
+    }
+
+    .menu-btn:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.3),
+        0 0 30px currentColor,
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+      filter: brightness(1.1);
+    }
+
+    .menu-btn:active {
+      transform: translateY(-1px) scale(0.98);
+      transition: all 0.1s ease;
+    }
+
+    .menu-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+      filter: grayscale(0.5);
+    }
+
+    .menu-btn:nth-child(1) { animation: buttonSlideIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.9s both; }
+    .menu-btn:nth-child(2) { animation: buttonSlideIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) 1.0s both; }
+    .menu-btn:nth-child(3) { animation: buttonSlideIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) 1.1s both; }
+    .menu-btn:nth-child(4) { animation: buttonSlideIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) 1.2s both; }
+    .menu-btn:nth-child(5) { animation: buttonSlideIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) 1.3s both; }
+
+    @keyframes buttonSlideIn {
+      0% {
+        opacity: 0;
+        transform: translateX(-50px) scale(0.9);
+        filter: blur(5px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+        filter: blur(0);
+      }
+    }
 
     .btn-connect { color: var(--green);   border-color: var(--green);   text-shadow: 0 0 8px var(--green); }
     .btn-1p      { color: var(--cyan);    border-color: var(--cyan);    text-shadow: 0 0 8px var(--cyan); }
@@ -392,12 +568,97 @@
       100% { opacity:0; transform: translateY(-60px); }
     }
 
+    /* ─────────────────────────────────────────
+       CONTROLS CARD
+    ───────────────────────────────────────── */
+    #controls-card {
+      position: static;
+      margin-top: 0.8rem;
+      animation: fadeInDown 0.5s ease-out;
+    }
+
+    @keyframes fadeInDown {
+      0% {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .controls-content {
+      padding: 1.5rem;
+      min-width: 200px;
+      background: rgba(0, 0, 0, 0.9);
+      border-radius: 15px;
+      box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        0 16px 64px rgba(0, 245, 255, 0.1);
+      backdrop-filter: blur(15px);
+    }
+
+    .controls-title {
+      font-size: 0.7rem;
+      color: var(--cyan);
+      text-align: center;
+      margin-bottom: 1rem;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px var(--cyan);
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+    }
+
+    .control-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.5rem;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      transition: all 0.3s ease;
+    }
+
+    .control-item:hover {
+      background: rgba(0, 245, 255, 0.1);
+      transform: scale(1.05);
+    }
+
+    .control-emoji {
+      font-size: 1.5rem;
+      line-height: 1;
+    }
+
+    .control-text {
+      font-size: 0.35rem;
+      color: var(--text);
+      text-align: center;
+      letter-spacing: 1px;
+      font-weight: bold;
+    }
+
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
 <div id="stars"></div>
+
+<!-- Vignette effect -->
+<div id="vignette"></div>
+
+<!-- Elemento de áudio para música de fundo -->
+<audio id="bg-music" loop preload="auto">
+  <source src="./music.mp3" type="audio/mpeg">
+  <!-- Você pode adicionar mais formatos se necessário -->
+  Seu navegador não suporta o elemento de áudio.
+</audio>
 
 <div id="app">
 
@@ -433,6 +694,9 @@
     <button class="menu-btn btn-ctrl" onclick="showModal('controls-modal')">
       ◉ CONTROLES
     </button>
+    <button class="menu-btn btn-ctrl" id="music-btn" onclick="toggleMusic()">
+      🔊 MÚSICA
+    </button>
 
     <div class="menu-hint">
       ◈ CONECTE 1 ARDUINO PARA 1 JOGADOR<br>
@@ -461,6 +725,30 @@
       <div class="stat-box panel">
         <div class="label" style="color:var(--muted);font-size:.42rem;letter-spacing:2px">RECORDE</div>
         <div class="value" id="hi1" style="font-size:.7rem;color:var(--purple);text-shadow:0 0 8px var(--purple)">0</div>
+      </div>
+
+      <div id="controls-card" class="controls-card">
+        <div class="controls-content panel">
+          <div class="controls-title">CONTROLES</div>
+          <div class="controls-grid">
+            <div class="control-item">
+              <div class="control-emoji">⬅️</div>
+              <div class="control-text">ESQUERDA</div>
+            </div>
+            <div class="control-item">
+              <div class="control-emoji">➡️</div>
+              <div class="control-text">DIREITA</div>
+            </div>
+            <div class="control-item">
+              <div class="control-emoji">⬇️</div>
+              <div class="control-text">DESCER</div>
+            </div>
+            <div class="control-item">
+              <div class="control-emoji">⬆️</div>
+              <div class="control-text">GIRAR</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1021,6 +1309,7 @@ let game1=null, game2=null, playerCount=1;
 function startGame(n) {
   playerCount = n;
   document.getElementById('menu').classList.add('hidden');
+  document.getElementById('controls-card').classList.remove('hidden');
   const ga = document.getElementById('game-area');
   ga.classList.remove('hidden');
 
@@ -1108,6 +1397,7 @@ function restartGame() {
 function backToMenu() {
   hideModal('pause-overlay');
   hideModal('gameover-overlay');
+  document.getElementById('controls-card').classList.add('hidden');
   if (game1) { game1.stop(); game1=null; }
   if (game2) { game2.stop(); game2=null; }
   document.getElementById('game-area').classList.add('hidden');
@@ -1138,6 +1428,28 @@ function doCommand(game, cmd) {
 // ═══════════════════════════════════════════════
 function showModal(id) { document.getElementById(id).classList.remove('hidden'); }
 function hideModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+// ═══════════════════════════════════════════════
+//  MUSIC CONTROLS
+// ═══════════════════════════════════════════════
+let musicPlaying = false;
+const bgMusic = document.getElementById('bg-music');
+const musicBtn = document.getElementById('music-btn');
+
+function toggleMusic() {
+  if (musicPlaying) {
+    bgMusic.pause();
+    musicBtn.textContent = '🔇 MÚSICA';
+    musicPlaying = false;
+  } else {
+    bgMusic.play().catch(e => {
+      console.log('Erro ao tocar música:', e);
+      alert('Adicione um arquivo de música chamado "musica.mp3" na mesma pasta do jogo.');
+    });
+    musicBtn.textContent = '🔊 MÚSICA';
+    musicPlaying = true;
+  }
+}
 
 // ═══════════════════════════════════════════════
 //  INIT
