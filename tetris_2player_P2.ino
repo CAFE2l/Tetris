@@ -1,12 +1,13 @@
 // ============================================
-// TETRIS ARDUINO — 1 JOGADOR
+// TETRIS ARDUINO — 2 JOGADORES
+// ESTE ARQUIVO: JOGADOR 2 (P2)
 // Joystick Shield + Arduino UNO
 // Baud Rate: 9600
 //
 // MAPEAMENTO DOS BOTÕES:
-//   BTN_LFT (pino 4)  → Mover peça para ESQUERDA
-//   BTN_RGT (pino 5)  → Mover peça para DIREITA
-//   BTN_DWN (pino 3)  → Descer peça rápido (soft drop)
+//   BTN_LFT (pino 5)  → Mover peça para ESQUERDA
+//   BTN_RGT (pino 3)  → Mover peça para DIREITA
+//   BTN_DWN (pino 4)  → Descer peça rápido (soft drop)
 //   BTN_UP  (pino 2)  → GIRAR peça
 //   BTN_B   (pino 9)  → Hard Drop (queda instantânea)
 //   BTN_SEL (pino 6)  → Pausar / Continuar
@@ -64,10 +65,11 @@ void setup() {
   pinMode(BTN_B,   INPUT_PULLUP);
 
   delay(1500);
-  Serial.println("ARDUINO_READY");
+  Serial.println("ARDUINO_P2_READY");
 }
 
 void sendCmd(const char* cmd) {
+  Serial.print("P2:");
   Serial.println(cmd);
 }
 
