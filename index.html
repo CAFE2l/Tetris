@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TETRIS — Arduino Edition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cyan:    #00f5ff;
+      --magenta: #ff00aa;
+      --yellow:  #ffe600;
+      --green:   #00ff88;
+      --purple:  #b400ff;
+      --orange:  #ff8800;
+      --blue:    #2277ff;
+      --red:     #ff2244;
+      --bg:      #050510;
+      --panel:   rgba(0,245,255,0.05);
+      --border:  rgba(0,245,255,0.2);
+      --text:    #c8eeff;
+      --muted:   rgba(200,238,255,0.4);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Press Start 2P', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── SCANLINES ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.18) 2px,
+        rgba(0,0,0,0.18) 4px
+      );
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* ── VIGNETTE ── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,5,0.85) 100%);
+      pointer-events: none;
+      z-index: 99;
+    }
+
+    /* ── STARS BACKGROUND ── */
+    #stars {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .star {
+      position: absolute;
+      border-radius: 50%;
+      background: white;
+      animation: twinkle var(--d) ease-in-out infinite alternate;
+      opacity: 0;
+    }
+    @keyframes twinkle {
+      0%   { opacity: 0; transform: scale(0.5); }
+      100% { opacity: var(--op); transform: scale(1); }
+    }
+
+    /* ── MAIN WRAPPER ── */
+    #app {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 1000px;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── GLASS PANEL ── */
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      box-shadow: 0 0 20px rgba(0,245,255,0.08), inset 0 0 40px rgba(0,0,0,0.4);
+    }
+
+    /* ── NEON TEXT ── */
+    .neon-cyan    { color: var(--cyan);    text-shadow: 0 0 8px var(--cyan),    0 0 20px var(--cyan); }
+    .neon-magenta { color: var(--magenta); text-shadow: 0 0 8px var(--magenta), 0 0 20px var(--magenta); }
+    .neon-yellow  { color: var(--yellow);  text-shadow: 0 0 8px var(--yellow),  0 0 20px var(--yellow); }
+    .neon-green   { color: var(--green);   text-shadow: 0 0 8px var(--green),   0 0 20px var(--green); }
+    .neon-purple  { color: var(--purple);  text-shadow: 0 0 8px var(--purple),  0 0 20px var(--purple); }
+
+    /* ─────────────────────────────────────────
+       MENU
+    ───────────────────────────────────────── */
+    #menu {
+      text-align: center;
+      padding: 3rem 2.5rem;
+      min-width: 380px;
+      max-width: 480px;
+      width: 100%;
+    }
+
+    .menu-logo {
+      font-size: clamp(2.2rem, 6vw, 3.5rem);
+      letter-spacing: 6px;
+      line-height: 1.2;
+      animation: logoGlow 2.5s ease-in-out infinite alternate;
+    }
+    @keyframes logoGlow {
+      0%   { text-shadow: 0 0 10px var(--cyan), 0 0 30px var(--cyan); color: var(--cyan); }
+      50%  { text-shadow: 0 0 20px var(--magenta), 0 0 50px var(--magenta); color: #fff; }
+      100% { text-shadow: 0 0 10px var(--yellow), 0 0 30px var(--yellow); color: var(--yellow); }
+    }
+
+    .menu-sub {
+      font-size: 0.55rem;
+      color: var(--muted);
+      letter-spacing: 3px;
+      margin-top: 0.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    /* Connection pill */
+    .conn-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.5rem;
+      letter-spacing: 2px;
+      padding: 8px 16px;
+      border-radius: 2px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.4);
+      margin-bottom: 2rem;
+      cursor: default;
+      transition: border-color 0.3s;
+    }
+    .conn-pill.connected { border-color: var(--green); }
+    .conn-pill.connected .dot { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 8px var(--red);
+      animation: blink 1.2s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* Menu buttons */
+    .menu-btn {
+      display: block;
+      width: 100%;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 2px;
+      text-align: center;
+      border: 1px solid;
+      border-radius: 2px;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .menu-btn::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: currentColor;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .menu-btn:hover::before { opacity: 0.08; }
+    .menu-btn:active::before { opacity: 0.18; }
+    .menu-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .menu-btn:disabled::before { display: none; }
+    .menu-btn:hover:not(:disabled) { transform: translateX(4px); }
+
+    .btn-connect { color: var(--green);   border-color: var(--green);   text-shadow: 0 0 8px var(--green); }
+    .btn-1p      { color: var(--cyan);    border-color: var(--cyan);    text-shadow: 0 0 8px var(--cyan); }
+    .btn-2p      { color: var(--magenta); border-color: var(--magenta); text-shadow: 0 0 8px var(--magenta); }
+    .btn-ctrl    { color: var(--muted);   border-color: var(--border); }
+
+    .menu-hint {
+      font-size: 0.42rem;
+      color: var(--muted);
+      line-height: 2;
+      margin-top: 1.5rem;
+    }
+
+    /* ─────────────────────────────────────────
+       GAME LAYOUT
+    ───────────────────────────────────────── */
+    #game-area {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .player-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .player-label {
+      font-size: 0.5rem;
+      letter-spacing: 3px;
+      padding: 6px 16px;
+      border: 1px solid;
+      border-radius: 2px;
+      margin-bottom: 4px;
+    }
+    .p1-label { color: var(--cyan);    border-color: var(--cyan);    text-shadow: 0 0 6px var(--cyan); }
+    .p2-label { color: var(--magenta); border-color: var(--magenta); text-shadow: 0 0 6px var(--magenta); }
+
+    canvas {
+      display: block;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    #canvas1, #canvas2 {
+      border: 2px solid;
+      box-shadow: 0 0 20px, inset 0 0 40px rgba(0,0,0,0.6);
+    }
+    #canvas1 { border-color: var(--cyan);    box-shadow: 0 0 20px rgba(0,245,255,0.5), inset 0 0 40px rgba(0,0,0,0.6); }
+    #canvas2 { border-color: var(--magenta); box-shadow: 0 0 20px rgba(255,0,170,0.5), inset 0 0 40px rgba(0,0,0,0.6); }
+
+    /* Side stats panel */
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 140px;
+    }
+
+    .stat-box {
+      padding: 12px 14px;
+      font-size: 0.45rem;
+      letter-spacing: 1px;
+    }
+    .stat-box .label {
+      color: var(--muted);
+      margin-bottom: 6px;
+      letter-spacing: 2px;
+    }
+    .stat-box .value {
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+    .stat-box.score .value { color: var(--yellow); text-shadow: 0 0 10px var(--yellow); }
+    .stat-box.level .value { color: var(--cyan);   text-shadow: 0 0 10px var(--cyan); }
+    .stat-box.lines .value { color: var(--green);  text-shadow: 0 0 10px var(--green); }
+
+    .preview-box {
+      padding: 10px;
+      text-align: center;
+    }
+    .preview-box .label {
+      font-size: 0.42rem;
+      color: var(--muted);
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+    #preview1, #preview2 {
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.5);
+    }
+
+    .pause-btn {
+      width: 100%;
+      padding: 10px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.45rem;
+      letter-spacing: 2px;
+      color: var(--yellow);
+      border: 1px solid var(--yellow);
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .pause-btn:hover { background: rgba(255,230,0,0.08); }
+
+    /* ─────────────────────────────────────────
+       OVERLAYS
+    ───────────────────────────────────────── */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,5,0.88);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+    .overlay-box {
+      text-align: center;
+      padding: 3rem 2.5rem;
+      min-width: 320px;
+    }
+
+    .overlay-title {
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      letter-spacing: 4px;
+      margin-bottom: 2rem;
+      animation: logoGlow 2s ease-in-out infinite alternate;
+    }
+    .overlay-sub {
+      font-size: 0.5rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+      line-height: 2.2;
+    }
+
+    .overlay-btn {
+      display: block;
+      width: 100%;
+      max-width: 280px;
+      margin: 10px auto;
+      padding: 14px 20px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 2px;
+      border: 1px solid;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .overlay-btn:hover { transform: translateX(4px); }
+    .overlay-btn.green   { color: var(--green);   border-color: var(--green); }
+    .overlay-btn.cyan    { color: var(--cyan);     border-color: var(--cyan); }
+    .overlay-btn.red     { color: var(--red);      border-color: var(--red); }
+    .overlay-btn.yellow  { color: var(--yellow);   border-color: var(--yellow); }
+
+    /* Controls modal */
+    .ctrl-table {
+      width: 100%;
+      font-size: 0.4rem;
+      border-collapse: collapse;
+      text-align: left;
+      margin-bottom: 1.5rem;
+    }
+    .ctrl-table td {
+      padding: 8px 6px;
+      border-bottom: 1px solid var(--border);
+      line-height: 2;
+    }
+    .ctrl-table td:first-child { color: var(--text); }
+    .ctrl-table td:last-child  { color: var(--cyan); text-align: right; }
+
+    /* Flash line clear effect */
+    @keyframes flashRow {
+      0%,100% { opacity:1; }
+      50%      { opacity:0; background: white; }
+    }
+
+    /* ── SCORE POPUP ── */
+    .score-popup {
+      position: absolute;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.55rem;
+      color: var(--yellow);
+      text-shadow: 0 0 10px var(--yellow);
+      pointer-events: none;
+      animation: floatUp 1s ease forwards;
+      z-index: 50;
+    }
+    @keyframes floatUp {
+      0%   { opacity:1; transform: translateY(0); }
+      100% { opacity:0; transform: translateY(-60px); }
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div id="stars"></div>
+
+<div id="app">
+
+  <!-- ═══════════ MENU ═══════════ -->
+  <div id="menu" class="panel">
+    <div class="menu-logo">TETRIS</div>
+    <div class="menu-sub">◈ ARDUINO EDITION ◈</div>
+
+    <!-- Status pills -->
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1.5rem">
+      <div id="conn-pill-p1" class="conn-pill" style="justify-content:center">
+        <div class="dot" id="conn-dot-p1"></div>
+        <span id="conn-text-p1">P1 — DESCONECTADO</span>
+      </div>
+      <div id="conn-pill-p2" class="conn-pill" style="justify-content:center">
+        <div class="dot" id="conn-dot-p2"></div>
+        <span id="conn-text-p2">P2 — DESCONECTADO</span>
+      </div>
+    </div>
+
+    <button class="menu-btn btn-connect" onclick="connectArduino(1)">
+      ► CONECTAR ARDUINO P1
+    </button>
+    <button class="menu-btn btn-connect" id="btn-conn-p2" onclick="connectArduino(2)" style="color:var(--magenta);border-color:var(--magenta);text-shadow:0 0 8px var(--magenta)">
+      ► CONECTAR ARDUINO P2
+    </button>
+    <button class="menu-btn btn-1p" id="btn-1p" onclick="startGame(1)" disabled>
+      ▷ 1 JOGADOR
+    </button>
+    <button class="menu-btn btn-2p" id="btn-2p" onclick="startGame(2)" disabled>
+      ▷▷ 2 JOGADORES
+    </button>
+    <button class="menu-btn btn-ctrl" onclick="showModal('controls-modal')">
+      ◉ CONTROLES
+    </button>
+
+    <div class="menu-hint">
+      ◈ CONECTE 1 ARDUINO PARA 1 JOGADOR<br>
+      ◈ CONECTE 2 ARDUINOS PARA 2 JOGADORES<br>
+      ◈ USE CHROME OU EDGE (WEB SERIAL API)
+    </div>
+  </div>
+
+  <!-- ═══════════ GAME AREA ═══════════ -->
+  <div id="game-area" class="hidden">
+
+    <!-- PLAYER 1 -->
+    <div class="side-panel" id="side-p1">
+      <div class="stat-box score panel">
+        <div class="label">PONTOS</div>
+        <div class="value" id="score1">0</div>
+      </div>
+      <div class="stat-box level panel">
+        <div class="label">NÍVEL</div>
+        <div class="value" id="level1">1</div>
+      </div>
+      <div class="stat-box lines panel">
+        <div class="label">LINHAS</div>
+        <div class="value" id="lines1">0</div>
+      </div>
+      <div class="stat-box panel">
+        <div class="label" style="color:var(--muted);font-size:.42rem;letter-spacing:2px">RECORDE</div>
+        <div class="value" id="hi1" style="font-size:.7rem;color:var(--purple);text-shadow:0 0 8px var(--purple)">0</div>
+      </div>
+    </div>
+
+    <div class="player-wrap">
+      <div class="player-label p1-label">P1</div>
+      <div style="position:relative">
+        <canvas id="canvas1" width="240" height="400"></canvas>
+      </div>
+      <div class="preview-box panel" style="width:100%">
+        <div class="label">PRÓXIMA</div>
+        <canvas id="preview1" width="80" height="80" style="margin:0 auto;display:block"></canvas>
+      </div>
+      <button class="pause-btn panel" onclick="togglePause()">⏸ PAUSAR</button>
+    </div>
+
+    <!-- VS DIVIDER (2p only) -->
+    <div id="vs-div" class="hidden" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 4px;gap:8px">
+      <div class="neon-magenta" style="font-size:1.4rem;letter-spacing:4px;writing-mode:vertical-rl">VS</div>
+    </div>
+
+    <!-- PLAYER 2 -->
+    <div class="player-wrap hidden" id="p2-wrap">
+      <div class="player-label p2-label">P2</div>
+      <div style="position:relative">
+        <canvas id="canvas2" width="240" height="400"></canvas>
+      </div>
+      <div class="preview-box panel" style="width:100%">
+        <div class="label">PRÓXIMA</div>
+        <canvas id="preview2" width="80" height="80" style="margin:0 auto;display:block"></canvas>
+      </div>
+    </div>
+
+    <div class="side-panel" id="side-p2" style="display:none">
+      <div class="stat-box score panel">
+        <div class="label">PONTOS</div>
+        <div class="value" id="score2">0</div>
+      </div>
+      <div class="stat-box level panel">
+        <div class="label">NÍVEL</div>
+        <div class="value" id="level2">1</div>
+      </div>
+      <div class="stat-box lines panel">
+        <div class="label">LINHAS</div>
+        <div class="value" id="lines2">0</div>
+      </div>
+      <div class="stat-box panel">
+        <div class="label" style="color:var(--muted);font-size:.42rem;letter-spacing:2px">RECORDE</div>
+        <div class="value" id="hi2" style="font-size:.7rem;color:var(--purple);text-shadow:0 0 8px var(--purple)">0</div>
+      </div>
+    </div>
+
+  </div><!-- /#game-area -->
+</div><!-- /#app -->
+
+<!-- ═══════════ PAUSE OVERLAY ═══════════ -->
+<div id="pause-overlay" class="overlay hidden">
+  <div class="overlay-box panel">
+    <div class="overlay-title neon-yellow">PAUSADO</div>
+    <button class="overlay-btn green" onclick="togglePause()">► CONTINUAR</button>
+    <button class="overlay-btn red"  onclick="backToMenu()">✕ SAIR</button>
+  </div>
+</div>
+
+<!-- ═══════════ GAME OVER OVERLAY ═══════════ -->
+<div id="gameover-overlay" class="overlay hidden">
+  <div class="overlay-box panel">
+    <div class="overlay-title neon-red" style="color:var(--red);text-shadow:0 0 20px var(--red)">GAME OVER</div>
+    <div class="overlay-sub" id="go-scores"></div>
+    <div class="overlay-sub" id="go-winner" style="color:var(--yellow);font-size:.55rem"></div>
+    <button class="overlay-btn green"  onclick="restartGame()">► JOGAR NOVAMENTE</button>
+    <button class="overlay-btn cyan"   onclick="backToMenu()">◄ MENU PRINCIPAL</button>
+  </div>
+</div>
+
+<!-- ═══════════ CONTROLS MODAL ═══════════ -->
+<div id="controls-modal" class="overlay hidden">
+  <div class="overlay-box panel" style="max-width:460px;width:92%;padding:2rem 1.8rem">
+    <div class="overlay-title neon-cyan" style="font-size:.9rem;margin-bottom:1.6rem;letter-spacing:3px">CONTROLES — ARDUINO</div>
+
+    <!-- Diagrama visual dos botões -->
+    <div style="display:flex;justify-content:center;margin-bottom:1.6rem">
+      <div style="position:relative;width:180px;height:140px">
+        <!-- UP -->
+        <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);text-align:center">
+          <div style="width:44px;height:44px;border:2px solid var(--cyan);border-radius:4px;
+                      display:flex;flex-direction:column;align-items:center;justify-content:center;
+                      background:rgba(0,245,255,0.08);box-shadow:0 0 10px rgba(0,245,255,0.3)">
+            <span style="font-size:.55rem;color:var(--cyan)">▲</span>
+            <span style="font-size:.3rem;color:var(--muted);margin-top:2px">GIRAR</span>
+          </div>
+        </div>
+        <!-- LEFT -->
+        <div style="position:absolute;top:50px;left:0;text-align:center">
+          <div style="width:44px;height:44px;border:2px solid var(--cyan);border-radius:4px;
+                      display:flex;flex-direction:column;align-items:center;justify-content:center;
+                      background:rgba(0,245,255,0.08);box-shadow:0 0 10px rgba(0,245,255,0.3)">
+            <span style="font-size:.55rem;color:var(--cyan)">◄</span>
+            <span style="font-size:.3rem;color:var(--muted);margin-top:2px">ESQUERDA</span>
+          </div>
+        </div>
+        <!-- RIGHT -->
+        <div style="position:absolute;top:50px;right:0;text-align:center">
+          <div style="width:44px;height:44px;border:2px solid var(--cyan);border-radius:4px;
+                      display:flex;flex-direction:column;align-items:center;justify-content:center;
+                      background:rgba(0,245,255,0.08);box-shadow:0 0 10px rgba(0,245,255,0.3)">
+            <span style="font-size:.55rem;color:var(--cyan)">►</span>
+            <span style="font-size:.3rem;color:var(--muted);margin-top:2px">DIREITA</span>
+          </div>
+        </div>
+        <!-- DOWN -->
+        <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);text-align:center">
+          <div style="width:44px;height:44px;border:2px solid var(--cyan);border-radius:4px;
+                      display:flex;flex-direction:column;align-items:center;justify-content:center;
+                      background:rgba(0,245,255,0.08);box-shadow:0 0 10px rgba(0,245,255,0.3)">
+            <span style="font-size:.55rem;color:var(--cyan)">▼</span>
+            <span style="font-size:.3rem;color:var(--muted);margin-top:2px">DESCER</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabela de botões extras -->
+    <table class="ctrl-table" style="margin-bottom:1.2rem">
+      <tr>
+        <td>▲ CIMA</td>
+        <td style="color:var(--green)">GIRAR PEÇA</td>
+      </tr>
+      <tr>
+        <td>▼ BAIXO</td>
+        <td style="color:var(--green)">SOFT DROP (segurar)</td>
+      </tr>
+      <tr>
+        <td>◄ ESQUERDA</td>
+        <td style="color:var(--green)">MOVER ← (segurar repete)</td>
+      </tr>
+      <tr>
+        <td>► DIREITA</td>
+        <td style="color:var(--green)">MOVER → (segurar repete)</td>
+      </tr>
+      <tr>
+        <td>BTN B</td>
+        <td style="color:var(--yellow)">⚡ HARD DROP instantâneo</td>
+      </tr>
+      <tr>
+        <td>SELECT</td>
+        <td style="color:var(--yellow)">⏸ PAUSAR / CONTINUAR</td>
+      </tr>
+    </table>
+
+    <div style="font-size:.38rem;color:var(--muted);line-height:2.2;margin-bottom:1.4rem;
+                border:1px solid var(--border);padding:10px 14px;border-radius:2px">
+      ◈ JOYSTICK ANALÓGICO DESABILITADO<br>
+      ◈ USE APENAS OS BOTÕES DIRECIONAIS<br>
+      ◈ P2: CONECTE UM SEGUNDO ARDUINO
+    </div>
+
+    <button class="overlay-btn cyan" onclick="hideModal('controls-modal')">✓ ENTENDI</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  STARS
+// ═══════════════════════════════════════════════
+(function() {
+  const c = document.getElementById('stars');
+  for (let i = 0; i < 120; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2 + 1;
+    s.style.cssText = `
+      width:${size}px;height:${size}px;
+      top:${Math.random()*100}%;left:${Math.random()*100}%;
+      --op:${Math.random()*0.7+0.2};
+      --d:${Math.random()*3+1.5}s;
+      animation-delay:${Math.random()*3}s;
+    `;
+    c.appendChild(s);
+  }
+})();
+
+// ═══════════════════════════════════════════════
+//  SERIAL (Web Serial API) — 2 portas independentes
+// ═══════════════════════════════════════════════
+let portP1=null, portP2=null;
+let readerP1=null, readerP2=null;
+let connP1=false, connP2=false;
+
+async function connectArduino(player) {
+  if (!('serial' in navigator)) {
+    alert('Web Serial API não suportada!\nUse Chrome ou Edge 89+');
+    return;
+  }
+  try {
+    const port = await navigator.serial.requestPort();
+    await port.open({ baudRate: 9600 });
+    if (player === 1) {
+      portP1 = port; connP1 = true;
+      setConnPill(1, true);
+      readPort(port, 1);
+      document.getElementById('btn-1p').disabled = false;
+    } else {
+      portP2 = port; connP2 = true;
+      setConnPill(2, true);
+      readPort(port, 2);
+    }
+    if (connP1 && connP2) {
+      document.getElementById('btn-2p').disabled = false;
+    }
+  } catch(e) {
+    if (e.name !== 'NotFoundError') alert('Erro ao conectar Arduino P'+player+': ' + e.message);
+  }
+}
+
+async function readPort(port, player) {
+  const td = new TextDecoderStream();
+  port.readable.pipeTo(td.writable);
+  const reader = td.readable.getReader();
+  if (player === 1) readerP1 = reader;
+  else              readerP2 = reader;
+  let buf = '';
+  try {
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buf += value;
+      const lines = buf.split('\n');
+      buf = lines.pop();
+      lines.forEach(l => {
+        const raw = l.trim();
+        if (!raw || raw.includes('READY')) return;
+        const cmd = raw.replace(/^P[12]:/, '');
+        routeCommand(player, cmd);
+      });
+    }
+  } catch(e) {
+    setConnPill(player, false);
+  }
+}
+
+function routeCommand(player, cmd) {
+  if (playerCount === 1) {
+    if (!game1 || game1.over) return;
+    doCommand(game1, cmd);
+  } else {
+    const target = player === 1 ? game1 : game2;
+    if (!target || target.over) return;
+    doCommand(target, cmd);
+  }
+}
+
+function setConnPill(player, on) {
+  const pill = document.getElementById('conn-pill-p' + player);
+  const dot  = document.getElementById('conn-dot-p'  + player);
+  const txt  = document.getElementById('conn-text-p' + player);
+  if (on) {
+    pill.classList.add('connected');
+    dot.style.background = 'var(--green)';
+    dot.style.boxShadow  = '0 0 8px var(--green)';
+    txt.textContent = 'P' + player + ' — CONECTADO ✓';
+  } else {
+    pill.classList.remove('connected');
+    dot.style.background = 'var(--red)';
+    dot.style.boxShadow  = '0 0 8px var(--red)';
+    txt.textContent = 'P' + player + ' — DESCONECTADO';
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  TETRIS ENGINE
+// ═══════════════════════════════════════════════
+const COLS = 12, ROWS = 20, BS = 20;
+
+const COLORS = [
+  null,
+  '#FF2266', // T
+  '#00EEFF', // I
+  '#00FF88', // S
+  '#FF00CC', // Z
+  '#FF8800', // L
+  '#FFE600', // O
+  '#2277FF', // J
+];
+
+const PIECES = [
+  [[1,1,1],[0,1,0]],
+  [[0,2,0,0],[0,2,0,0],[0,2,0,0],[0,2,0,0]],
+  [[0,3,3],[3,3,0]],
+  [[4,4,0],[0,4,4]],
+  [[0,0,5],[5,5,5]],
+  [[6,6],[6,6]],
+  [[7,0,0],[7,7,7]],
+];
+
+class TetrisGame {
+  constructor(cvs, pvw, pid, scoreEl, levelEl, linesEl, hiEl) {
+    this.cvs    = cvs;
+    this.ctx    = cvs.getContext('2d');
+    this.pvw    = pvw;
+    this.pctx   = pvw.getContext('2d');
+    this.pid    = pid;
+    this.scoreEl = scoreEl;
+    this.levelEl = levelEl;
+    this.linesEl = linesEl;
+    this.hiEl    = hiEl;
+
+    this.reset();
+    this.hi = parseInt(localStorage.getItem('ttr_hi_p' + pid) || '0');
+    this.hiEl.textContent = this.hi;
+  }
+
+  reset() {
+    this.board   = Array.from({length:ROWS}, () => new Array(COLS).fill(0));
+    this.score   = 0;
+    this.lines   = 0;
+    this.level   = 1;
+    this.over    = false;
+    this.paused  = false;
+    this.drop_t  = 0;
+    this.drop_iv = 800;
+    this.last_t  = 0;
+    this.cur     = this.spawnPiece();
+    this.nxt     = this.spawnPiece();
+    this.updateUI();
+    this.drawPreview();
+    this.rafId   = null;
+  }
+
+  spawnPiece() {
+    const idx = Math.floor(Math.random() * PIECES.length);
+    return {
+      mat: PIECES[idx].map(r => [...r]),
+      x: Math.floor(COLS/2) - 1,
+      y: 0,
+      c: idx + 1
+    };
+  }
+
+  collide(mat, ox, oy) {
+    for (let r = 0; r < mat.length; r++)
+      for (let c = 0; c < mat[r].length; c++)
+        if (mat[r][c] && (
+          oy+r < 0 || oy+r >= ROWS ||
+          ox+c < 0 || ox+c >= COLS ||
+          this.board[oy+r][ox+c]
+        )) return true;
+    return false;
+  }
+
+  move(dx, dy) {
+    if (this.over || this.paused) return false;
+    if (!this.collide(this.cur.mat, this.cur.x+dx, this.cur.y+dy)) {
+      this.cur.x += dx; this.cur.y += dy;
+      return true;
+    }
+    if (dy > 0) { this.lock(); return false; }
+    return false;
+  }
+
+  rotate() {
+    if (this.over || this.paused) return;
+    const m = this.cur.mat;
+    const rows = m.length, cols = m[0].length;
+    const rot = Array.from({length:cols}, (_,c) =>
+      Array.from({length:rows}, (_,r) => m[rows-1-r][c])
+    );
+    const ox = this.cur.x;
+    let offset = 0;
+    this.cur.mat = rot;
+    while (this.collide(rot, this.cur.x, this.cur.y)) {
+      this.cur.x += offset >= 0 ? 1 : -1;
+      offset = offset > 0 ? -offset : -offset + 1;
+      if (offset > cols + 2) { this.cur.mat = m; this.cur.x = ox; return; }
+    }
+  }
+
+  hardDrop() {
+    if (this.over || this.paused) return;
+    let pts = 0;
+    while (!this.collide(this.cur.mat, this.cur.x, this.cur.y+1)) {
+      this.cur.y++; pts += 2;
+    }
+    this.score += pts;
+    this.lock();
+    this.updateUI();
+  }
+
+  lock() {
+    this.cur.mat.forEach((row, r) =>
+      row.forEach((v, c) => {
+        if (v) this.board[this.cur.y+r][this.cur.x+c] = v;
+      })
+    );
+    this.clearLines();
+    this.cur = this.nxt;
+    this.nxt = this.spawnPiece();
+    this.drawPreview();
+    if (this.collide(this.cur.mat, this.cur.x, this.cur.y)) {
+      this.over = true;
+      onGameOver(this.pid);
+    }
+  }
+
+  clearLines() {
+    let cleared = 0;
+    for (let r = ROWS-1; r >= 0; r--) {
+      if (this.board[r].every(v => v !== 0)) {
+        this.board.splice(r, 1);
+        this.board.unshift(new Array(COLS).fill(0));
+        r++;
+        cleared++;
+      }
+    }
+    if (cleared) {
+      const pts = [0, 100, 300, 500, 800][cleared] * this.level;
+      this.score += pts;
+      this.lines += cleared;
+      this.level  = Math.floor(this.lines / 10) + 1;
+      this.drop_iv = Math.max(80, 800 - (this.level-1)*90);
+      if (this.score > this.hi) {
+        this.hi = this.score;
+        localStorage.setItem('ttr_hi_p'+this.pid, this.hi);
+        this.hiEl.textContent = this.hi;
+      }
+      this.updateUI();
+    }
+  }
+
+  updateUI() {
+    this.scoreEl.textContent = this.score;
+    this.levelEl.textContent = this.level;
+    this.linesEl.textContent = this.lines;
+  }
+
+  ghostY() {
+    let gy = this.cur.y;
+    while (!this.collide(this.cur.mat, this.cur.x, gy+1)) gy++;
+    return gy;
+  }
+
+  drawBlock(ctx, x, y, color, alpha=1, bs=BS) {
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = color;
+    ctx.fillRect(x*bs+1, y*bs+1, bs-2, bs-2);
+    // highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.fillRect(x*bs+1, y*bs+1, bs-2, 4);
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.fillRect(x*bs+1, y*bs+bs-5, bs-2, 4);
+    ctx.globalAlpha = 1;
+  }
+
+  draw() {
+    const ctx = this.ctx;
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, COLS*BS, ROWS*BS);
+
+    // grid
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth = 1;
+    for (let c = 0; c <= COLS; c++) {
+      ctx.beginPath(); ctx.moveTo(c*BS,0); ctx.lineTo(c*BS,ROWS*BS); ctx.stroke();
+    }
+    for (let r = 0; r <= ROWS; r++) {
+      ctx.beginPath(); ctx.moveTo(0,r*BS); ctx.lineTo(COLS*BS,r*BS); ctx.stroke();
+    }
+
+    // board
+    this.board.forEach((row, r) =>
+      row.forEach((v, c) => {
+        if (v) this.drawBlock(ctx, c, r, COLORS[v]);
+      })
+    );
+
+    // ghost
+    const gy = this.ghostY();
+    if (gy !== this.cur.y) {
+      this.cur.mat.forEach((row, r) =>
+        row.forEach((v, c) => {
+          if (v) {
+            ctx.globalAlpha = 0.2;
+            ctx.strokeStyle = COLORS[this.cur.c];
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect((this.cur.x+c)*BS+2, (gy+r)*BS+2, BS-4, BS-4);
+            ctx.globalAlpha = 1;
+          }
+        })
+      );
+    }
+
+    // current piece
+    this.cur.mat.forEach((row, r) =>
+      row.forEach((v, c) => {
+        if (v) this.drawBlock(ctx, this.cur.x+c, this.cur.y+r, COLORS[v]);
+      })
+    );
+  }
+
+  drawPreview() {
+    const ctx = this.pctx;
+    const pw = this.pvw.width, ph = this.pvw.height;
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0,0,pw,ph);
+    if (!this.nxt) return;
+    const bs = 14;
+    const mat = this.nxt.mat;
+    const ox = Math.floor((pw - mat[0].length*bs) / 2);
+    const oy = Math.floor((ph - mat.length*bs) / 2);
+    mat.forEach((row, r) =>
+      row.forEach((v, c) => {
+        if (v) {
+          ctx.fillStyle = COLORS[v];
+          ctx.fillRect(ox+c*bs+1, oy+r*bs+1, bs-2, bs-2);
+          ctx.fillStyle = 'rgba(255,255,255,0.2)';
+          ctx.fillRect(ox+c*bs+1, oy+r*bs+1, bs-2, 3);
+        }
+      })
+    );
+  }
+
+  tick(t=0) {
+    if (this.over || this.paused) return;
+    const dt = t - this.last_t;
+    this.last_t = t;
+    this.drop_t += dt;
+    if (this.drop_t > this.drop_iv) {
+      this.move(0,1);
+      this.drop_t = 0;
+    }
+    this.draw();
+    this.rafId = requestAnimationFrame(this.tick.bind(this));
+  }
+
+  start() {
+    this.last_t = performance.now();
+    this.rafId  = requestAnimationFrame(this.tick.bind(this));
+  }
+
+  stop() {
+    if (this.rafId) cancelAnimationFrame(this.rafId);
+  }
+
+  togglePause() {
+    this.paused = !this.paused;
+    if (!this.paused) {
+      this.last_t = performance.now();
+      this.tick(performance.now());
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  GAME CONTROLLER
+// ═══════════════════════════════════════════════
+let game1=null, game2=null, playerCount=1;
+
+function startGame(n) {
+  playerCount = n;
+  document.getElementById('menu').classList.add('hidden');
+  const ga = document.getElementById('game-area');
+  ga.classList.remove('hidden');
+
+  if (n === 2) {
+    document.getElementById('p2-wrap').classList.remove('hidden');
+    document.getElementById('vs-div').classList.remove('hidden');
+    document.getElementById('vs-div').style.display = 'flex';
+    document.getElementById('side-p2').style.display = 'flex';
+    document.getElementById('side-p2').style.flexDirection = 'column';
+
+    game2 = new TetrisGame(
+      document.getElementById('canvas2'),
+      document.getElementById('preview2'),
+      2,
+      document.getElementById('score2'),
+      document.getElementById('level2'),
+      document.getElementById('lines2'),
+      document.getElementById('hi2')
+    );
+    game2.hi = parseInt(localStorage.getItem('ttr_hi_p2')||'0');
+    document.getElementById('hi2').textContent = game2.hi;
+    game2.start();
+  }
+
+  game1 = new TetrisGame(
+    document.getElementById('canvas1'),
+    document.getElementById('preview1'),
+    1,
+    document.getElementById('score1'),
+    document.getElementById('level1'),
+    document.getElementById('lines1'),
+    document.getElementById('hi1')
+  );
+  game1.hi = parseInt(localStorage.getItem('ttr_hi_p1')||'0');
+  document.getElementById('hi1').textContent = game1.hi;
+  game1.start();
+}
+
+function togglePause() {
+  if (!game1) return;
+  const pausing = !game1.paused;
+  game1.togglePause();
+  if (game2) game2.togglePause();
+  if (pausing) {
+    showModal('pause-overlay');
+  } else {
+    hideModal('pause-overlay');
+  }
+}
+
+let _lastSavedPlayers = 1;
+function onGameOver(pid) {
+  if (game1) game1.stop();
+  if (game2) game2.stop();
+
+  let html = '';
+  if (playerCount === 1) {
+    html = `PONTUAÇÃO: ${game1.score}`;
+    if (game1.score >= game1.hi && game1.score > 0) html += '<br><br>★ NOVO RECORDE ★';
+    document.getElementById('go-winner').textContent = '';
+  } else {
+    const s1 = game1.score, s2 = game2 ? game2.score : 0;
+    html = `P1: ${s1} PONTOS<br>P2: ${s2} PONTOS`;
+    const winner = s1 > s2 ? '🏆 JOGADOR 1 VENCEU!' : s2 > s1 ? '🏆 JOGADOR 2 VENCEU!' : 'EMPATE!';
+    document.getElementById('go-winner').textContent = winner;
+  }
+
+  document.getElementById('go-scores').innerHTML = html;
+  _lastSavedPlayers = playerCount;
+  setTimeout(() => showModal('gameover-overlay'), 400);
+}
+
+function restartGame() {
+  hideModal('gameover-overlay');
+  // reset UI
+  document.getElementById('score1').textContent='0';
+  document.getElementById('score2').textContent='0';
+  document.getElementById('level1').textContent='1';
+  document.getElementById('level2').textContent='1';
+  document.getElementById('lines1').textContent='0';
+  document.getElementById('lines2').textContent='0';
+  startGame(_lastSavedPlayers);
+}
+
+function backToMenu() {
+  hideModal('pause-overlay');
+  hideModal('gameover-overlay');
+  if (game1) { game1.stop(); game1=null; }
+  if (game2) { game2.stop(); game2=null; }
+  document.getElementById('game-area').classList.add('hidden');
+  document.getElementById('p2-wrap').classList.add('hidden');
+  document.getElementById('vs-div').classList.add('hidden');
+  document.getElementById('side-p2').style.display = 'none';
+  document.getElementById('menu').classList.remove('hidden');
+}
+
+// ═══════════════════════════════════════════════
+//  COMMAND DISPATCHER
+// ═══════════════════════════════════════════════
+function doCommand(game, cmd) {
+  if (!game || game.over) return;
+  switch(cmd) {
+    case 'LEFT':   game.move(-1, 0); break;
+    case 'RIGHT':  game.move( 1, 0); break;
+    case 'DOWN':   game.move( 0, 1); break;
+    case 'UP':
+    case 'BTN_A':  game.rotate();   break;
+    case 'BTN_B':  game.hardDrop(); break;
+    case 'SELECT': togglePause();   break;
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  MODAL HELPERS
+// ═══════════════════════════════════════════════
+function showModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function hideModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+window.addEventListener('load', () => {
+  const h1 = localStorage.getItem('ttr_hi_p1');
+  const h2 = localStorage.getItem('ttr_hi_p2');
+  if (h1 || h2) {
+    const hint = document.querySelector('.menu-hint');
+    hint.innerHTML += `<br><br>◈ RECORDE P1: ${h1||0}<br>◈ RECORDE P2: ${h2||0}`;
+  }
+});
+
+window.addEventListener('beforeunload', async () => {
+  if (readerP1) try { await readerP1.cancel(); } catch(_){}
+  if (readerP2) try { await readerP2.cancel(); } catch(_){}
+  if (portP1)   try { await portP1.close();    } catch(_){}
+  if (portP2)   try { await portP2.close();    } catch(_){}
+});
+</script>
+</body>
+</html>
