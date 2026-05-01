@@ -463,6 +463,9 @@
     .stat-box.score .value { color: var(--yellow); text-shadow: 0 0 10px var(--yellow); }
     .stat-box.level .value { color: var(--cyan);   text-shadow: 0 0 10px var(--cyan); }
     .stat-box.lines .value { color: var(--green);  text-shadow: 0 0 10px var(--green); }
+    .stat-box.timer .value { color: var(--cyan);   text-shadow: 0 0 10px var(--cyan); }
+    .stat-box.timer.urgent .value { color: var(--red); text-shadow: 0 0 10px var(--red); animation: timerPulse 0.5s ease-in-out infinite alternate; }
+    @keyframes timerPulse { 0% { opacity:1; } 100% { opacity:0.4; } }
 
     .preview-box {
       padding: 10px;
@@ -674,6 +677,9 @@
 </audio>
 
 <!-- Elemento de áudio para efeito sonoro da peça -->
+<audio id="timer-sound" loop preload="auto">
+  <source src="./timer.mp3" type="audio/mpeg">
+</audio>
 <audio id="piece-sound" preload="auto">
   <source src="./piece.mp3" type="audio/mpeg">
   Seu navegador não suporta o elemento de áudio.
@@ -744,6 +750,10 @@
       <div class="stat-box panel">
         <div class="label" style="color:var(--muted);font-size:.42rem;letter-spacing:2px">RECORDE</div>
         <div class="value" id="hi1" style="font-size:.7rem;color:var(--purple);text-shadow:0 0 8px var(--purple)">0</div>
+      </div>
+      <div class="stat-box timer panel" id="timer-box">
+        <div class="label">TEMPO</div>
+        <div class="value" id="timer-display">2:00</div>
       </div>
 
       <div id="controls-card" class="controls-card">
@@ -1396,6 +1406,60 @@ class TetrisGame {
 //  GAME CONTROLLER
 // ═══════════════════════════════════════════════
 let game1=null, game2=null, playerCount=1;
+let gameTimer=null, timeLeft=120;
+
+function startTimer() {
+  timeLeft = 120;
+  updateTimerDisplay();
+  clearInterval(gameTimer);
+  gameTimer = setInterval(() => {
+    if (game1 && game1.paused) return;
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) {
+      clearInterval(gameTimer);
+      onTimeUp();
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timeLeft / 60);
+  const s = timeLeft % 60;
+  document.getElementById('timer-display').textContent = m + ':' + String(s).padStart(2,'0');
+  const box = document.getElementById('timer-box');
+  const timerSound = document.getElementById('timer-sound');
+  if (timeLeft <= 20) {
+    box.classList.add('urgent');
+    if (timerSound.paused) timerSound.play().catch(()=>{});
+  } else {
+    box.classList.remove('urgent');
+    timerSound.pause();
+    timerSound.currentTime = 0;
+  }
+}
+
+function onTimeUp() {
+  document.getElementById('timer-sound').pause();
+  document.getElementById('timer-sound').currentTime = 0;
+  if (game1) game1.stop();
+  if (game2) game2.stop();
+  const s1 = game1 ? game1.score : 0;
+  const s2 = game2 ? game2.score : 0;
+  let html = '';
+  if (playerCount === 1) {
+    html = `PONTUAÇÃO: ${s1}`;
+    if (game1 && s1 >= game1.hi && s1 > 0) html += '<br><br>★ NOVO RECORDE ★';
+    document.getElementById('go-winner').textContent = '⏱ TEMPO ESGOTADO!';
+  } else {
+    html = `P1: ${s1} PONTOS<br>P2: ${s2} PONTOS`;
+    const winner = s1 > s2 ? '🏆 JOGADOR 1 VENCEU!' : s2 > s1 ? '🏆 JOGADOR 2 VENCEU!' : 'EMPATE!';
+    document.getElementById('go-winner').textContent = '⏱ TEMPO! ' + winner;
+  }
+  document.getElementById('go-scores').innerHTML = html;
+  _lastSavedPlayers = playerCount;
+  setTimeout(() => showModal('gameover-overlay'), 400);
+}
 
 function startGame(n) {
   playerCount = n;
@@ -1437,6 +1501,12 @@ function startGame(n) {
   game1.hi = parseInt(localStorage.getItem('ttr_hi_p1')||'0');
   document.getElementById('hi1').textContent = game1.hi;
   game1.start();
+  if (n === 2) {
+    document.getElementById('timer-box').classList.remove('hidden');
+    startTimer();
+  } else {
+    document.getElementById('timer-box').classList.add('hidden');
+  }
 }
 
 function togglePause() {
@@ -1474,6 +1544,7 @@ function onGameOver(pid) {
 }
 
 function restartGame() {
+  clearInterval(gameTimer);
   hideModal('gameover-overlay');
   // reset UI
   document.getElementById('score1').textContent='0';
@@ -1486,6 +1557,9 @@ function restartGame() {
 }
 
 function backToMenu() {
+  clearInterval(gameTimer);
+  document.getElementById('timer-sound').pause();
+  document.getElementById('timer-sound').currentTime = 0;
   hideModal('pause-overlay');
   hideModal('gameover-overlay');
   document.getElementById('controls-card').classList.add('hidden');
