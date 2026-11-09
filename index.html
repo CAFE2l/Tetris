@@ -63,10 +63,24 @@ section{position:relative;z-index:2;width:100%;display:flex;flex-direction:colum
 .chips i,.nx i{display:block;font-style:normal;font-size:20px;color:var(--pc)}
 .bw{position:relative;display:flex;align-items:flex-start}
 .bw canvas.main{height:min(62vh,560px);width:auto;border:6px solid var(--ink);border-radius:20px;background:#2a1a5e;box-shadow:0 10px 0 var(--ink),0 0 0 6px var(--pc),0 0 40px var(--pc)}
-.sd{display:flex;flex-direction:column;gap:14px;margin-left:16px;width:98px}
+.sd{display:flex;flex-direction:column;gap:10px;margin-left:16px;width:108px}
 .nx{display:flex;flex-direction:column;gap:4px;align-items:center;background:#fff;color:var(--ink);border:5px solid var(--ink);border-radius:18px;padding:8px;box-shadow:0 6px 0 var(--ink);font-size:12px}
 .nx canvas{width:72px;height:72px}
 #arena.one .pw{display:none}
+.soloExtras{display:none;flex-direction:column;gap:9px}
+#arena.one .soloExtras{display:flex}
+.missionCard,.holdCard{width:100%;background:#fff;color:var(--ink);border:5px solid var(--ink);border-radius:16px;padding:7px 5px;text-align:center;box-shadow:0 5px 0 var(--ink);font-size:11px}
+.missionCard b,.holdCard b{display:block;font-size:11px}
+.missionCard span{display:block;margin-top:3px;line-height:1.15}
+.missionCard i{display:block;font-style:normal;font-size:15px;color:var(--pc);margin-top:3px}
+.holdCard{display:flex;flex-direction:column;align-items:center;gap:2px;font:inherit;cursor:pointer}
+.holdCard canvas{width:58px;height:58px}
+.holdCard small{font-size:9px;opacity:.75}
+.soloPower{width:100%;min-height:44px;display:flex;align-items:center;justify-content:center;gap:5px;border:4px solid var(--ink);border-radius:14px;background:#ffe66d;color:var(--ink);box-shadow:0 5px 0 var(--ink);font:inherit;font-weight:700;font-size:11px;cursor:pointer}
+.soloPower img{width:28px;height:28px;object-fit:contain}
+.soloPower:disabled{opacity:.45;filter:grayscale(1);cursor:default}
+.comboBadge{display:none;position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:2;background:#ffd93d;color:var(--ink);border:4px solid var(--ink);border-radius:99px;padding:4px 12px;font-size:16px;box-shadow:0 4px 0 var(--ink);white-space:nowrap}
+#arena.one .comboBadge.on{display:block;animation:pp .3s}
 .pw{background:#fff;color:var(--ink);border:5px solid var(--ink);border-radius:18px;padding:10px 8px;box-shadow:0 6px 0 var(--ink);font-size:11px;text-align:center;transition:.2s;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;min-height:190px;width:100%;max-width:120px;box-sizing:border-box;gap:2px}
 .pw.on{box-shadow:0 6px 0 var(--ink),0 0 0 5px var(--pc),0 0 26px var(--pc);animation:fl .6s infinite}
 .pw .ph{display:none}
@@ -181,14 +195,15 @@ function toggleMusic(){music=!music;if(music)playMusicForCurrentMode();else{stop
 function blk(c,gx,gy,i,bs,a=1){const[l,d]=COL[i],p=gx*bs,q=gy*bs,r=bs*.3,f=(x,y,w,h,rr,col)=>{c.fillStyle=col;c.beginPath();c.roundRect(x,y,w,h,rr);c.fill()};c.globalAlpha=a;f(p+1,q+1,bs-2,bs-2,r,INK);f(p+3,q+3,bs-6,bs-6,r-2,d);f(p+3,q+3,bs-6,bs-10,r-2,l);c.fillStyle='rgba(255,255,255,.7)';c.beginPath();c.ellipse(p+bs*.32,q+bs*.3,bs*.12,bs*.07,-.6,0,7);c.fill();c.globalAlpha=1}
 
 class Game{
-  constructor(p){this.p=p;this.c=$('cv'+p).getContext('2d');this.pc=$('pv'+p).getContext('2d');this.hi=this.hi0=+(ls('ttr_hi_p'+p)||0);this.opp=null;this.reset()}
+  constructor(p){this.p=p;this.c=$('cv'+p).getContext('2d');this.pc=$('pv'+p).getContext('2d');this.hiKey=count===1?'ttr_hi_p1':'ttr_hi_mp_p'+p;this.hi=this.hi0=+(ls(this.hiKey)||0);this.opp=null;this.reset()}
   reset(){this.b=Array.from({length:ROWS},()=>Array(COLS).fill(0));this.score=this.lines=this.combo=this.pend=this.placed=0;this.lv=1;this.over=this.paused=false;this.t=0;this.parts=[];this.anim=null;this.fx=null;this.boomT=null;this.idle=false;this.idleLeadIn=IDLE.videoLead;this.idleCountdown=IDLE.countdown;this.lastAct=performance.now();
     this.flash=this.sd=this.lastSoft=this.pwLock=0;this.pu=[false,false,false];this.ps=0;this.pm=false;this.idleTimer=null;this.idleExploded=false;this.idleVideoDone=false;this.idleVideoFallback=false;this.idleVideoTimer=null;
-    this.bag=[];this.nxt=this.take();this.lockT=performance.now()+700;this.next();this.ui();this.pui();this.hideIdleAlert()}
+    this.hold=null;this.holdUsed=false;this.missionTarget=4;this.missionProgress=0;this.missionsCompleted=0;this.powerCharges=0;
+    this.bag=[];this.nxt=this.take();this.lockT=performance.now()+700;this.next();this.ui();this.drawHold();this.updateSoloUI();this.pui();this.hideIdleAlert()}
   take(){if(!this.bag.length)this.bag=[0,1,2,3,4,5,6].sort(()=>Math.random()-.5);const m=SH[this.bag.pop()].map(r=>[...r]);return{m,x:COLS-m[0].length>>1,y:0}}
   hit(m,x,y){return m.some((r,j)=>r.some((v,i)=>v&&(x+i<0||x+i>=COLS||y+j>=ROWS||this.b[y+j][x+i])))}
   next(){while(this.pend>0){this.pend--;this.b.shift();const r=Array(COLS).fill(8);r[Math.random()*COLS|0]=0;this.b.push(r)}
-    this.cur=this.nxt;this.nxt=this.take();this.drawNext();if(this.hit(this.cur.m,this.cur.x,this.cur.y))this.over=true}
+    this.cur=this.nxt;this.nxt=this.take();this.holdUsed=false;this.drawNext();if(this.hit(this.cur.m,this.cur.x,this.cur.y))this.over=true}
   ok(){return this.cur&&!this.over&&!this.paused&&!this.fx}
   mv(dx,dy){if(!this.ok())return false;const c=this.cur;if(this.hit(c.m,c.x+dx,c.y+dy))return false;c.x+=dx;c.y+=dy;if(dx)sfx(330,.04,'square',.03);return true}
   rot(){if(!this.ok())return;const c=this.cur,m=c.m,R=m.length,C=m[0].length,n=Array.from({length:C},(_,i)=>Array.from({length:R},(_,j)=>m[R-1-j][i]));
@@ -205,14 +220,40 @@ class Game{
   settle(){this.placed++;const c=this.cur;c.m.forEach((r,j)=>r.forEach((v,i)=>v&&(this.b[c.y+j][c.x+i]=v)));sfx(140,.12,'sine',.12,.5);this.cur=null;
     const f=[];this.b.forEach((r,i)=>r.every(Boolean)&&f.push(i));
     if(f.length){this.anim={f,t:0};f.forEach(r=>{for(let k=0;k<16;k++)this.parts.push({x:Math.random()*COLS*BS,y:r*BS+BS/2,vx:(Math.random()-.5)*9,vy:-Math.random()*8-2,l:1,c:COL[1+Math.random()*7|0][0]})});sfx(660,.25,'triangle',.08,2)}
-    else{this.combo=0;this.next()}}
+    else{this.combo=0;this.updateSoloUI();this.next()}}
   done(){const f=this.anim.f,n=f.length;f.forEach(r=>{this.b.splice(r,1);this.b.unshift(Array(COLS).fill(0))});this.anim=null;this.combo++;this.lines+=n;
-    this.add([0,100,300,500,800][n]*this.lv+(this.combo-1)*50*this.lv);this.lv=1+this.lines/10|0;
+    this.add([0,100,300,500,800][n]*this.lv+(this.combo-1)*50*this.lv+(count===1?this.combo*100*this.lv:0));this.lv=1+this.lines/10|0;
     pop(this.p,['','NICE!','DOUBLE!','TRIPLE!','TETRIS!!'][n]+(this.combo>1?' x'+this.combo:''));
     const g=[0,0,1,2,4][n];if(g&&this.opp){this.opp.pend+=g;pop(this.opp.p,'⚠ +'+g+' LIXO','#ff7b7b')}
-    this.next()}
-  add(n){this.score+=n;if(this.score>this.hi){this.hi=this.score;ss('ttr_hi_p'+this.p,this.hi)}this.ui()}
+    if(count===1)this.advanceMission(n);
+    this.updateSoloUI();this.next()}
+  add(n){this.score+=n;if(this.score>this.hi){this.hi=this.score;ss(this.hiKey,this.hi)}this.ui()}
   ui(){$('sc'+this.p).textContent=this.score;$('li'+this.p).textContent=this.lines;$('lv'+this.p).textContent=this.lv;$('hi'+this.p).textContent=this.hi}
+  updateSoloUI(){const mission=$('missionText'+this.p),progress=$('missionProgress'+this.p),power=$('soloPower'+this.p),powerCount=$('soloPowerCount'+this.p),combo=$('combo'+this.p),hint=$('holdHint'+this.p);
+    if(mission)mission.textContent=`Limpe ${this.missionTarget} linhas`;
+    if(progress)progress.textContent=`${this.missionProgress}/${this.missionTarget}`;
+    if(powerCount)powerCount.textContent=`BOMBA ×${this.powerCharges}`;
+    if(power)power.disabled=!this.powerCharges||this.over;
+    if(combo){combo.textContent=this.combo>1?`COMBO ×${this.combo}`:'';combo.classList.toggle('on',this.combo>1)}
+    if(hint)hint.textContent=this.holdUsed?'Já guardou':'A para guardar';
+  }
+  advanceMission(lines){this.missionProgress+=lines;
+    while(this.missionProgress>=this.missionTarget){this.missionProgress-=this.missionTarget;this.missionsCompleted++;this.missionTarget=4+Math.min(4,Math.floor(this.missionsCompleted/2));this.powerCharges=Math.min(3,this.powerCharges+1);this.add(300*this.lv);pop(this.p,'🎯 MISSÃO! +300');}
+    this.updateSoloUI()}
+  drawHold(){const canvas=$('hv'+this.p);if(!canvas)return;const ctx=canvas.getContext('2d');ctx.clearRect(0,0,88,88);if(!this.hold)return;
+    const m=this.hold,bs=20;ctx.save();ctx.translate((88-m[0].length*bs)/2,(88-m.length*bs)/2);m.forEach((r,y)=>r.forEach((v,x)=>v&&blk(ctx,x,y,v,bs)));ctx.restore()}
+  holdPiece(){if(count!==1||!this.ok()||this.holdUsed)return;
+    const current=this.cur.m.map(r=>[...r]);
+    if(this.hold){const replacement=this.hold;this.hold=current;this.cur={m:replacement.map(r=>[...r]),x:COLS-replacement[0].length>>1,y:0};if(this.hit(this.cur.m,this.cur.x,this.cur.y))this.over=true}
+    else{this.hold=current;this.next()}
+    this.holdUsed=true;this.drawHold();this.updateSoloUI();sfx(620,.12,'triangle',.07,1.5)}
+  activateSoloPower(){if(count!==1||mode!=='game'||this.over||this.paused||!this.powerCharges||this.fx||this.anim)return;
+    const rows=[];for(let y=ROWS-1;y>=0&&rows.length<3;y--)if(this.b[y].some(Boolean))rows.push(y);
+    if(!rows.length){pop(this.p,'SEM BLOCOS!','#ff7b7b');return}
+    this.powerCharges--;const removed=new Set(rows);this.b=this.b.filter((_,y)=>!removed.has(y));while(this.b.length<ROWS)this.b.unshift(Array(COLS).fill(0));
+    this.lines+=rows.length;this.lv=1+this.lines/10|0;this.add(rows.length*150*this.lv);this.advanceMission(rows.length);this.flash=1;this.parts=[];const W=COLS*BS;
+    for(let k=0;k<60;k++)this.parts.push({x:Math.random()*W,y:(ROWS-1)*BS,vx:(Math.random()-.5)*12,vy:-Math.random()*10-2,l:1.2,c:COL[1+Math.random()*7|0][0]});
+    this.updateSoloUI();this.ui();shake(this.p);pop(this.p,'💣 BOOM!');sfx(90,.45,'sawtooth',.12,.4)}
 
   /* ───── PODERES (só no modo 2 jogadores) ───── */
   showIdleAlert(){const bw=$('bw'+this.p);if(!bw)return;const box=document.createElement('div');box.className='idle-alert';box.innerHTML=`<div class="idle-number" hidden>${Math.max(1,Math.ceil(this.idleCountdown/1000))}</div><div class="idle-text">⚠ MEXA-SE!</div>`;bw.appendChild(box);this.playIdleExplosionVideo()}
@@ -317,10 +358,15 @@ const pwHTML=i=>POWERS.map(w=>`<div class="sl ${w.id}" title="${w.n}" aria-label
 const tpl=i=>`<div class="pl${i>1?' hide':''}" id="pl${i}" style="--ry:${i==1?7:-7}deg;--pc:${i==1?'#4da6ff':'#ff5fa2'};animation-delay:-${i*2}s">
 <div class="tag">P${i}</div><div class="tilt">
 <div class="chips"><b>PONTOS<i id="sc${i}">0</i></b><b>LINHAS<i id="li${i}">0</i></b><b>NÍVEL<i id="lv${i}">1</i></b></div>
-<div class="bw" id="bw${i}"><canvas class="main" id="cv${i}" width="280" height="560"></canvas>
+<div class="bw" id="bw${i}"><canvas class="main" id="cv${i}" width="280" height="560"></canvas><div class="comboBadge" id="combo${i}"></div>
 <div class="sd"><div class="nx">PRÓXIMA<canvas id="pv${i}" width="88" height="88"></canvas>RECORDE<i id="hi${i}">0</i></div>
+<div class="soloExtras"><div class="missionCard"><b>MISSÃO</b><span id="missionText${i}">Limpe linhas</span><i id="missionProgress${i}">0/4</i></div>
+<button class="holdCard" id="hold${i}" type="button" aria-label="Guardar ou trocar peça"><b>GUARDADA</b><canvas id="hv${i}" width="88" height="88"></canvas><small id="holdHint${i}">A para guardar</small></button>
+<button class="soloPower" id="soloPower${i}" type="button" title="Use a bomba para limpar até 3 linhas inferiores" aria-label="Usar bomba" disabled><img src="./bomba.png" alt=""> <span id="soloPowerCount${i}">BOMBA ×0</span></button></div>
 <div class="pw" id="pw${i}">${pwHTML(i)}</div></div></div></div></div>`;
 $('arena').innerHTML=tpl(1)+'<div id="vs" class="hide">VS</div>'+tpl(2);
+$('soloPower1').onclick=()=>games[0]?.activateSoloPower();
+$('hold1').onclick=()=>games[0]?.holdPiece();
 
 /* ───── estado e navegação (estilo controle de console) ───── */
 let games=[],count=1,mode='menu',tl=120,ended=false,last=0;const lastDown=[0,0,0];
@@ -359,6 +405,8 @@ function input(p,cmd,rep){
     const g=games[count===1?0:p-1];
     if(cmd==='SELECT')return pause();
     if(!g||g.over)return;
+    if(count===1&&cmd==='POWER'){g.lastAct=performance.now();g.activateSoloPower();return}
+    if(count===1&&cmd==='BTN_A'){g.lastAct=performance.now();g.holdPiece();return}
     if(count===2){
       if(g.pm){g.pin(cmd,rep);g.lastAct=performance.now();return}
       if(cmd==='BTN_A'){g.setPM(true);g.lastAct=performance.now();return}
@@ -366,7 +414,7 @@ function input(p,cmd,rep){
     if(cmd==='DOWN'&&rep&&performance.now()<g.lockT)return;
     if(cmd==='DOWN'&&performance.now()<g.pwLock)return;
     g.lastAct=performance.now();
-    ({LEFT:()=>g.mv(-1,0),RIGHT:()=>g.mv(1,0),DOWN:()=>g.soft(rep),UP:()=>g.rot(),BTN_A:()=>g.rot(),BTN_B:()=>g.hard()})[cmd]?.();return}
+    ({LEFT:()=>g.mv(-1,0),RIGHT:()=>g.mv(1,0),DOWN:()=>g.soft(rep),UP:()=>g.rot(),BTN_B:()=>g.hard()})[cmd]?.();return}
   if(mode==='menu'||mode==='dlg')nav(cmd,rep)}
 
 /* ───── fluxo ───── */
@@ -383,7 +431,9 @@ function showCtrl(){const close=()=>{closeDlg();mode='menu';mark()};
   <span><b class="k">▲</b></span><i style="font-style:normal">Girar a peça · voltar</i>
   <span><b class="k">▼</b></span><i style="font-style:normal">Descer (segure = mais rápido) · CLICAR</i>
   <span><b class="k">B</b></span><i style="font-style:normal">Queda instantânea ⚡</i>
-  <span><b class="k">A</b></span><i style="font-style:normal">Girar (1P) · abrir poderes (2P)</i>
+  <span><b class="k">A</b></span><i style="font-style:normal">Guardar peça (1P) · abrir poderes (2P)</i>
+  <span><b class="k">STR</b></span><i style="font-style:normal">Usar bomba carregada (1P)</i>
+  <span><b class="k">C / X</b></span><i style="font-style:normal">Teclado: guardar peça / usar bomba</i>
   <span><b class="k">◀▶ ▼</b></span><i style="font-style:normal">Nos poderes: ◀▶ escolhe, ▼ usa, ▲/A fecha</i>
   <span><b class="k">SEL</b></span><i style="font-style:normal">Pausar ⏸</i></div>`,[{t:'ENTENDI!',c:'green',f:close}],close)}
 function end(o){ended=true;mode='wait';tsnd.pause();tsnd.currentTime=0;games.forEach(g=>g.hideIdleAlert());activeAlerts=0;stopAlertSound(true);stopTntSound();document.querySelectorAll('.idle-alert').forEach(e=>e.remove());const s=games.map(g=>g.score);let h;
@@ -416,6 +466,10 @@ $('cn').onclick=async()=>{startAudio();
   try{openPort(await navigator.serial.requestPort())}catch(e){if(e.name!=='NotFoundError')alert('Erro ao conectar: '+e.message)}};
 navigator.serial?.getPorts().then(ps=>ps.forEach(openPort)).catch(()=>{});
 
+addEventListener('keydown',e=>{if(mode!=='game'||count!==1)return;
+  const keys={ArrowLeft:'LEFT',ArrowRight:'RIGHT',ArrowDown:'DOWN',ArrowUp:'UP',' ':'BTN_B',c:'BTN_A',x:'POWER',p:'SELECT'};
+  const cmd=keys[e.key]||keys[e.key.toLowerCase()];if(!cmd)return;
+  e.preventDefault();input(1,cmd,e.repeat)});
 addEventListener('pointerdown',startAudio);
 addEventListener('beforeunload',()=>navigator.serial?.getPorts().then(ps=>ps.forEach(p=>p.close().catch(()=>{}))));
 

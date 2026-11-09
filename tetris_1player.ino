@@ -10,8 +10,8 @@
   //   BTN_UP  (pino 2)  → GIRAR peça / SCROLL MENU
   //   BTN_B   (pino 9)  → Hard Drop (queda instantânea)
   //   BTN_SEL (pino 6)  → Pausar / Continuar / SELECIONAR MENU
-  //   BTN_A   (pino 8)  → GIRAR peça / SELECIONAR MENU
-  //   BTN_STR (pino 8)  → (reservado)
+  //   BTN_A   (pino 8)  → Guardar peça (1P) / SELECIONAR MENU
+  //   BTN_STR (pino 7)  → Usar bomba carregada (modo 1 jogador)
   //
   // ◈ NOVO: NAVEGAÇÃO DE MENU COM JOYSTICK
   //   • Use UP/DOWN para scrollar entre as opções do menu
@@ -59,6 +59,7 @@
   bool bLast    = HIGH;
   bool aLast    = HIGH;
   bool selLast  = HIGH;
+  bool strLast  = HIGH;
 
   // ─────────────────────────────────────────────
   void setup() {
@@ -109,13 +110,21 @@
     }
     bLast = bNow;
     
-    // ── BTN_A → (reservado para futuras funções) ──
+    // ── BTN_A → GUARDAR PEÇA (fire-once) ──
     bool aNow = digitalRead(BTN_A);
     if (aNow == LOW && aLast == HIGH) {
       sendCommand("BTN_A");
       delay(DEBOUNCE_MS);
     }
     aLast = aNow;
+
+    // ── BTN_STR → USAR BOMBA (fire-once) ──
+    bool strNow = digitalRead(BTN_STR);
+    if (strNow == LOW && strLast == HIGH) {
+      sendCommand("POWER");
+      delay(DEBOUNCE_MS);
+    }
+    strLast = strNow;
     
     // ── BTN_SEL → PAUSAR (fire-once) ──
     bool selNow = digitalRead(BTN_SEL);
