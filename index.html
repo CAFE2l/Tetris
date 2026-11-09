@@ -112,6 +112,7 @@ section{position:relative;z-index:2;width:100%;display:flex;flex-direction:colum
 <audio id="multiplayer-music" loop preload="auto"><source src="./multiplayer.mp3" type="audio/mpeg"></audio>
 <audio id="alert-sound" loop preload="auto"><source src="./alert.mp3" type="audio/mpeg"></audio>
 <audio id="explosion-sound" preload="auto"><source src="./explosion.mp3" type="audio/mpeg"></audio>
+<audio id="tnt-sound" preload="auto"><source src="./tnt.mp3" type="audio/mpeg"></audio>
 <audio id="timer-sound" loop preload="auto"><source src="./timer.mp3" type="audio/mpeg"></audio>
 
 <section id="menu">
@@ -141,7 +142,7 @@ const COL=[0,['#6ee7ff','#1aa7d6'],['#ffe66d','#e0a800'],['#c792ff','#8a4fe0'],[
 
 /* ───── configuração de velocidade e poderes ───── */
 const SPEED={start:800,decay:.965,min:70,soft:45,softHold:130};
-const IDLE={warnAfter:12000,countdown:5000};
+const IDLE={warnAfter:12000,countdown:5000,videoLead:1000};
 // ícones: coloque seus PNGs em ./icons/ (se não existir, aparece o emoji)
 const POWERS=[
  {id:'bomb', n:'BOMBA', e:'💣', img:'./bomba.png'},
@@ -153,10 +154,10 @@ for(let i=0;i<18;i++){const e=document.createElement('div'),s=28+Math.random()*5
 $('logo').innerHTML=[...'TETRIS'].map((l,i)=>`<span style="--i:${i};--r:${i%2?-4:4}deg;--c:${['#ff5fa2','#ffb400','#ffe66d','#5be37d','#4da6ff','#c792ff'][i]}">${l}</span>`).join('');
 
 /* ───── áudio ───── */
-let AC,music=true,started=false;const lobbyMusic=$('lobby-music'),singlePlayerMusic=$('single-player-music'),multiplayerMusic=$('multiplayer-music'),alertSound=$('alert-sound'),explosionSound=$('explosion-sound'),tsnd=$('timer-sound');
+let AC,music=true,started=false;const lobbyMusic=$('lobby-music'),singlePlayerMusic=$('single-player-music'),multiplayerMusic=$('multiplayer-music'),alertSound=$('alert-sound'),explosionSound=$('explosion-sound'),tntSound=$('tnt-sound'),tsnd=$('timer-sound');
 const musicTracks=[lobbyMusic,singlePlayerMusic,multiplayerMusic];
 let activeAlerts=0,alertFallbackTimer=null;
-musicTracks.forEach(track=>track.volume=.4);alertSound.volume=.6;explosionSound.volume=.9;
+musicTracks.forEach(track=>track.volume=.4);alertSound.volume=.6;explosionSound.volume=.9;tntSound.volume=.9;
 function stopAllMusic(){musicTracks.forEach(track=>{track.pause();track.currentTime=0})}
 function primeAudio(audio,vol){if(!audio)return;audio.volume=0;audio.currentTime=0;audio.pause();audio.play().catch(()=>{});setTimeout(()=>{audio.pause();audio.currentTime=0;audio.volume=vol},50)}
 function playMusicForCurrentMode(){
@@ -166,12 +167,14 @@ function playMusicForCurrentMode(){
   desired.play().catch(()=>{})
 }
 function stopAlertSound(force=false){if(activeAlerts>0&&!force)return;alertSound.pause();alertSound.currentTime=0;if(alertFallbackTimer){clearInterval(alertFallbackTimer);alertFallbackTimer=null}}
+function playTntSound(){if(!tntSound.paused&&!tntSound.ended)return;tntSound.currentTime=0;tntSound.play().catch(()=>sfx(120,.5,'sawtooth',.12,.25))}
+function stopTntSound(reset=true){tntSound.pause();if(reset)tntSound.currentTime=0}
 function playAlertSound(){if(!music)return;activeAlerts=Math.max(0,activeAlerts);if(activeAlerts===0)return;alertSound.addEventListener('error',()=>{if(alertFallbackTimer)return;alertFallbackTimer=setInterval(()=>{if(activeAlerts>0)sfx(880,.12,'triangle',.08)},900)}, {once:true});
   if(alertSound.error){if(!alertFallbackTimer)alertFallbackTimer=setInterval(()=>{if(activeAlerts>0)sfx(880,.12,'triangle',.08)},900);return}
   alertSound.currentTime=0;alertSound.play().catch(()=>{if(!alertFallbackTimer)alertFallbackTimer=setInterval(()=>{if(activeAlerts>0)sfx(880,.12,'triangle',.08)},900)})}
 function playExplosionSound(){if(explosionSound.error){sfx(70,.7,'sawtooth',.14,.2);return}explosionSound.currentTime=0;explosionSound.play().catch(()=>sfx(70,.7,'sawtooth',.14,.2))}
 function sfx(f,d=.08,type='square',v=.05,sl=0){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();AC.resume();const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime;o.type=type;o.frequency.setValueAtTime(f,t);if(sl)o.frequency.exponentialRampToValueAtTime(f*sl,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(AC.destination);o.start();o.stop(t+d)}catch{} }
-function startAudio(){if(started)return;started=true;primeAudio(alertSound,.6);primeAudio(explosionSound,.9);playMusicForCurrentMode()}
+function startAudio(){if(started)return;started=true;primeAudio(alertSound,.6);primeAudio(explosionSound,.9);primeAudio(tntSound,.9);playMusicForCurrentMode()}
 function toggleMusic(){music=!music;if(music)playMusicForCurrentMode();else{stopAllMusic();stopAlertSound();}mark()}
 
 /* ───── peças ───── */
@@ -179,7 +182,7 @@ function blk(c,gx,gy,i,bs,a=1){const[l,d]=COL[i],p=gx*bs,q=gy*bs,r=bs*.3,f=(x,y,
 
 class Game{
   constructor(p){this.p=p;this.c=$('cv'+p).getContext('2d');this.pc=$('pv'+p).getContext('2d');this.hi=this.hi0=+(ls('ttr_hi_p'+p)||0);this.opp=null;this.reset()}
-  reset(){this.b=Array.from({length:ROWS},()=>Array(COLS).fill(0));this.score=this.lines=this.combo=this.pend=this.placed=0;this.lv=1;this.over=this.paused=false;this.t=0;this.parts=[];this.anim=null;this.fx=null;this.boomT=null;this.idle=false;this.idleCountdown=IDLE.countdown;this.lastAct=performance.now();
+  reset(){this.b=Array.from({length:ROWS},()=>Array(COLS).fill(0));this.score=this.lines=this.combo=this.pend=this.placed=0;this.lv=1;this.over=this.paused=false;this.t=0;this.parts=[];this.anim=null;this.fx=null;this.boomT=null;this.idle=false;this.idleLeadIn=IDLE.videoLead;this.idleCountdown=IDLE.countdown;this.lastAct=performance.now();
     this.flash=this.sd=this.lastSoft=this.pwLock=0;this.pu=[false,false,false];this.ps=0;this.pm=false;this.idleTimer=null;this.idleExploded=false;this.idleVideoDone=false;this.idleVideoFallback=false;this.idleVideoTimer=null;
     this.bag=[];this.nxt=this.take();this.lockT=performance.now()+700;this.next();this.ui();this.pui();this.hideIdleAlert()}
   take(){if(!this.bag.length)this.bag=[0,1,2,3,4,5,6].sort(()=>Math.random()-.5);const m=SH[this.bag.pop()].map(r=>[...r]);return{m,x:COLS-m[0].length>>1,y:0}}
@@ -212,19 +215,20 @@ class Game{
   ui(){$('sc'+this.p).textContent=this.score;$('li'+this.p).textContent=this.lines;$('lv'+this.p).textContent=this.lv;$('hi'+this.p).textContent=this.hi}
 
   /* ───── PODERES (só no modo 2 jogadores) ───── */
-  showIdleAlert(){const bw=$('bw'+this.p);if(!bw)return;const box=document.createElement('div');box.className='idle-alert';box.innerHTML=`<div class="idle-number">${Math.max(1,Math.ceil(this.idleCountdown/1000))}</div><div class="idle-text">⚠ MEXA-SE!</div>`;bw.appendChild(box);this.playIdleExplosionVideo()}
+  showIdleAlert(){const bw=$('bw'+this.p);if(!bw)return;const box=document.createElement('div');box.className='idle-alert';box.innerHTML=`<div class="idle-number" hidden>${Math.max(1,Math.ceil(this.idleCountdown/1000))}</div><div class="idle-text">⚠ MEXA-SE!</div>`;bw.appendChild(box);this.playIdleExplosionVideo()}
   hideIdleAlert(){const bw=$('bw'+this.p);if(!bw) return;bw.querySelectorAll('.idle-alert').forEach(el=>{el.querySelector('video')?.pause();el.remove()});if(this.idleVideoTimer){clearTimeout(this.idleVideoTimer);this.idleVideoTimer=null}}
   pauseIdleVideo(){const video=$('bw'+this.p)?.querySelector('.idle-alert video');if(video)video.pause()}
   resumeIdleVideo(){const video=$('bw'+this.p)?.querySelector('.idle-alert video');if(video)video.play().catch(()=>{this.idleVideoFallback=true;if(this.idleExploded)this.startIdleExplosionFallback()})}
   playIdleExplosionVideo(){const box=$('bw'+this.p)?.querySelector('.idle-alert');if(!box){this.idleVideoDone=true;this.idleVideoFallback=true;return}
-    const video=document.createElement('video');video.className='idle-video';video.src='./explosion.mp4';video.muted=true;video.playsInline=true;video.preload='auto';box.prepend(video);
+    const video=document.createElement('video');video.className='idle-video';video.src='./tnt.mp4';video.muted=true;video.playsInline=true;video.preload='auto';box.prepend(video);
     const finish=()=>{if(this.idleVideoDone)return;this.idleVideoDone=true;if(this.idleVideoTimer){clearTimeout(this.idleVideoTimer);this.idleVideoTimer=null}},
-      fallback=()=>{this.idleVideoFallback=true;if(this.idleExploded)this.startIdleExplosionFallback()};
-    video.addEventListener('ended',finish,{once:true});video.addEventListener('error',fallback,{once:true});
+      fallback=()=>{if(!video.dataset.fallback){video.dataset.fallback='true';video.src='./explosion.mp4';video.load();video.play().catch(()=>{this.idleVideoFallback=true;if(this.idleExploded)this.startIdleExplosionFallback()});return}
+        this.idleVideoFallback=true;if(this.idleExploded)this.startIdleExplosionFallback()};
+    video.addEventListener('ended',finish,{once:true});video.addEventListener('error',fallback);
     this.idleVideoTimer=setTimeout(()=>{if(!this.idleVideoDone)fallback()},10000);
     video.play().catch(fallback)}
   startIdleExplosionFallback(){if(this.idleVideoDone)return;if(this.idleVideoTimer)clearTimeout(this.idleVideoTimer);this.boomT=0;this.idleVideoTimer=setTimeout(()=>{this.idleVideoDone=true;this.idleVideoTimer=null},1800)}
-  cancelIdle(){this.idle=false;this.idleCountdown=IDLE.countdown;this.hideIdleAlert();if(activeAlerts>0){activeAlerts--;if(activeAlerts<=0)stopAlertSound();}}
+  cancelIdle(){this.idle=false;this.idleLeadIn=IDLE.videoLead;this.idleCountdown=IDLE.countdown;this.hideIdleAlert();if(activeAlerts>0){activeAlerts--;if(activeAlerts<=0){stopAlertSound();stopTntSound()}}}
   triggerIdleExplosion(){if(this.idleExploded)return;this.idleExploded=true;this.over=true;this.idle=true;this.pm=false;this.pwLock=performance.now()+500;if(activeAlerts>0){activeAlerts--;if(activeAlerts<=0)stopAlertSound();}
     const alert=$('bw'+this.p)?.querySelector('.idle-alert');alert?.classList.add('exploding');alert?.querySelector('.idle-number')?.remove();alert?.querySelector('.idle-text')?.remove();if(this.idleVideoFallback)this.startIdleExplosionFallback();
     this.boomT=0;this.flash=1;this.parts=[];for(let k=0;k<140;k++){const ang=Math.random()*Math.PI*2;const sp=2+Math.random()*10;this.parts.push({x:(COLS*BS)/2,y:(ROWS*BS)/2,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp,l:1.8,c:COL[1+Math.random()*7|0][0]})}
@@ -274,10 +278,12 @@ class Game{
     if(this.sd>0)this.sd-=dt;
     if(count===2 && !this.paused && !this.over && !this.anim && !this.fx && !ended){
       const idleMs=performance.now()-this.lastAct;
-      if(idleMs>=IDLE.warnAfter){
-        if(!this.idle){this.idle=true;this.idleCountdown=IDLE.countdown;this.showIdleAlert();activeAlerts++;playAlertSound();}
-        this.idleCountdown=Math.max(0,this.idleCountdown-dt);
-        const box=$('bw'+this.p)?.querySelector('.idle-alert');if(box){const val=Math.max(1,Math.ceil(this.idleCountdown/1000));box.querySelector('.idle-number').textContent=val;}
+      if(idleMs>=Math.max(0,IDLE.warnAfter-IDLE.videoLead)){
+        if(!this.idle){this.idle=true;this.idleLeadIn=IDLE.videoLead;this.idleCountdown=IDLE.countdown;this.showIdleAlert();activeAlerts++;playAlertSound();playTntSound();}
+        let countdownDt=dt;
+        if(this.idleLeadIn>0){countdownDt=Math.max(0,dt-this.idleLeadIn);this.idleLeadIn=Math.max(0,this.idleLeadIn-dt)}
+        const box=$('bw'+this.p)?.querySelector('.idle-alert'),number=box?.querySelector('.idle-number');
+        if(this.idleLeadIn===0&&number){number.hidden=false;this.idleCountdown=Math.max(0,this.idleCountdown-countdownDt);number.textContent=Math.max(1,Math.ceil(this.idleCountdown/1000))}
         if(this.idleCountdown<=0){this.triggerIdleExplosion();}
       }else if(this.idle){this.cancelIdle();}
     }
@@ -321,8 +327,8 @@ let games=[],count=1,mode='menu',tl=120,ended=false,last=0;const lastDown=[0,0,0
 const CARDS=[
  {t:'1 JOGADOR',s:'Treine sozinho e bata seu recorde',i:'<img src="./single_player.png" alt="1 jogador" onerror="this.replaceWith(\'🧱\')" style="width:72px;height:72px;object-fit:contain;display:block;">',c:'#4da6ff',f:()=>start(1)},
  {t:'2 JOGADORES',s:'Duelo! Combos mandam lixo e poderes mudam o jogo',i:'<img src="./multiplayer.png" alt="2 jogadores" onerror="this.replaceWith(\'⚔️\')" style="width:72px;height:72px;object-fit:contain;display:block;">',c:'#ff5fa2',f:()=>start(2)},
- {t:'CONTROLES',s:'Veja como usar o controle',i:'🎮',c:'#ffb400',f:showCtrl},
- {t:'MÚSICA',s:'',i:'🎵',c:'#2fcf6a',f:toggleMusic}];
+ {t:'CONTROLES',s:'Veja como usar o controle',i:'<img src="./control.png" alt="Controles" onerror="this.replaceWith(\'🎮\')" style="width:72px;height:72px;object-fit:contain;display:block;">',c:'#ffb400',f:showCtrl},
+ {t:'MÚSICA',s:'',i:'<img src="./music_icon.png" alt="Música" onerror="this.replaceWith(\'🎵\')" style="width:72px;height:72px;object-fit:contain;display:block;">',c:'#2fcf6a',f:toggleMusic}];
 const menu={idx:0,items:CARDS,back:null},dg={idx:0,items:[],back:null},S=()=>mode==='menu'?menu:dg;
 CARDS.forEach((c,i)=>{const e=document.createElement('div');e.className='card';e.style.setProperty('--cc',c.c);
   e.innerHTML=`<div class="ic">${c.i}</div><h2>${c.t}</h2><p ${i==3?'id="mus"':''}>${c.s}</p>`;
@@ -364,14 +370,14 @@ function input(p,cmd,rep){
   if(mode==='menu'||mode==='dlg')nav(cmd,rep)}
 
 /* ───── fluxo ───── */
-function start(n){count=n;ended=false;tl=120;closeDlg();tsnd.pause();games.forEach(g=>g.hideIdleAlert());activeAlerts=0;stopAlertSound(true);document.querySelectorAll('.idle-alert').forEach(e=>e.remove());
+function start(n){count=n;ended=false;tl=120;closeDlg();tsnd.pause();games.forEach(g=>g.hideIdleAlert());activeAlerts=0;stopAlertSound(true);stopTntSound();document.querySelectorAll('.idle-alert').forEach(e=>e.remove());
   $('menu').classList.add('hide');$('game').classList.remove('hide');
   $('pl2').classList.toggle('hide',n<2);$('vs').classList.toggle('hide',n<2);$('timer').classList.toggle('hide',n<2);$('arena').classList.toggle('one',n<2);
   games=[1,2].slice(0,n).map(p=>new Game(p));if(n===2){games[0].opp=games[1];games[1].opp=games[0]}
   $('timer').classList.remove('u','timer-pop','green');$('timer').textContent='2:00';mode='game';playMusicForCurrentMode();sfx(440,.3,'triangle',.08,2)}
-function toMenu(){closeDlg();tsnd.pause();tsnd.currentTime=0;games.forEach(g=>g.hideIdleAlert());activeAlerts=0;stopAlertSound(true);document.querySelectorAll('.idle-alert').forEach(e=>e.remove());games=[];$('game').classList.add('hide');$('menu').classList.remove('hide');mode='menu';menu.idx=0;playMusicForCurrentMode();mark()}
-function resume(){closeDlg();games.forEach(g=>{g.paused=false;g.lastAct=performance.now();g.resumeIdleVideo()});mode='game';playMusicForCurrentMode()}
-function pause(){games.forEach(g=>{g.paused=true;g.pauseIdleVideo()});tsnd.pause();dlg('PAUSADO','Respira e volta com tudo! 🧘',[{t:'CONTINUAR',c:'green',f:resume},{t:'SAIR',c:'red',f:toMenu}],resume)}
+function toMenu(){closeDlg();tsnd.pause();tsnd.currentTime=0;games.forEach(g=>g.hideIdleAlert());activeAlerts=0;stopAlertSound(true);stopTntSound();document.querySelectorAll('.idle-alert').forEach(e=>e.remove());games=[];$('game').classList.add('hide');$('menu').classList.remove('hide');mode='menu';menu.idx=0;playMusicForCurrentMode();mark()}
+function resume(){closeDlg();games.forEach(g=>{g.paused=false;g.lastAct=performance.now();g.resumeIdleVideo()});if((activeAlerts>0||games.some(g=>g.idleExploded&&!g.idleVideoDone))&&!tntSound.ended)tntSound.play().catch(()=>{});mode='game';playMusicForCurrentMode()}
+function pause(){games.forEach(g=>{g.paused=true;g.pauseIdleVideo()});tsnd.pause();tntSound.pause();dlg('PAUSADO','Respira e volta com tudo! 🧘',[{t:'CONTINUAR',c:'green',f:resume},{t:'SAIR',c:'red',f:toMenu}],resume)}
 function showCtrl(){const close=()=>{closeDlg();mode='menu';mark()};
   dlg('CONTROLES',`<div class="cg"><span><b class="k">◀</b><b class="k">▶</b></span><i style="font-style:normal">Mover a peça · escolher no menu</i>
   <span><b class="k">▲</b></span><i style="font-style:normal">Girar a peça · voltar</i>
@@ -380,7 +386,7 @@ function showCtrl(){const close=()=>{closeDlg();mode='menu';mark()};
   <span><b class="k">A</b></span><i style="font-style:normal">Girar (1P) · abrir poderes (2P)</i>
   <span><b class="k">◀▶ ▼</b></span><i style="font-style:normal">Nos poderes: ◀▶ escolhe, ▼ usa, ▲/A fecha</i>
   <span><b class="k">SEL</b></span><i style="font-style:normal">Pausar ⏸</i></div>`,[{t:'ENTENDI!',c:'green',f:close}],close)}
-function end(o){ended=true;mode='wait';tsnd.pause();tsnd.currentTime=0;games.forEach(g=>g.hideIdleAlert());activeAlerts=0;stopAlertSound(true);document.querySelectorAll('.idle-alert').forEach(e=>e.remove());const s=games.map(g=>g.score);let h;
+function end(o){ended=true;mode='wait';tsnd.pause();tsnd.currentTime=0;games.forEach(g=>g.hideIdleAlert());activeAlerts=0;stopAlertSound(true);stopTntSound();document.querySelectorAll('.idle-alert').forEach(e=>e.remove());const s=games.map(g=>g.score);let h;
   if(count===1)h=`<h3>${s[0]} pontos</h3>`+(s[0]>games[0].hi0?'<p>🏆 NOVO RECORDE!</p>':'');
   else{const idleOver=games.filter(g=>g.over&&g.idle);const winner = idleOver.length>1 ? 0 : o&&o.idle ? (o===games[0]?1:2) : o?(o===games[0]?2:1):s[0]>s[1]?1:s[1]>s[0]?2:0; const text = idleOver.length>1 ? '🤝 EMPATE!' : o&&o.idle ? `🏆 JOGADOR ${winner} VENCEU POR INATIVIDADE!` : winner ? `🏆 JOGADOR ${winner} VENCEU!` : '🤝 EMPATE!'; h=`<h3>${s[0]} × ${s[1]}</h3><p>${text}</p>`+(o&&o.idle?'':'<p>⏱ Tempo esgotado</p>')}
   const resultDelay=games.some(g=>g.idleExploded)?250:1800;
