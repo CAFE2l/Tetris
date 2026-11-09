@@ -74,12 +74,16 @@ section{position:relative;z-index:2;width:100%;display:flex;flex-direction:colum
 .sl .bubble{position:absolute;left:50%;top:-18px;transform:translate(-50%,-6px);white-space:nowrap;background:#fff;color:var(--ink);border:4px solid var(--ink);border-radius:18px;padding:4px 10px;box-shadow:0 4px 0 var(--ink);font-weight:700;font-size:11px;opacity:0;transition:.15s;pointer-events:none;text-shadow:none;z-index:3}
 .sl .bubble::after{content:'';position:absolute;left:50%;bottom:-10px;transform:translateX(-50%) rotate(45deg);width:12px;height:12px;background:#fff;border-right:4px solid var(--ink);border-bottom:4px solid var(--ink)}
 .sl .ic{width:52px;height:52px;display:grid;place-items:center;font-size:28px;position:relative;z-index:1}
+.sl.swap .ic{width:40px;height:40px}
 .sl img{width:100%;height:100%;object-fit:contain;display:block}
 .sl.sel{background:var(--pc);color:#fff;border-color:var(--ink);transform:scale(1.12) rotate(-1.5deg);box-shadow:0 4px 0 var(--ink)}
 .sl.sel .bubble,.sl:hover .bubble{opacity:1;transform:translate(-50%,0)}
 .sl.used{opacity:.3;filter:grayscale(1)}
 .pop{position:absolute;left:0;right:0;top:38%;text-align:center;font-size:30px;-webkit-text-stroke:.14em var(--ink);paint-order:stroke fill;animation:up 1s forwards;pointer-events:none;z-index:5}
-.idle-alert{position:absolute;inset:0;display:grid;place-items:center;gap:4px;background:rgba(40,8,14,.32);border:4px solid #ff3b52;border-radius:18px;z-index:6;box-shadow:0 0 0 3px rgba(255,59,82,.35);animation:idlePulse 1s ease-in-out infinite,idleShake .35s ease-in-out infinite alternate}
+.idle-alert{position:absolute;inset:0 114px 0 0;display:grid;place-items:center;gap:4px;background:rgba(40,8,14,.32);border:4px solid #ff3b52;border-radius:18px;z-index:6;box-shadow:0 0 0 3px rgba(255,59,82,.35);animation:idlePulse 1s ease-in-out infinite,idleShake .35s ease-in-out infinite alternate}
+.idle-alert.exploding{display:block;overflow:hidden;background:#160b35;border-color:#fff;animation:none}
+.idle-video{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;border-radius:12px;z-index:0}
+.idle-alert:not(.exploding) .idle-number,.idle-alert:not(.exploding) .idle-text{position:relative;z-index:1}
 .idle-number{font-size:clamp(42px,8vw,88px);line-height:1;-webkit-text-stroke:.12em var(--ink);paint-order:stroke fill;color:#ffdce0;text-shadow:0 6px 0 var(--ink)}
 .idle-text{font-size:clamp(18px,2vw,24px);font-weight:700;-webkit-text-stroke:.08em var(--ink);paint-order:stroke fill;color:#fff;text-shadow:0 4px 0 var(--ink)}
 @keyframes idlePulse{50%{box-shadow:0 0 0 5px rgba(255,59,82,.48),0 0 18px rgba(255,59,82,.45)}}
@@ -161,7 +165,7 @@ function playMusicForCurrentMode(){
   musicTracks.forEach(track=>{if(track!==desired){track.pause();track.currentTime=0}});
   desired.play().catch(()=>{})
 }
-function stopAlertSound(){if(activeAlerts>0)return;alertSound.pause();alertSound.currentTime=0;if(alertFallbackTimer){clearInterval(alertFallbackTimer);alertFallbackTimer=null}}
+function stopAlertSound(force=false){if(activeAlerts>0&&!force)return;alertSound.pause();alertSound.currentTime=0;if(alertFallbackTimer){clearInterval(alertFallbackTimer);alertFallbackTimer=null}}
 function playAlertSound(){if(!music)return;activeAlerts=Math.max(0,activeAlerts);if(activeAlerts===0)return;alertSound.addEventListener('error',()=>{if(alertFallbackTimer)return;alertFallbackTimer=setInterval(()=>{if(activeAlerts>0)sfx(880,.12,'triangle',.08)},900)}, {once:true});
   if(alertSound.error){if(!alertFallbackTimer)alertFallbackTimer=setInterval(()=>{if(activeAlerts>0)sfx(880,.12,'triangle',.08)},900);return}
   alertSound.currentTime=0;alertSound.play().catch(()=>{if(!alertFallbackTimer)alertFallbackTimer=setInterval(()=>{if(activeAlerts>0)sfx(880,.12,'triangle',.08)},900)})}
@@ -176,7 +180,7 @@ function blk(c,gx,gy,i,bs,a=1){const[l,d]=COL[i],p=gx*bs,q=gy*bs,r=bs*.3,f=(x,y,
 class Game{
   constructor(p){this.p=p;this.c=$('cv'+p).getContext('2d');this.pc=$('pv'+p).getContext('2d');this.hi=this.hi0=+(ls('ttr_hi_p'+p)||0);this.opp=null;this.reset()}
   reset(){this.b=Array.from({length:ROWS},()=>Array(COLS).fill(0));this.score=this.lines=this.combo=this.pend=this.placed=0;this.lv=1;this.over=this.paused=false;this.t=0;this.parts=[];this.anim=null;this.fx=null;this.boomT=null;this.idle=false;this.idleCountdown=IDLE.countdown;this.lastAct=performance.now();
-    this.flash=this.sd=this.lastSoft=this.pwLock=0;this.pu=[false,false,false];this.ps=0;this.pm=false;this.idleTimer=null;this.idleExploded=false;
+    this.flash=this.sd=this.lastSoft=this.pwLock=0;this.pu=[false,false,false];this.ps=0;this.pm=false;this.idleTimer=null;this.idleExploded=false;this.idleVideoDone=false;this.idleVideoFallback=false;this.idleVideoTimer=null;
     this.bag=[];this.nxt=this.take();this.lockT=performance.now()+700;this.next();this.ui();this.pui();this.hideIdleAlert()}
   take(){if(!this.bag.length)this.bag=[0,1,2,3,4,5,6].sort(()=>Math.random()-.5);const m=SH[this.bag.pop()].map(r=>[...r]);return{m,x:COLS-m[0].length>>1,y:0}}
   hit(m,x,y){return m.some((r,j)=>r.some((v,i)=>v&&(x+i<0||x+i>=COLS||y+j>=ROWS||this.b[y+j][x+i])))}
@@ -208,10 +212,21 @@ class Game{
   ui(){$('sc'+this.p).textContent=this.score;$('li'+this.p).textContent=this.lines;$('lv'+this.p).textContent=this.lv;$('hi'+this.p).textContent=this.hi}
 
   /* ───── PODERES (só no modo 2 jogadores) ───── */
-  showIdleAlert(){const bw=$('bw'+this.p);if(!bw)return;const box=document.createElement('div');box.className='idle-alert';box.innerHTML=`<div class="idle-number">${Math.max(1,Math.ceil(this.idleCountdown/1000))}</div><div class="idle-text">⚠ MEXA-SE!</div>`;bw.appendChild(box)}
-  hideIdleAlert(){const bw=$('bw'+this.p);if(!bw) return; bw.querySelectorAll('.idle-alert').forEach(el=>el.remove());}
+  showIdleAlert(){const bw=$('bw'+this.p);if(!bw)return;const box=document.createElement('div');box.className='idle-alert';box.innerHTML=`<div class="idle-number">${Math.max(1,Math.ceil(this.idleCountdown/1000))}</div><div class="idle-text">⚠ MEXA-SE!</div>`;bw.appendChild(box);this.playIdleExplosionVideo()}
+  hideIdleAlert(){const bw=$('bw'+this.p);if(!bw) return;bw.querySelectorAll('.idle-alert').forEach(el=>{el.querySelector('video')?.pause();el.remove()});if(this.idleVideoTimer){clearTimeout(this.idleVideoTimer);this.idleVideoTimer=null}}
+  pauseIdleVideo(){const video=$('bw'+this.p)?.querySelector('.idle-alert video');if(video)video.pause()}
+  resumeIdleVideo(){const video=$('bw'+this.p)?.querySelector('.idle-alert video');if(video)video.play().catch(()=>{this.idleVideoFallback=true;if(this.idleExploded)this.startIdleExplosionFallback()})}
+  playIdleExplosionVideo(){const box=$('bw'+this.p)?.querySelector('.idle-alert');if(!box){this.idleVideoDone=true;this.idleVideoFallback=true;return}
+    const video=document.createElement('video');video.className='idle-video';video.src='./explosion.mp4';video.muted=true;video.playsInline=true;video.preload='auto';box.prepend(video);
+    const finish=()=>{if(this.idleVideoDone)return;this.idleVideoDone=true;if(this.idleVideoTimer){clearTimeout(this.idleVideoTimer);this.idleVideoTimer=null}},
+      fallback=()=>{this.idleVideoFallback=true;if(this.idleExploded)this.startIdleExplosionFallback()};
+    video.addEventListener('ended',finish,{once:true});video.addEventListener('error',fallback,{once:true});
+    this.idleVideoTimer=setTimeout(()=>{if(!this.idleVideoDone)fallback()},10000);
+    video.play().catch(fallback)}
+  startIdleExplosionFallback(){if(this.idleVideoDone)return;if(this.idleVideoTimer)clearTimeout(this.idleVideoTimer);this.boomT=0;this.idleVideoTimer=setTimeout(()=>{this.idleVideoDone=true;this.idleVideoTimer=null},1800)}
   cancelIdle(){this.idle=false;this.idleCountdown=IDLE.countdown;this.hideIdleAlert();if(activeAlerts>0){activeAlerts--;if(activeAlerts<=0)stopAlertSound();}}
-  triggerIdleExplosion(){if(this.idleExploded)return;this.idleExploded=true;this.over=true;this.idle=true;this.pm=false;this.pwLock=performance.now()+500;this.hideIdleAlert();if(activeAlerts>0){activeAlerts--;if(activeAlerts<=0)stopAlertSound();}
+  triggerIdleExplosion(){if(this.idleExploded)return;this.idleExploded=true;this.over=true;this.idle=true;this.pm=false;this.pwLock=performance.now()+500;if(activeAlerts>0){activeAlerts--;if(activeAlerts<=0)stopAlertSound();}
+    const alert=$('bw'+this.p)?.querySelector('.idle-alert');alert?.classList.add('exploding');alert?.querySelector('.idle-number')?.remove();alert?.querySelector('.idle-text')?.remove();if(this.idleVideoFallback)this.startIdleExplosionFallback();
     this.boomT=0;this.flash=1;this.parts=[];for(let k=0;k<140;k++){const ang=Math.random()*Math.PI*2;const sp=2+Math.random()*10;this.parts.push({x:(COLS*BS)/2,y:(ROWS*BS)/2,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp,l:1.8,c:COL[1+Math.random()*7|0][0]})}
     shake(this.p);playExplosionSound();sfx(70,.9,'sawtooth',.18,.35);pop(this.p,'💥', '#ff9b3d');
     this.b=Array.from({length:ROWS},()=>Array(COLS).fill(0));
@@ -292,7 +307,7 @@ function shake(p){const t=document.querySelector('#pl'+p+' .tilt');t.classList.r
 function pop(p,t,c='#ffe66d'){const e=document.createElement('div');e.className='pop';e.textContent=t;e.style.color=c;$('bw'+p).append(e);setTimeout(()=>e.remove(),1000)}
 
 /* ───── interface do jogo ───── */
-const pwHTML=i=>POWERS.map(w=>`<div class="sl" title="${w.n}" aria-label="${w.n}"><span class="bubble">${w.n}</span><span class="ic"><img src="${w.img}" alt="${w.n}" onerror="this.replaceWith('${w.e}')"></span></div>`).join('');
+const pwHTML=i=>POWERS.map(w=>`<div class="sl ${w.id}" title="${w.n}" aria-label="${w.n}"><span class="bubble">${w.n}</span><span class="ic"><img src="${w.img}" alt="${w.n}" onerror="this.replaceWith('${w.e}')"></span></div>`).join('');
 const tpl=i=>`<div class="pl${i>1?' hide':''}" id="pl${i}" style="--ry:${i==1?7:-7}deg;--pc:${i==1?'#4da6ff':'#ff5fa2'};animation-delay:-${i*2}s">
 <div class="tag">P${i}</div><div class="tilt">
 <div class="chips"><b>PONTOS<i id="sc${i}">0</i></b><b>LINHAS<i id="li${i}">0</i></b><b>NÍVEL<i id="lv${i}">1</i></b></div>
@@ -349,14 +364,14 @@ function input(p,cmd,rep){
   if(mode==='menu'||mode==='dlg')nav(cmd,rep)}
 
 /* ───── fluxo ───── */
-function start(n){count=n;ended=false;tl=120;closeDlg();tsnd.pause();stopAlertSound();activeAlerts=0;document.querySelectorAll('.idle-alert').forEach(e=>e.remove());
+function start(n){count=n;ended=false;tl=120;closeDlg();tsnd.pause();games.forEach(g=>g.hideIdleAlert());activeAlerts=0;stopAlertSound(true);document.querySelectorAll('.idle-alert').forEach(e=>e.remove());
   $('menu').classList.add('hide');$('game').classList.remove('hide');
   $('pl2').classList.toggle('hide',n<2);$('vs').classList.toggle('hide',n<2);$('timer').classList.toggle('hide',n<2);$('arena').classList.toggle('one',n<2);
   games=[1,2].slice(0,n).map(p=>new Game(p));if(n===2){games[0].opp=games[1];games[1].opp=games[0]}
   $('timer').classList.remove('u','timer-pop','green');$('timer').textContent='2:00';mode='game';playMusicForCurrentMode();sfx(440,.3,'triangle',.08,2)}
-function toMenu(){closeDlg();tsnd.pause();tsnd.currentTime=0;stopAlertSound();activeAlerts=0;document.querySelectorAll('.idle-alert').forEach(e=>e.remove());games=[];$('game').classList.add('hide');$('menu').classList.remove('hide');mode='menu';menu.idx=0;playMusicForCurrentMode();mark()}
-function resume(){closeDlg();games.forEach(g=>{g.paused=false;g.lastAct=performance.now()});mode='game';playMusicForCurrentMode()}
-function pause(){games.forEach(g=>g.paused=true);tsnd.pause();dlg('PAUSADO','Respira e volta com tudo! 🧘',[{t:'CONTINUAR',c:'green',f:resume},{t:'SAIR',c:'red',f:toMenu}],resume)}
+function toMenu(){closeDlg();tsnd.pause();tsnd.currentTime=0;games.forEach(g=>g.hideIdleAlert());activeAlerts=0;stopAlertSound(true);document.querySelectorAll('.idle-alert').forEach(e=>e.remove());games=[];$('game').classList.add('hide');$('menu').classList.remove('hide');mode='menu';menu.idx=0;playMusicForCurrentMode();mark()}
+function resume(){closeDlg();games.forEach(g=>{g.paused=false;g.lastAct=performance.now();g.resumeIdleVideo()});mode='game';playMusicForCurrentMode()}
+function pause(){games.forEach(g=>{g.paused=true;g.pauseIdleVideo()});tsnd.pause();dlg('PAUSADO','Respira e volta com tudo! 🧘',[{t:'CONTINUAR',c:'green',f:resume},{t:'SAIR',c:'red',f:toMenu}],resume)}
 function showCtrl(){const close=()=>{closeDlg();mode='menu';mark()};
   dlg('CONTROLES',`<div class="cg"><span><b class="k">◀</b><b class="k">▶</b></span><i style="font-style:normal">Mover a peça · escolher no menu</i>
   <span><b class="k">▲</b></span><i style="font-style:normal">Girar a peça · voltar</i>
@@ -365,17 +380,18 @@ function showCtrl(){const close=()=>{closeDlg();mode='menu';mark()};
   <span><b class="k">A</b></span><i style="font-style:normal">Girar (1P) · abrir poderes (2P)</i>
   <span><b class="k">◀▶ ▼</b></span><i style="font-style:normal">Nos poderes: ◀▶ escolhe, ▼ usa, ▲/A fecha</i>
   <span><b class="k">SEL</b></span><i style="font-style:normal">Pausar ⏸</i></div>`,[{t:'ENTENDI!',c:'green',f:close}],close)}
-function end(o){ended=true;mode='wait';tsnd.pause();tsnd.currentTime=0;stopAlertSound();document.querySelectorAll('.idle-alert').forEach(e=>e.remove());const s=games.map(g=>g.score);let h;
+function end(o){ended=true;mode='wait';tsnd.pause();tsnd.currentTime=0;games.forEach(g=>g.hideIdleAlert());activeAlerts=0;stopAlertSound(true);document.querySelectorAll('.idle-alert').forEach(e=>e.remove());const s=games.map(g=>g.score);let h;
   if(count===1)h=`<h3>${s[0]} pontos</h3>`+(s[0]>games[0].hi0?'<p>🏆 NOVO RECORDE!</p>':'');
   else{const idleOver=games.filter(g=>g.over&&g.idle);const winner = idleOver.length>1 ? 0 : o&&o.idle ? (o===games[0]?1:2) : o?(o===games[0]?2:1):s[0]>s[1]?1:s[1]>s[0]?2:0; const text = idleOver.length>1 ? '🤝 EMPATE!' : o&&o.idle ? `🏆 JOGADOR ${winner} VENCEU POR INATIVIDADE!` : winner ? `🏆 JOGADOR ${winner} VENCEU!` : '🤝 EMPATE!'; h=`<h3>${s[0]} × ${s[1]}</h3><p>${text}</p>`+(o&&o.idle?'':'<p>⏱ Tempo esgotado</p>')}
-  setTimeout(()=>dlg(count===1?'FIM DE JOGO':'FIM DE PARTIDA',h,[{t:'JOGAR DE NOVO',c:'green',f:()=>start(count)},{t:'MENU',c:'blue',f:toMenu}],null),1800)}
+  const resultDelay=games.some(g=>g.idleExploded)?250:1800;
+  setTimeout(()=>dlg(count===1?'FIM DE JOGO':'FIM DE PARTIDA',h,[{t:'JOGAR DE NOVO',c:'green',f:()=>start(count)},{t:'MENU',c:'blue',f:toMenu}],null),resultDelay)}
 
 function loop(t){const dt=Math.min(50,t-last);last=t;
   if(games.length){
     if(count===2&&mode==='game'&&!ended){tl=Math.max(0,tl-dt/1000);const s=Math.max(0,Math.ceil(tl));$('timer').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
       $('timer').classList.toggle('u',tl<=20);if(tl<=20&&tsnd.paused)tsnd.play().catch(()=>{});if(tl>20){tsnd.pause();tsnd.currentTime=0;}}
     games.forEach(g=>{g.update(dt);g.draw()});
-    if(!ended&&mode==='game'){const o=games.find(g=>g.over);if(o||(count===2&&tl<=0))end(o)}}
+    if(!ended&&mode==='game'){const o=games.find(g=>g.over);const waitingForExplosion=games.some(g=>g.idleExploded&&!g.idleVideoDone);if((o||count===2&&tl<=0)&&!waitingForExplosion)end(o)}}
   requestAnimationFrame(loop)}
 
 /* ───── Arduino (Web Serial) — o jogador é detectado pelo prefixo P1:/P2: ───── */
