@@ -170,7 +170,7 @@ $('logo').innerHTML=[...'TETRIS'].map((l,i)=>`<span style="--i:${i};--r:${i%2?-4
 /* ───── áudio ───── */
 let AC,music=true,started=false;const lobbyMusic=$('lobby-music'),singlePlayerMusic=$('single-player-music'),multiplayerMusic=$('multiplayer-music'),alertSound=$('alert-sound'),explosionSound=$('explosion-sound'),tntSound=$('tnt-sound'),tsnd=$('timer-sound');
 const musicTracks=[lobbyMusic,singlePlayerMusic,multiplayerMusic];
-let activeAlerts=0,alertFallbackTimer=null;
+let activeAlerts=0,alertFallbackTimer=null,tntStartTimer=null;
 musicTracks.forEach(track=>track.volume=.4);alertSound.volume=.6;explosionSound.volume=.9;tntSound.volume=.9;
 function stopAllMusic(){musicTracks.forEach(track=>{track.pause();track.currentTime=0})}
 function primeAudio(audio,vol){if(!audio)return;audio.volume=0;audio.currentTime=0;audio.pause();audio.play().catch(()=>{});setTimeout(()=>{audio.pause();audio.currentTime=0;audio.volume=vol},50)}
@@ -181,8 +181,9 @@ function playMusicForCurrentMode(){
   desired.play().catch(()=>{})
 }
 function stopAlertSound(force=false){if(activeAlerts>0&&!force)return;alertSound.pause();alertSound.currentTime=0;if(alertFallbackTimer){clearInterval(alertFallbackTimer);alertFallbackTimer=null}}
-function playTntSound(){if(!tntSound.paused&&!tntSound.ended)return;tntSound.currentTime=0;tntSound.play().catch(()=>sfx(120,.5,'sawtooth',.12,.25))}
-function stopTntSound(reset=true){tntSound.pause();if(reset)tntSound.currentTime=0}
+function playTntSound(){tntStartTimer=null;if(!tntSound.paused&&!tntSound.ended)return;tntSound.currentTime=0;tntSound.play().catch(()=>sfx(120,.5,'sawtooth',.12,.25))}
+function scheduleTntSound(delay=IDLE.videoLead){if(tntStartTimer||(!tntSound.paused&&!tntSound.ended))return;tntStartTimer=setTimeout(playTntSound,delay)}
+function stopTntSound(reset=true){if(tntStartTimer){clearTimeout(tntStartTimer);tntStartTimer=null}tntSound.pause();if(reset)tntSound.currentTime=0}
 function playAlertSound(){if(!music)return;activeAlerts=Math.max(0,activeAlerts);if(activeAlerts===0)return;alertSound.addEventListener('error',()=>{if(alertFallbackTimer)return;alertFallbackTimer=setInterval(()=>{if(activeAlerts>0)sfx(880,.12,'triangle',.08)},900)}, {once:true});
   if(alertSound.error){if(!alertFallbackTimer)alertFallbackTimer=setInterval(()=>{if(activeAlerts>0)sfx(880,.12,'triangle',.08)},900);return}
   alertSound.currentTime=0;alertSound.play().catch(()=>{if(!alertFallbackTimer)alertFallbackTimer=setInterval(()=>{if(activeAlerts>0)sfx(880,.12,'triangle',.08)},900)})}
@@ -320,7 +321,7 @@ class Game{
     if(count===2 && !this.paused && !this.over && !this.anim && !this.fx && !ended){
       const idleMs=performance.now()-this.lastAct;
       if(idleMs>=Math.max(0,IDLE.warnAfter-IDLE.videoLead)){
-        if(!this.idle){this.idle=true;this.idleLeadIn=IDLE.videoLead;this.idleCountdown=IDLE.countdown;this.showIdleAlert();activeAlerts++;playAlertSound();playTntSound();}
+        if(!this.idle){this.idle=true;this.idleLeadIn=IDLE.videoLead;this.idleCountdown=IDLE.countdown;this.showIdleAlert();activeAlerts++;playAlertSound();scheduleTntSound();}
         let countdownDt=dt;
         if(this.idleLeadIn>0){countdownDt=Math.max(0,dt-this.idleLeadIn);this.idleLeadIn=Math.max(0,this.idleLeadIn-dt)}
         const box=$('bw'+this.p)?.querySelector('.idle-alert'),number=box?.querySelector('.idle-number');
@@ -424,8 +425,8 @@ function start(n){count=n;ended=false;tl=120;closeDlg();tsnd.pause();games.forEa
   games=[1,2].slice(0,n).map(p=>new Game(p));if(n===2){games[0].opp=games[1];games[1].opp=games[0]}
   $('timer').classList.remove('u','timer-pop','green');$('timer').textContent='2:00';mode='game';playMusicForCurrentMode();sfx(440,.3,'triangle',.08,2)}
 function toMenu(){closeDlg();tsnd.pause();tsnd.currentTime=0;games.forEach(g=>g.hideIdleAlert());activeAlerts=0;stopAlertSound(true);stopTntSound();document.querySelectorAll('.idle-alert').forEach(e=>e.remove());games=[];$('game').classList.add('hide');$('menu').classList.remove('hide');mode='menu';menu.idx=0;playMusicForCurrentMode();mark()}
-function resume(){closeDlg();games.forEach(g=>{g.paused=false;g.lastAct=performance.now();g.resumeIdleVideo()});if((activeAlerts>0||games.some(g=>g.idleExploded&&!g.idleVideoDone))&&!tntSound.ended)tntSound.play().catch(()=>{});mode='game';playMusicForCurrentMode()}
-function pause(){games.forEach(g=>{g.paused=true;g.pauseIdleVideo()});tsnd.pause();tntSound.pause();dlg('PAUSADO','Respira e volta com tudo! 🧘',[{t:'CONTINUAR',c:'green',f:resume},{t:'SAIR',c:'red',f:toMenu}],resume)}
+function resume(){closeDlg();games.forEach(g=>{g.paused=false;g.lastAct=performance.now();g.resumeIdleVideo()});if(activeAlerts>0)scheduleTntSound();mode='game';playMusicForCurrentMode()}
+function pause(){games.forEach(g=>{g.paused=true;g.pauseIdleVideo()});tsnd.pause();stopTntSound(false);dlg('PAUSADO','Respira e volta com tudo! 🧘',[{t:'CONTINUAR',c:'green',f:resume},{t:'SAIR',c:'red',f:toMenu}],resume)}
 function showCtrl(){const close=()=>{closeDlg();mode='menu';mark()};
   dlg('CONTROLES',`<div class="cg"><span><b class="k">◀</b><b class="k">▶</b></span><i style="font-style:normal">Mover a peça · escolher no menu</i>
   <span><b class="k">▲</b></span><i style="font-style:normal">Girar a peça · voltar</i>
