@@ -67,13 +67,16 @@ section{position:relative;z-index:2;width:100%;display:flex;flex-direction:colum
 .nx{display:flex;flex-direction:column;gap:4px;align-items:center;background:#fff;color:var(--ink);border:5px solid var(--ink);border-radius:18px;padding:8px;box-shadow:0 6px 0 var(--ink);font-size:12px}
 .nx canvas{width:72px;height:72px}
 #arena.one .pw{display:none}
-.pw{background:#fff;color:var(--ink);border:5px solid var(--ink);border-radius:18px;padding:10px 8px;box-shadow:0 6px 0 var(--ink);font-size:11px;text-align:center;transition:.2s;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:190px;width:100%;max-width:120px;box-sizing:border-box}
+.pw{background:#fff;color:var(--ink);border:5px solid var(--ink);border-radius:18px;padding:10px 8px;box-shadow:0 6px 0 var(--ink);font-size:11px;text-align:center;transition:.2s;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;min-height:190px;width:100%;max-width:120px;box-sizing:border-box;gap:2px}
 .pw.on{box-shadow:0 6px 0 var(--ink),0 0 0 5px var(--pc),0 0 26px var(--pc);animation:fl .6s infinite}
 .pw .ph{display:none}
-.sl{display:flex;align-items:center;justify-content:center;width:100%;padding:6px 4px;margin-top:4px;border:3px solid transparent;border-radius:12px;transition:.15s;font-size:12px;min-height:44px;box-sizing:border-box}
-.sl .ic{width:42px;height:42px;display:grid;place-items:center;font-size:24px}
-.sl img{width:100%;height:100%;object-fit:contain}
-.sl.sel{background:var(--pc);color:#fff;border-color:var(--ink);transform:scale(1.1) rotate(-2deg);box-shadow:0 4px 0 var(--ink)}
+.sl{position:relative;display:flex;align-items:center;justify-content:center;width:100%;padding:6px 4px;margin-top:0;border:3px solid transparent;border-radius:12px;transition:.15s;font-size:12px;min-height:54px;box-sizing:border-box;transform-origin:center}
+.sl .bubble{position:absolute;left:50%;top:-18px;transform:translate(-50%,-6px);white-space:nowrap;background:#fff;color:var(--ink);border:4px solid var(--ink);border-radius:18px;padding:4px 10px;box-shadow:0 4px 0 var(--ink);font-weight:700;font-size:11px;opacity:0;transition:.15s;pointer-events:none;text-shadow:none;z-index:3}
+.sl .bubble::after{content:'';position:absolute;left:50%;bottom:-10px;transform:translateX(-50%) rotate(45deg);width:12px;height:12px;background:#fff;border-right:4px solid var(--ink);border-bottom:4px solid var(--ink)}
+.sl .ic{width:52px;height:52px;display:grid;place-items:center;font-size:28px;position:relative;z-index:1}
+.sl img{width:100%;height:100%;object-fit:contain;display:block}
+.sl.sel{background:var(--pc);color:#fff;border-color:var(--ink);transform:scale(1.12) rotate(-1.5deg);box-shadow:0 4px 0 var(--ink)}
+.sl.sel .bubble,.sl:hover .bubble{opacity:1;transform:translate(-50%,0)}
 .sl.used{opacity:.3;filter:grayscale(1)}
 .pop{position:absolute;left:0;right:0;top:38%;text-align:center;font-size:30px;-webkit-text-stroke:.14em var(--ink);paint-order:stroke fill;animation:up 1s forwards;pointer-events:none;z-index:5}
 .idle-alert{position:absolute;inset:0;display:grid;place-items:center;gap:4px;background:rgba(40,8,14,.32);border:4px solid #ff3b52;border-radius:18px;z-index:6;box-shadow:0 0 0 3px rgba(255,59,82,.35);animation:idlePulse 1s ease-in-out infinite,idleShake .35s ease-in-out infinite alternate}
@@ -137,9 +140,9 @@ const SPEED={start:800,decay:.965,min:70,soft:45,softHold:130};
 const IDLE={warnAfter:12000,countdown:5000};
 // ícones: coloque seus PNGs em ./icons/ (se não existir, aparece o emoji)
 const POWERS=[
- {id:'bomb', n:'BOMBA', e:'💣', img:'./icons/bomb.png'},
- {id:'swap', n:'TROCA', e:'🔄', img:'./icons/swap.png'},
- {id:'time', n:'TEMPO', e:'⏱️', img:'./icons/time.png'}];
+ {id:'bomb', n:'BOMBA', e:'💣', img:'./bomba.png'},
+ {id:'swap', n:'TROCA', e:'🔄', img:'./reverse.png'},
+ {id:'time', n:'+1 MINUTO', e:'⏱️', img:'./one_more_minutes.png'}];
 
 /* ───── fundo e logo ───── */
 for(let i=0;i<18;i++){const e=document.createElement('div'),s=28+Math.random()*50;e.className='fb';e.style.cssText=`left:${Math.random()*100}%;width:${s}px;height:${s}px;background:${COL[1+i%7][0]};animation-duration:${14+Math.random()*16}s;animation-delay:-${Math.random()*25}s`;$('bg').append(e)}
@@ -289,7 +292,7 @@ function shake(p){const t=document.querySelector('#pl'+p+' .tilt');t.classList.r
 function pop(p,t,c='#ffe66d'){const e=document.createElement('div');e.className='pop';e.textContent=t;e.style.color=c;$('bw'+p).append(e);setTimeout(()=>e.remove(),1000)}
 
 /* ───── interface do jogo ───── */
-const pwHTML=i=>POWERS.map(w=>`<div class="sl" title="${w.n}" aria-label="${w.n}"><span class="ic"><img src="${w.img}" alt="${w.n}" onerror="this.replaceWith('${w.e}')"></span></div>`).join('');
+const pwHTML=i=>POWERS.map(w=>`<div class="sl" title="${w.n}" aria-label="${w.n}"><span class="bubble">${w.n}</span><span class="ic"><img src="${w.img}" alt="${w.n}" onerror="this.replaceWith('${w.e}')"></span></div>`).join('');
 const tpl=i=>`<div class="pl${i>1?' hide':''}" id="pl${i}" style="--ry:${i==1?7:-7}deg;--pc:${i==1?'#4da6ff':'#ff5fa2'};animation-delay:-${i*2}s">
 <div class="tag">P${i}</div><div class="tilt">
 <div class="chips"><b>PONTOS<i id="sc${i}">0</i></b><b>LINHAS<i id="li${i}">0</i></b><b>NÍVEL<i id="lv${i}">1</i></b></div>
