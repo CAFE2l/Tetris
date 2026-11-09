@@ -92,7 +92,9 @@ section{position:relative;z-index:2;width:100%;display:flex;flex-direction:colum
 </head>
 <body>
 <div id="bg"></div>
-<audio id="bg-music" loop preload="auto"><source src="./music.mp3" type="audio/mpeg"></audio>
+<audio id="lobby-music" loop preload="auto"><source src="./lobby_music.mp3" type="audio/mpeg"></audio>
+<audio id="single-player-music" loop preload="auto"><source src="./single_player.mp3" type="audio/mpeg"></audio>
+<audio id="multiplayer-music" loop preload="auto"><source src="./multiplayer.mp3" type="audio/mpeg"></audio>
 <audio id="timer-sound" loop preload="auto"><source src="./timer.mp3" type="audio/mpeg"></audio>
 
 <section id="menu">
@@ -133,10 +135,19 @@ for(let i=0;i<18;i++){const e=document.createElement('div'),s=28+Math.random()*5
 $('logo').innerHTML=[...'TETRIS'].map((l,i)=>`<span style="--i:${i};--r:${i%2?-4:4}deg;--c:${['#ff5fa2','#ffb400','#ffe66d','#5be37d','#4da6ff','#c792ff'][i]}">${l}</span>`).join('');
 
 /* ───── áudio ───── */
-let AC,music=true,started=false;const bg=$('bg-music'),tsnd=$('timer-sound');bg.volume=.4;
-function sfx(f,d=.08,type='square',v=.05,sl=0){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();AC.resume();const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime;o.type=type;o.frequency.setValueAtTime(f,t);if(sl)o.frequency.exponentialRampToValueAtTime(f*sl,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(AC.destination);o.start();o.stop(t+d)}catch{}}
-function startAudio(){if(started)return;started=true;if(music)bg.play().catch(()=>{})}
-function toggleMusic(){music=!music;music?bg.play().catch(()=>{}):bg.pause();mark()}
+let AC,music=true,started=false;const lobbyMusic=$('lobby-music'),singlePlayerMusic=$('single-player-music'),multiplayerMusic=$('multiplayer-music'),tsnd=$('timer-sound');
+const musicTracks=[lobbyMusic,singlePlayerMusic,multiplayerMusic];
+musicTracks.forEach(track=>track.volume=.4);
+function stopAllMusic(){musicTracks.forEach(track=>{track.pause();track.currentTime=0})}
+function playMusicForCurrentMode(){
+  if(!music)return;
+  const desired = mode==='menu'||mode==='dlg' ? lobbyMusic : count===2 ? singlePlayerMusic : multiplayerMusic;
+  musicTracks.forEach(track=>{if(track!==desired){track.pause();track.currentTime=0}});
+  desired.play().catch(()=>{})
+}
+function sfx(f,d=.08,type='square',v=.05,sl=0){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();AC.resume();const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime;o.type=type;o.frequency.setValueAtTime(f,t);if(sl)o.frequency.exponentialRampToValueAtTime(f*sl,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(AC.destination);o.start();o.stop(t+d)}catch{} }
+function startAudio(){if(started)return;started=true;playMusicForCurrentMode()}
+function toggleMusic(){music=!music;if(music)playMusicForCurrentMode();else stopAllMusic();mark()}
 
 /* ───── peças ───── */
 function blk(c,gx,gy,i,bs,a=1){const[l,d]=COL[i],p=gx*bs,q=gy*bs,r=bs*.3,f=(x,y,w,h,rr,col)=>{c.fillStyle=col;c.beginPath();c.roundRect(x,y,w,h,rr);c.fill()};c.globalAlpha=a;f(p+1,q+1,bs-2,bs-2,r,INK);f(p+3,q+3,bs-6,bs-6,r-2,d);f(p+3,q+3,bs-6,bs-10,r-2,l);c.fillStyle='rgba(255,255,255,.7)';c.beginPath();c.ellipse(p+bs*.32,q+bs*.3,bs*.12,bs*.07,-.6,0,7);c.fill();c.globalAlpha=1}
@@ -300,9 +311,9 @@ function start(n){count=n;ended=false;tl=120;closeDlg();tsnd.pause();
   $('menu').classList.add('hide');$('game').classList.remove('hide');
   $('pl2').classList.toggle('hide',n<2);$('vs').classList.toggle('hide',n<2);$('timer').classList.toggle('hide',n<2);$('arena').classList.toggle('one',n<2);
   games=[1,2].slice(0,n).map(p=>new Game(p));if(n===2){games[0].opp=games[1];games[1].opp=games[0]}
-  mode='game';sfx(440,.3,'triangle',.08,2)}
-function toMenu(){closeDlg();tsnd.pause();tsnd.currentTime=0;games=[];$('game').classList.add('hide');$('menu').classList.remove('hide');mode='menu';menu.idx=0;mark()}
-function resume(){closeDlg();games.forEach(g=>g.paused=false);mode='game'}
+  mode='game';playMusicForCurrentMode();sfx(440,.3,'triangle',.08,2)}
+function toMenu(){closeDlg();tsnd.pause();tsnd.currentTime=0;games=[];$('game').classList.add('hide');$('menu').classList.remove('hide');mode='menu';menu.idx=0;playMusicForCurrentMode();mark()}
+function resume(){closeDlg();games.forEach(g=>g.paused=false);mode='game';playMusicForCurrentMode()}
 function pause(){games.forEach(g=>g.paused=true);tsnd.pause();dlg('PAUSADO','Respira e volta com tudo! 🧘',[{t:'CONTINUAR',c:'green',f:resume},{t:'SAIR',c:'red',f:toMenu}],resume)}
 function showCtrl(){const close=()=>{closeDlg();mode='menu';mark()};
   dlg('CONTROLES',`<div class="cg"><span><b class="k">◀</b><b class="k">▶</b></span><i style="font-style:normal">Mover a peça · escolher no menu</i>
@@ -312,7 +323,7 @@ function showCtrl(){const close=()=>{closeDlg();mode='menu';mark()};
   <span><b class="k">A</b></span><i style="font-style:normal">Girar (1P) · abrir PODERES (2P)</i>
   <span><b class="k">◀▶ ▼</b></span><i style="font-style:normal">Nos poderes: ◀▶ escolhe, ▼ usa, ▲/A fecha</i>
   <span><b class="k">SEL</b></span><i style="font-style:normal">Pausar ⏸</i></div>`,[{t:'ENTENDI!',c:'green',f:close}],close)}
-function end(o){ended=true;mode='wait';tsnd.pause();tsnd.currentTime=0;const s=games.map(g=>g.score);let h;
+function end(o){ended=true;mode='wait';tsnd.pause();tsnd.currentTime=0;stopAllMusic();const s=games.map(g=>g.score);let h;
   if(count===1)h=`<h3>${s[0]} pontos</h3>`+(s[0]>games[0].hi0?'<p>🏆 NOVO RECORDE!</p>':'');
   else{const w=o?(o===games[0]?2:1):s[0]>s[1]?1:s[1]>s[0]?2:0;h=`<h3>${s[0]} × ${s[1]}</h3><p>${w?'🏆 JOGADOR '+w+' VENCEU!':'🤝 EMPATE!'}</p>`+(o?'':'<p>⏱ Tempo esgotado</p>')}
   setTimeout(()=>dlg(count===1?'FIM DE JOGO':'FIM DE PARTIDA',h,[{t:'JOGAR DE NOVO',c:'green',f:()=>start(count)},{t:'MENU',c:'blue',f:toMenu}],null),700)}
