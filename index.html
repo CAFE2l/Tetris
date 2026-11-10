@@ -191,11 +191,59 @@ body[data-scene="zen"] .card.sel{animation:none}
 @media(max-width:620px){.skill-dialog{padding:14px;border-width:4px}.ability-list{grid-template-columns:1fr;gap:8px}.ability-button{min-height:74px}.ability-footer{align-items:stretch;flex-direction:column}.ability-footer .skill-activate{min-height:48px}.skill-hint{text-align:center}}
 .result-outcome{font-size:23px;margin:6px 0}
 #game.lightning-active::before{content:'';position:fixed;inset:0;z-index:8;pointer-events:none;box-shadow:inset 0 0 130px 35px rgba(13,25,83,.62);animation:stormPulse .8s ease-in-out infinite alternate}
-#game.lightning-active .pl{position:relative;filter:drop-shadow(0 0 12px #9ff5ff)}
-#game.lightning-active .pl::after{content:'⚡';position:absolute;right:-12px;top:20%;z-index:7;color:#e5fbff;font-size:42px;text-shadow:0 0 10px #43cbff;pointer-events:none;animation:spark .28s steps(2,end) infinite alternate}
+#game.lightning-active .bw.lightning-active canvas.main{filter:drop-shadow(0 0 12px #9ff5ff)}
 @keyframes stormPulse{to{box-shadow:inset 0 0 175px 50px rgba(13,25,83,.78)}}
-@keyframes spark{to{opacity:.35;transform:rotate(18deg) scale(.8)}}
 #vs{align-self:center;font-size:54px;color:var(--yel);-webkit-text-stroke:.1em var(--ink);paint-order:stroke fill;text-shadow:0 6px 0 var(--ink);animation:bob 1s infinite}
+body[data-scene="x1"]{background:radial-gradient(ellipse at 50% 12%,rgba(255,194,44,.22),transparent 42%),linear-gradient(145deg,#090909,#272015 54%,#090909)}
+body[data-scene="x1"]::before{background:repeating-linear-gradient(45deg,rgba(255,177,0,.065) 0 2px,transparent 2px 38px),radial-gradient(ellipse at 50% 0,rgba(255,247,217,.16),transparent 50%);animation:slide 10s linear infinite}
+body[data-scene="x1"] #game{perspective:1600px}
+body[data-scene="x1"] #game::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 50% 2%,rgba(255,191,0,.14),transparent 55%)}
+body[data-scene="x1"] .hud-pill{background:linear-gradient(145deg,#fff8df,#fff);border-color:#ffb900;box-shadow:0 4px 0 #17130a,0 0 18px rgba(255,185,0,.36)}
+body[data-scene="x1"] #mode-label{background:linear-gradient(110deg,#fff,#ffe18a 48%,#ffaf19);color:#18130a;border-color:#fff;box-shadow:0 4px 0 #111,0 0 22px rgba(255,183,0,.72)}
+body[data-scene="x1"] #vs{color:#ffbd27;text-shadow:0 0 18px #ff7b00,0 6px 0 #100d08}
+body[data-scene="x1"] #pl1{--pc:#168cff}
+body[data-scene="x1"] #pl2{--pc:#f04444}
+body[data-scene="x1"] #pl1 .tag{background:linear-gradient(120deg,#168cff,#87d9ff);box-shadow:0 5px 0 #07152f,0 0 24px rgba(22,140,255,.72)}
+body[data-scene="x1"] #pl2 .tag{background:linear-gradient(120deg,#d92335,#ff6969);box-shadow:0 5px 0 #210c12,0 0 24px rgba(240,68,68,.72)}
+body[data-scene="x1"] #pl1 .bw canvas.main{height:min(54vh,500px);border-color:#64c5ff;box-shadow:0 10px 0 #080808,0 0 0 5px #168cff,0 0 34px rgba(22,140,255,.62)}
+body[data-scene="x1"] #pl2 .bw canvas.main{height:min(54vh,500px);border-color:#ff7777;box-shadow:0 10px 0 #080808,0 0 0 5px #f04444,0 0 34px rgba(240,68,68,.58)}
+body[data-scene="x1"] .tag{transition:transform .35s cubic-bezier(.2,1.3,.4,1),filter .3s;transform:perspective(500px) rotateX(10deg) rotateY(-8deg)}
+body[data-scene="x1"] .pl{animation:x1Duel 3.2s ease-in-out infinite;transform-style:preserve-3d}
+body[data-scene="x1"] #pl2{animation-delay:-1.6s!important}
+@keyframes x1Duel{50%{translate:0 -5px;filter:brightness(1.08)}}
+#x1-scoreboard{display:none;flex-direction:column;align-items:center;justify-content:center;gap:5px;width:min(92vw,760px);padding:9px 18px;margin:0 auto 2px;border:2px solid rgba(255,211,91,.76);border-radius:20px;background:linear-gradient(145deg,rgba(255,255,255,.14),rgba(17,14,9,.88) 45%,rgba(255,255,255,.08));box-shadow:0 8px 0 #080808,0 0 30px rgba(255,173,0,.3),inset 0 0 24px rgba(255,224,143,.09);backdrop-filter:blur(8px);transform:perspective(1000px) rotateX(7deg);transform-style:preserve-3d}
+body[data-scene="x1"] #x1-scoreboard{display:flex}
+.scoreboard-title{color:#ffd34e;font-size:clamp(9px,1.3vw,12px);font-weight:700;letter-spacing:.16em;text-align:center;text-shadow:0 0 12px rgba(255,180,0,.8)}
+.scoreboard-row{display:flex;align-items:center;justify-content:center;gap:clamp(12px,4vw,48px);width:100%}
+.score-team{display:flex;align-items:center;gap:10px;min-width:0}
+.score-team-name{font-size:clamp(12px,2vw,18px);font-weight:700;letter-spacing:.1em;text-shadow:0 0 12px currentColor}
+.score-team.p1 .score-team-name{color:#71c5ff}
+.score-team.p2 .score-team-name{color:#ff7777}
+.score-versus{color:#fff;font-size:12px;font-weight:700;letter-spacing:.18em;text-shadow:0 0 12px #ffae00}
+.score-blocks{display:flex;gap:clamp(4px,1vw,10px)}
+.score-block{width:clamp(22px,4vw,40px);height:clamp(22px,4vw,40px);border:2px solid #fff;border-radius:8px;background:linear-gradient(145deg,#fff,#e4e0d7);box-shadow:0 3px 0 #090909,0 0 8px rgba(255,255,255,.35);transform:translateZ(10px);transition:background .45s cubic-bezier(.2,1.3,.4,1),transform .5s cubic-bezier(.2,1.5,.4,1),box-shadow .45s}
+.score-team.p1 .score-block.filled{background:linear-gradient(145deg,#8cdbff,#168cff 65%,#0861c0);border-color:#d6f4ff;box-shadow:0 3px 0 #061a32,0 0 20px rgba(22,140,255,.9);animation:scorePop .55s cubic-bezier(.2,1.7,.4,1)}
+.score-team.p2 .score-block.filled{background:linear-gradient(145deg,#ffa0a0,#f04444 65%,#ad1428);border-color:#ffe1e1;box-shadow:0 3px 0 #321010,0 0 20px rgba(240,68,68,.9);animation:scorePop .55s cubic-bezier(.2,1.7,.4,1)}
+@keyframes scorePop{45%{transform:translateZ(24px) scale(1.28) rotateY(18deg)}}
+.rotation-charge{display:none;--charge-color:#fff;position:relative;width:100%;margin-top:13px;padding:8px 10px 7px;border:2px solid color-mix(in srgb,var(--charge-color) 78%,#fff);border-radius:13px;background:linear-gradient(145deg,rgba(20,18,14,.96),rgba(6,6,6,.96));box-shadow:0 4px 0 #070707,0 0 12px color-mix(in srgb,var(--charge-color) 24%,transparent);transition:border-color .25s,box-shadow .25s,transform .25s}
+body[data-scene="x1"] .rotation-charge{display:block}
+.rotation-charge[data-direction="cw"]{--charge-color:#ffad18}
+.rotation-charge[data-direction="ccw"]{--charge-color:#fff2b0}
+.rotation-charge[data-ready="true"]{animation:chargeReady .85s ease-in-out infinite alternate}
+.rotation-charge[data-ready="true"] .rotation-charge-fill{animation:chargeReadyFill .85s ease-in-out infinite alternate}
+.rotation-charge[data-level="1"]{box-shadow:0 4px 0 #070707,0 0 16px color-mix(in srgb,var(--charge-color) 40%,transparent)}
+.rotation-charge[data-level="2"]{box-shadow:0 4px 0 #070707,0 0 23px color-mix(in srgb,var(--charge-color) 56%,transparent)}
+.rotation-charge[data-level="3"]{box-shadow:0 4px 0 #070707,0 0 34px color-mix(in srgb,var(--charge-color) 78%,transparent)}
+.rotation-charge-top{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#fff;font-size:clamp(9px,1.2vw,12px);line-height:1.2}
+.rotation-charge-degrees{color:var(--charge-color);font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+.rotation-charge-track{height:10px;margin-top:7px;overflow:hidden;border:1px solid rgba(255,255,255,.44);border-radius:99px;background:#fff;box-shadow:inset 0 1px 3px rgba(0,0,0,.3)}
+.rotation-charge-fill{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#fff4ce,#ffcf41 52%,#ff861a);box-shadow:0 0 12px var(--charge-color);transition:width .12s linear,filter .25s}
+#pl2 .rotation-charge-fill{background:linear-gradient(90deg,#fff,#fff0aa 55%,#ffb81d)}
+.rotation-charge[data-direction="ccw"] .rotation-charge-fill{background:linear-gradient(90deg,#fff,#fff 45%,#ffedaa)}
+.rotation-charge-ready-label{display:none;position:absolute;top:-12px;right:9px;padding:2px 7px;border:1px solid #fff;border-radius:99px;background:#ffb81a;color:#17120a;font-size:9px;font-weight:700;letter-spacing:.1em}
+.rotation-charge[data-ready="true"] .rotation-charge-ready-label{display:block}
+@keyframes chargeReady{to{box-shadow:0 4px 0 #070707,0 0 28px var(--charge-color);transform:translateY(-2px)}}
+@keyframes chargeReadyFill{to{filter:brightness(1.35)}}
 .pl{animation:fl 4s ease-in-out infinite}
 @keyframes fl{50%{translate:0 -8px}}
 .tag{display:inline-block;background:var(--pc);border:4px solid var(--ink);border-radius:14px;padding:0 20px;font-size:22px;box-shadow:0 5px 0 var(--ink);margin-bottom:10px;transform:rotate(-3deg)}
@@ -207,12 +255,16 @@ body[data-scene="zen"] .card.sel{animation:none}
 .chips b{flex:1;font-size:11px;background:#fff;color:var(--ink);border:4px solid var(--ink);border-radius:14px;padding:3px 8px;text-align:center;box-shadow:0 4px 0 var(--ink)}
 .chips i,.nx i{display:block;font-style:normal;font-size:20px;color:var(--pc)}
 .bw{position:relative;display:flex;align-items:flex-start}
+.board-stack{display:flex;flex-direction:column;align-items:stretch;width:max-content;max-width:100%;transform-style:preserve-3d}
 .bw canvas.main{height:min(62vh,560px);width:auto;border:6px solid var(--ink);border-radius:20px;background:var(--board,#2a1a5e);box-shadow:0 10px 0 var(--ink),0 0 0 6px var(--pc),0 0 40px var(--pc)}
 .bw canvas.main{transition:transform .45s cubic-bezier(.2,1.4,.4,1),filter .3s}
 .bw.emp-active canvas.main{transform:rotate(180deg);filter:drop-shadow(0 0 12px #65e8ff)}
 .bw.curse-active canvas.main{filter:drop-shadow(0 0 12px #bd78ff)}
 .bw.curse-active::after{content:'☠';position:absolute;inset:0 114px 0 0;display:grid;place-items:center;border:4px solid rgba(192,119,255,.7);border-radius:18px;background:radial-gradient(ellipse,rgba(115,43,165,.13),rgba(67,21,116,.42));color:rgba(235,201,255,.72);font-size:clamp(38px,7vw,72px);text-shadow:0 0 18px #bd78ff;pointer-events:none;animation:curseAura 1.2s ease-in-out infinite alternate}
 .bw.trash-active canvas.main{filter:drop-shadow(0 0 12px #9ca3af)}
+.bw.shield-active canvas.main{box-shadow:0 10px 0 var(--ink),0 0 0 6px #9ff5ff,0 0 34px rgba(101,232,255,.9)}
+.bw.slow-active canvas.main{outline:3px dashed #9ff5ff;outline-offset:7px;filter:drop-shadow(0 0 12px #65e8ff)}
+#game.lightning-active .bw.lightning-active.slow-active canvas.main{filter:none}
 .bw.trash-active::before{content:'';position:absolute;inset:0 114px 0 0;z-index:2;background:linear-gradient(90deg,rgba(0,0,0,.42) 0 20%,transparent 20% 80%,rgba(0,0,0,.42) 80% 100%);pointer-events:none}
 .bw.trash-active::after{content:'🗑️';position:absolute;inset:0 114px 0 0;z-index:3;display:grid;place-items:center;color:rgba(255,255,255,.2);font-size:clamp(36px,6vw,64px);pointer-events:none}
 @keyframes curseAura{to{box-shadow:inset 0 0 32px rgba(191,120,255,.62),0 0 24px rgba(191,120,255,.55)}}
@@ -229,6 +281,8 @@ body[data-scene="zen"] .card.sel{animation:none}
 .missionCard span{display:block;margin-top:3px;line-height:1.15}
 .missionCard i{display:block;font-style:normal;font-size:15px;color:var(--pc);margin-top:3px}
 .holdCard{display:flex;flex-direction:column;align-items:center;gap:2px;font:inherit;cursor:pointer}
+.multiplayerHold{margin-top:0}
+#arena.one .multiplayerHold{display:none}
 .holdCard canvas{width:58px;height:58px}
 .holdCard small{font-size:9px;opacity:.75}
 .soloPower{width:100%;min-height:44px;display:flex;align-items:center;justify-content:center;gap:5px;border:4px solid var(--ink);border-radius:14px;background:#ffe66d;color:var(--ink);box-shadow:0 5px 0 var(--ink);font:inherit;font-weight:700;font-size:11px;cursor:pointer}
@@ -291,6 +345,14 @@ body[data-scene="zen"] .card.sel{animation:none}
   section{min-height:100vh}
   #game{padding:8px 4px 14px;gap:8px}
   #arena{gap:6px;max-width:100vw}
+  #x1-scoreboard{width:min(96vw,760px);gap:4px;padding:7px 9px;border-radius:15px}
+  .scoreboard-row{gap:8px}
+  .score-team{gap:5px}
+  .score-team-name{font-size:clamp(9px,2.4vw,14px);letter-spacing:.04em}
+  .score-block{width:clamp(16px,5vw,30px);height:clamp(16px,5vw,30px);border-radius:6px}
+  .rotation-charge{margin-top:11px;padding:6px 6px 5px;border-radius:9px}
+  .rotation-charge-track{height:8px;margin-top:5px}
+  .rotation-charge-top{font-size:clamp(8px,2vw,10px)}
   #cards{width:100vw;overflow:clip}
   .pl{min-width:0}
   .tag{font-size:16px;padding:0 12px;margin-bottom:6px}
@@ -298,6 +360,7 @@ body[data-scene="zen"] .card.sel{animation:none}
   .chips b{font-size:8px;padding:2px;border-width:2px}
   .chips i{font-size:13px}
   .bw canvas.main{height:min(48vh,68vw,420px);width:auto;border-width:4px}
+  body[data-scene="x1"] #pl1 .bw canvas.main,body[data-scene="x1"] #pl2 .bw canvas.main{height:min(44vh,68vw,400px)}
   .skill-side{width:min(104px,27vw);padding:5px;gap:5px;border-width:3px;border-radius:14px}
   .skill-side h3{font-size:10px}
   .skill-energy{padding:4px;border-width:2px}
@@ -332,7 +395,7 @@ body[data-scene="zen"] .card.sel{animation:none}
 body[data-scene="zen"] .zen-game-control{display:flex}
 body[data-scene="zen"] .touch-button[data-command="SELECT"]{display:none}
 @media(max-width:600px){body[data-scene="zen"] #game .game-hud{gap:5px}.zen-ability-button{min-width:118px;padding:4px 8px}.zen-ability-copy{font-size:10px}.zen-ability-copy small{font-size:8px}.zen-ability-ring{width:30px;height:30px}.zen-pause-button{width:38px;min-height:38px}}
-@media(prefers-reduced-motion:reduce){.fb,.ambient-particle,body::before,.card.sel,.card.confirming{animation:none!important}body[data-scene="zen"] .ambient-particle.leaf{animation:leafFall 65s linear infinite!important}.scene-sky,.card,.card-content,.zen-game-control,.zen-ability-ring .progress{transition-duration:.01ms!important}}
+@media(prefers-reduced-motion:reduce){.fb,.ambient-particle,body::before,.card.sel,.card.confirming,.rotation-charge[data-ready="true"],.rotation-charge[data-ready="true"] .rotation-charge-fill,.score-block.filled{animation:none!important}body[data-scene="zen"] .ambient-particle.leaf{animation:leafFall 65s linear infinite!important}.scene-sky,.card,.card-content,.zen-game-control,.zen-ability-ring .progress,.rotation-charge,.rotation-charge-fill,.score-block{transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
@@ -362,6 +425,12 @@ body[data-scene="zen"] .touch-button[data-command="SELECT"]{display:none}
 </section>
 
 <section id="game" class="hide">
+  <div id="x1-scoreboard" role="group" aria-label="Placar do X1 dos Cria">
+    <div class="scoreboard-title">X1 DOS CRIA · CADA BLOCO VALE UMA VITÓRIA</div>
+    <div class="scoreboard-row"><div class="score-team p1"><span class="score-team-name">P1 · AZUL</span><div class="score-blocks" id="x1-score-p1" aria-label="Vitórias do jogador 1"><span class="score-block" data-score-block="0"></span><span class="score-block" data-score-block="1"></span><span class="score-block" data-score-block="2"></span></div></div>
+    <span class="score-versus" aria-hidden="true">VS</span>
+    <div class="score-team p2"><div class="score-blocks" id="x1-score-p2" aria-label="Vitórias do jogador 2"><span class="score-block" data-score-block="0"></span><span class="score-block" data-score-block="1"></span><span class="score-block" data-score-block="2"></span></div><span class="score-team-name">P2 · VERMELHO</span></div></div>
+  </div>
   <div id="timer" class="hide">2:00</div>
   <div class="game-hud"><span class="hud-pill" id="mode-label"></span><button class="zen-game-control zen-ability-button" id="zen-clear-button" type="button" aria-label="Limpar uma linha com blocos, atalho X do teclado" aria-disabled="false">
     <span class="zen-ability-ring" aria-hidden="true"><svg viewBox="0 0 36 36"><circle class="track" cx="18" cy="18" r="16"></circle><circle class="progress" id="zen-cooldown-progress" cx="18" cy="18" r="16"></circle></svg><strong class="zen-ability-status" id="zen-cooldown-status">READY</strong></span>
@@ -404,13 +473,13 @@ const COL=[0,['#6ee7ff','#1aa7d6'],['#ffe66d','#e0a800'],['#c792ff','#8a4fe0'],[
 const POWERS_CONFIG={
   matchDuration:120000,maxMatchDuration:900000,timeBonus:60000,comboThreshold:2,maxPowers:5,
   lightningDuration:10000,lightningFallMultiplier:2,curseDuration:10000,empDuration:10000,
-  trashDuration:45000,trashColumns:2,firstPowerScore:500,nextPowerScoreStep:500,linesPerPower:4,
+  trashDuration:30000,shieldDuration:45000,trashColumns:2,firstPowerScore:500,nextPowerScoreStep:500,linesPerPower:4,
   inactivityAudioDelay:500,timerBonusAnimation:1000,powerInputLock:500,
   idleVideoTimeout:10000,idleExplosionFallback:1800,
   energyPerLine:8,energyPerCombo:4,energyPerTetris:15,energyMax:100,
   abilityCosts:{bomb:20,shield:25,clear:30,slow:25,double:35,lucky:20,rewind:40,magnet:35},
   abilityCooldowns:{bomb:8000,shield:12000,clear:10000,slow:15000,double:20000,lucky:10000,rewind:25000,magnet:18000},
-  bombRadius:1,slowDuration:15000,slowFallMultiplier:2.5,doubleScoreDuration:35000,shieldGarbageHits:3,
+  bombRadius:1,slowDuration:30000,slowFallMultiplier:2.5,doubleScoreDuration:35000,
   survivalStartInterval:15000,survivalMinInterval:4000,survivalIntervalDecay:350,survivalDifficultyStep:30000,
   challengeTimeLimit:60000,timeAttackLineBonus:8000,
   speed:{start:800,decay:.965,min:70,soft:45,softHold:130,modeMultiplier:{classic:1,hardcore:.5,zen:1.5}},
@@ -419,7 +488,7 @@ const POWERS_CONFIG={
 const {speed:SPEED,inactivity:IDLE}=POWERS_CONFIG;
 const hasInfiniteAbilityEnergy=()=>count===1&&gameMode==='zen';
 // Troque estes placeholders pelos caminhos dos ícones quando estiverem prontos.
-const POWER_ICONS={lightning:'⚡',curse:'☠️',emp:'▣',trash:'🗑️'};
+const POWER_ICONS={lightning:'⚡',curse:'☠️',emp:'▣',trash:'🗑️',shield:'🛡️',slow:'🐢'};
 const POWER_DEFS={
   bomb:{id:'bomb',n:'BOMBA',icon:'💣',img:'./bomba.png'},
   swap:{id:'swap',n:'TROCA',icon:'🔄',img:'./reverse.png'},
@@ -427,10 +496,12 @@ const POWER_DEFS={
   lightning:{id:'lightning',n:'RELÂMPAGO',icon:POWER_ICONS.lightning},
   curse:{id:'curse',n:'CURSE',icon:POWER_ICONS.curse,img:'./caveira.png'},
   emp:{id:'emp',n:'EMP',icon:POWER_ICONS.emp},
-  trash:{id:'trash',n:'TRASH',icon:'🗑️'}
+  trash:{id:'trash',n:'TRASH',icon:'🗑️'},
+  shield:{id:'shield',n:'ESCUDO',icon:POWER_ICONS.shield,description:'Dura 45s: bloqueia o primeiro TRASH; o próximo ativa as barreiras por 30s.'},
+  slow:{id:'slow',n:'TEMPO LENTO',icon:POWER_ICONS.slow,description:'Queda 2,5× mais lenta e imunidade ao raio por 30s.'}
 };
 const STARTING_POWER_IDS=['bomb','swap','time'];
-const MULTIPLAYER_REWARD_IDS=['bomb','swap','time','lightning','curse','emp'];
+const MULTIPLAYER_REWARD_IDS=['bomb','swap','time','lightning','curse','emp','shield','slow'];
 function powerIconMarkup(id){const icon=POWER_ICONS[id]||POWER_DEFS[id]?.icon||'▣';
   if(/^(\.\/|\.\.\/|\/|https?:)/i.test(icon))return `<img src="${icon}" alt="${POWER_DEFS[id].n}" onerror="this.replaceWith('▣')">`;
   return `<span>${icon}</span>`}
@@ -453,9 +524,9 @@ const CHALLENGES=[
 ];
 const ABILITIES=[
   {id:'bomb',name:'BOMBA',icon:'💣',description:'Limpa as 6 colunas centrais e mantém as duas laterais.',rarity:'comum',cost:POWERS_CONFIG.abilityCosts.bomb,cooldown:POWERS_CONFIG.abilityCooldowns.bomb,activate:g=>g.activateBomb()},
-  {id:'shield',name:'ESCUDO',icon:'🛡️',description:'Protege contra as próximas 3 subidas de lixo.',rarity:'incomum',cost:POWERS_CONFIG.abilityCosts.shield,cooldown:POWERS_CONFIG.abilityCooldowns.shield,activate:g=>g.activateShield()},
+  {id:'shield',name:'ESCUDO',icon:'🛡️',description:'Protege contra lixo por 45 segundos.',rarity:'incomum',cost:POWERS_CONFIG.abilityCosts.shield,cooldown:POWERS_CONFIG.abilityCooldowns.shield,activate:g=>g.activateShield()},
   {id:'clear',name:'LIMPAR',icon:'🧹',description:'Zera o tabuleiro inteiro sem apagar seus pontos ou estatísticas.',rarity:'comum',cost:POWERS_CONFIG.abilityCosts.clear,cooldown:POWERS_CONFIG.abilityCooldowns.clear,activate:g=>g.activateClear()},
-  {id:'slow',name:'TEMPO LENTO',icon:'🐢',description:'Deixa a queda 2,5× mais lenta por 15 segundos.',rarity:'incomum',cost:POWERS_CONFIG.abilityCosts.slow,cooldown:POWERS_CONFIG.abilityCooldowns.slow,activate:g=>g.activateSlow()},
+  {id:'slow',name:'TEMPO LENTO',icon:'🐢',description:'Deixa a queda 2,5× mais lenta e bloqueia o raio por 30 segundos.',rarity:'incomum',cost:POWERS_CONFIG.abilityCosts.slow,cooldown:POWERS_CONFIG.abilityCooldowns.slow,activate:g=>g.activateSlow()},
   {id:'double',name:'PONTOS ×2',icon:'✨',description:'Dobra os pontos ganhos por 35 segundos.',rarity:'rara',cost:POWERS_CONFIG.abilityCosts.double,cooldown:POWERS_CONFIG.abilityCooldowns.double,activate:g=>g.activateDoubleScore()},
   {id:'lucky',name:'PEÇA DA SORTE',icon:'🍀',description:'Transforma a peça atual em T; ao tocar, cresce 1 bloco à direita e 1 abaixo.',rarity:'comum',cost:POWERS_CONFIG.abilityCosts.lucky,cooldown:POWERS_CONFIG.abilityCooldowns.lucky,activate:g=>g.activateLuckyPiece()},
   {id:'rewind',name:'VOLTAR',icon:'⏪',description:'Desfaz apenas a peça colocada mais recentemente.',rarity:'rara',cost:POWERS_CONFIG.abilityCosts.rewind,cooldown:POWERS_CONFIG.abilityCooldowns.rewind,activate:g=>g.activateRewind()},
@@ -476,7 +547,8 @@ const SCENE_CONFIG={
   survival:{sky:'radial-gradient(ellipse at 80% 75%,rgba(21,179,161,.28),transparent 35%),linear-gradient(160deg,#071d32,#103949 58%,#17504d)',board:'#102b3c',particles:'sparks',count:12,led:'#54f0d7'},
   timeAttack:{sky:'radial-gradient(ellipse at 15% 50%,rgba(77,186,255,.35),transparent 34%),linear-gradient(150deg,#071b4a,#105698 55%,#e67836)',board:'#10284f',particles:'streaks',count:13,led:'#ffd45e'},
   challenge:{sky:'radial-gradient(ellipse at 50% 38%,rgba(255,230,151,.32),transparent 32%),linear-gradient(150deg,#382667,#61439b 55%,#a84f99)',board:'#302452',particles:'stars',count:13,led:'#fff099'},
-  multiplayer:{sky:'radial-gradient(ellipse at 50% 45%,rgba(255,95,162,.3),transparent 38%),linear-gradient(155deg,#19134d,#311866 52%,#782b7c)',board:'#23174e',particles:'blocks',count:14,led:'#ff72b2'}
+  multiplayer:{sky:'radial-gradient(ellipse at 50% 45%,rgba(255,95,162,.3),transparent 38%),linear-gradient(155deg,#19134d,#311866 52%,#782b7c)',board:'#23174e',particles:'blocks',count:14,led:'#ff72b2'},
+  x1:{sky:'radial-gradient(ellipse at 15% 28%,rgba(255,125,0,.52),transparent 35%),radial-gradient(ellipse at 82% 15%,rgba(255,213,62,.42),transparent 34%),radial-gradient(ellipse at 50% 100%,rgba(255,255,255,.12),transparent 48%),linear-gradient(145deg,#090909,#241a0b 52%,#080808)',board:'#10100e',particles:'sparks',count:20,led:'#ffd34e'}
 };
 const SCENE_MUSIC={menu:'lobby',classic:'classic',hardcore:'hardcore',zen:'zen',multiplayer:'multiplayer',timeAttack:'single',survival:'single',challenge:'single'};
 let sceneCurrent='',sceneLayerIndex=0;
@@ -563,14 +635,18 @@ function blk(c,gx,gy,i,bs,a=1){const[l,d]=COL[i],p=gx*bs,q=gy*bs,r=bs*.3,f=(x,y,
 
 class Game{
   constructor(p){this.p=p;this.c=$('cv'+p).getContext('2d');this.pc=$('pv'+p).getContext('2d');this.hiKey=count===1?`ttr_sp_${gameMode}_hi`:'ttr_hi_mp_p'+p;this.hi=this.hi0=+(ls(this.hiKey)||0);this.opp=null;this.reset()}
-  reset(){this.b=Array.from({length:ROWS},()=>Array(COLS).fill(0));this.score=this.lines=this.combo=this.comboStreak=this.combos=this.maxCombo=this.placed=0;this.nextPowerScore=POWERS_CONFIG.firstPowerScore;this.nextPowerLine=POWERS_CONFIG.linesPerPower;this.pendingPowerRewards=[];this.trashActiveUntil=0;this.trashMarkers=Array.from({length:ROWS},()=>Array(COLS).fill(false));this.lv=gameMode==='hardcore'?5:1;this.over=this.paused=false;this.t=0;this.modeElapsedMs=0;this.survivalElapsedMs=0;this.sceneIntensityBucket=-1;this.sceneIntensityMode='';this.nextGarbageAt=POWERS_CONFIG.survivalStartInterval;this.energy=count===1&&gameMode==='zen'?POWERS_CONFIG.energyMax:0;this.abilityCooldowns={};this.zenClearReadyAt=0;this.zenClearPauseRemaining=null;this.zenGravityAnimation=null;this.slowUntil=0;this.doubleScoreUntil=0;this.shield=0;this.boardHistory=null;this.holdCount=0;this.challenge=count===1&&gameMode==='zen'?null:CHALLENGES.find(c=>c.id===selectedChallenge)||null;this.challengeProgress=0;this.challengeCompleted=false;this.challengeInvalid=false;this.challengeTimeLeft=this.challenge?.timeLimit||POWERS_CONFIG.challengeTimeLimit;
+  reset(){this.b=Array.from({length:ROWS},()=>Array(COLS).fill(0));this.score=this.lines=this.combo=this.comboStreak=this.combos=this.maxCombo=this.placed=0;this.nextPowerScore=POWERS_CONFIG.firstPowerScore;this.nextPowerLine=POWERS_CONFIG.linesPerPower;this.pendingPowerRewards=[];this.trashActiveUntil=0;this.trashMarkers=Array.from({length:ROWS},()=>Array(COLS).fill(false));this.lv=gameMode==='hardcore'?5:1;this.over=this.paused=false;this.t=0;this.modeElapsedMs=0;this.survivalElapsedMs=0;this.sceneIntensityBucket=-1;this.sceneIntensityMode='';this.nextGarbageAt=POWERS_CONFIG.survivalStartInterval;this.energy=count===1&&gameMode==='zen'?POWERS_CONFIG.energyMax:0;this.abilityCooldowns={};this.zenClearReadyAt=0;this.zenClearPauseRemaining=null;this.zenGravityAnimation=null;this.slowUntil=0;this.doubleScoreUntil=0;this.shieldUntil=0;this.rotationCharge={degrees:0,ready:false,lastAngle:null,pendingDelta:0};this.boardHistory=null;this.holdCount=0;this.challenge=count===1&&gameMode==='zen'?null:CHALLENGES.find(c=>c.id===selectedChallenge)||null;this.challengeProgress=0;this.challengeCompleted=false;this.challengeInvalid=false;this.challengeTimeLeft=this.challenge?.timeLimit||POWERS_CONFIG.challengeTimeLimit;
     this.flash=this.sd=this.lastSoft=this.pwLock=0;this.abilityUiAt=0;this.parts=[];this.anim=null;this.fx=null;this.boomT=null;this.idle=false;this.idleLeadIn=IDLE.videoLead;this.idleCountdown=IDLE.countdown;this.lastAct=performance.now();
     this.deck=count===1&&gameMode==='zen'?[]:STARTING_POWER_IDS.map(id=>({id,used:false}));this.ps=0;this.pm=false;this.lightningActive=false;this.curseActive=false;this.curseTimer=null;this.empActive=false;this.empTimer=null;this.idleAudioTimer=null;this.idleExploded=false;this.idleVideoDone=false;this.idleVideoFallback=false;this.idleVideoTimer=null;
     this.hold=null;this.holdUsed=false;this.missionTarget=4;this.missionProgress=0;this.missionsCompleted=0;this.powerCharges=count===1&&gameMode!=='zen'?1:0;
     if(gameMode==='hardcore')this.placed=12;
-    this.bag=[];this.nxt=this.take();this.lockT=performance.now()+700;this.next();this.ui();this.drawHold();this.updateSoloUI();this.pui();this.hideIdleAlert()}
+    this.bag=[];this.nxt=this.take();this.lockT=performance.now()+700;this.next();this.ui();this.drawHold();this.updateSoloUI();this.updateRotationChargeUI();this.pui();this.hideIdleAlert()}
   take(){if(!this.bag.length)this.bag=[0,1,2,3,4,5,6].sort(()=>Math.random()-.5);const m=SH[this.bag.pop()].map(r=>[...r]);return{m,x:COLS-m[0].length>>1,y:0}}
-  next(){this.cur=this.nxt;this.nxt=this.take();this.holdUsed=false;this.drawNext();if(this.hit(this.cur.m,this.cur.x,this.cur.y))this.over=true}
+  next(){this.cur=this.nxt;this.nxt=this.take();this.holdUsed=false;this.drawNext();
+    const holdHint=$('holdHint'+this.p),mpHoldHint=$('mpHoldHint'+this.p);
+    if(holdHint)holdHint.textContent=this.hold?'Guardada · K / C para trocar':'Vazio · K / C para guardar';
+    if(mpHoldHint)mpHoldHint.textContent='E / D7 para guardar';
+    if(this.hit(this.cur.m,this.cur.x,this.cur.y))this.over=true}
   hit(m,x,y){const narrow=this.trashActiveUntil>performance.now(),edge=POWERS_CONFIG.trashColumns;
     return m.some((r,j)=>r.some((v,i)=>v&&(x+i<0||x+i>=COLS||y+j>=ROWS||narrow&&(x+i<edge||x+i>=COLS-edge)||this.b[y+j][x+i])))}
   isCompleteLine(row){if(this.trashActiveUntil>performance.now()){const edge=POWERS_CONFIG.trashColumns;return row.slice(edge,COLS-edge).every(Boolean)}return row.every(Boolean)}
@@ -592,6 +668,34 @@ class Game{
     this.flash=.55;pop(this.p,'🍀 T CRESCEU! +2 BLOCOS','#a9ff90');sfx(620,.22,'triangle',.08,1.5);return true}
   rot(){if(!this.ok())return;const c=this.cur,m=c.m,R=m.length,C=m[0].length,n=Array.from({length:C},(_,i)=>Array.from({length:R},(_,j)=>m[R-1-j][i]));
     for(const k of[0,-1,1,-2,2])if(!this.hit(n,c.x+k,c.y)){c.m=n;c.x+=k;sfx(520,.07,'triangle',.05,1.5);return}}
+  updateRotationCharge(rawX,rawY){const charge=this.rotationCharge,dx=rawX-512,dy=rawY-512;
+    if(charge.ready)return;
+    if(Math.hypot(dx,dy)<287){charge.lastAngle=null;charge.pendingDelta=0;return}
+    const angle=Math.atan2(dy,dx)*180/Math.PI;
+    if(charge.lastAngle===null){charge.lastAngle=angle;return}
+    let delta=((angle-charge.lastAngle+540)%360)-180;charge.lastAngle=angle;
+    if(Math.abs(delta)>65){charge.pendingDelta=0;return}
+    charge.pendingDelta+=delta;if(Math.abs(charge.pendingDelta)<1)return;
+    delta=charge.pendingDelta;charge.pendingDelta=0;
+    charge.degrees=Math.max(-360,Math.min(360,charge.degrees+delta));
+    if(Math.abs(charge.degrees)>=359.9){charge.degrees=Math.sign(charge.degrees)*360;charge.ready=true;
+      pop(this.p,charge.degrees>0?'↻ GIRO COMPLETO · ATAQUE PRONTO':'↺ GIRO COMPLETO · ESCUDO PRONTO',charge.degrees>0?'#ffbf35':'#fff0b0');
+      sfx(760,.3,'triangle',.09,2)}
+    this.updateRotationChargeUI()}
+  updateRotationChargeUI(){const charge=this.rotationCharge,bar=$('rotation-charge'+this.p),fill=$('rotation-charge-fill'+this.p),
+      label=$('rotation-charge-label'+this.p),degrees=$('rotation-charge-degrees'+this.p);
+    if(!bar)return;
+    const amount=Math.abs(charge.degrees),percent=Math.round(amount/360*100),direction=charge.degrees>0?'cw':charge.degrees<0?'ccw':'none';
+    bar.dataset.direction=direction;bar.dataset.ready=String(charge.ready);bar.dataset.level=String(charge.ready?3:Math.min(3,Math.floor(percent/25)));
+    bar.setAttribute('aria-valuenow',String(Math.round(amount)));
+    if(fill)fill.style.width=percent+'%';
+    if(degrees)degrees.textContent=`${Math.round(amount)}° / 360°`;
+    if(label)label.textContent=charge.ready?(direction==='cw'?'ATAQUE · READY':'ESCUDO · READY'):
+      direction==='cw'?`↻ TRASH · ${percent}%`:direction==='ccw'?`↺ ESCUDO · ${percent}%`:`GIRE O JOYSTICK · ${percent}%`}
+  activateRotationPower(){const charge=this.rotationCharge;if(!charge.ready)return false;
+    const activated=charge.degrees>0?this.activateTrash():this.activateShield();
+    if(!activated){pop(this.p,'PODER INDISPONÍVEL!','#ff7777');return false}
+    charge.degrees=0;charge.ready=false;charge.lastAngle=null;charge.pendingDelta=0;this.updateRotationChargeUI();return true}
   /* velocidade: cada peça colocada deixa a queda mais rápida */
   speed(){let s=Math.max(SPEED.min,SPEED.start*Math.pow(SPEED.decay,this.placed));
     s*=SPEED.modeMultiplier[gameMode]??SPEED.modeMultiplier.classic;
@@ -676,7 +780,8 @@ class Game{
     if(!this.hasAbilityTarget(ability.id))return'Não há alvo válido para este poder agora.';
     if(!hasInfiniteAbilityEnergy()&&this.energy<ability.cost)return`Energia insuficiente: faltam ${ability.cost-this.energy} EN.`;
     return''}
-  abilityStatusLabel(ability){const reason=this.abilityBlockReason(ability);if(!reason)return ability.id==='shield'&&this.shield?`ATIVO ×${this.shield}`:'PRONTO';
+  abilityStatusLabel(ability){if(ability?.id==='shield'&&this.shieldUntil>performance.now())return`ATIVO ${Math.ceil((this.shieldUntil-performance.now())/1000)}s`;
+    const reason=this.abilityBlockReason(ability);if(!reason)return'PRONTO';
     const cooldown=reason.match(/^Aguarde a recarga: (\d+)s\.$/);if(cooldown)return`RECARGA ${cooldown[1]}s`;
     const energy=reason.match(/^Energia insuficiente: faltam (\d+) EN\.$/);if(energy)return`PRECISA ${energy[1]} EN`;
     if(reason.startsWith('Sem cargas'))return'SEM CARGA';
@@ -711,25 +816,27 @@ class Game{
     this.sceneIntensityBucket=bucket;this.sceneIntensityMode=gameMode;
     document.body.style.setProperty('--mode-intensity',gameMode==='hardcore'?String(.42+bucket*.055):String(.25+bucket*.09))}
   ui(){$('sc'+this.p).textContent=this.score;$('li'+this.p).textContent=this.lines;$('lv'+this.p).textContent=this.lv;$('hi'+this.p).textContent=this.hi;this.updateSceneIntensity()}
-  updateSoloUI(){const mission=$('missionText'+this.p),progress=$('missionProgress'+this.p),power=$('soloPower'+this.p),powerCount=$('soloPowerCount'+this.p),combo=$('combo'+this.p),hint=$('holdHint'+this.p);
+  updateSoloUI(){const mission=$('missionText'+this.p),progress=$('missionProgress'+this.p),power=$('soloPower'+this.p),powerCount=$('soloPowerCount'+this.p),combo=$('combo'+this.p),hint=$('holdHint'+this.p),mpHint=$('mpHoldHint'+this.p);
     if(count===1&&gameMode==='zen'){this.updateAbilityUI();this.updateZenAbilityUI();if(combo){combo.textContent=this.combo>1?`COMBO ×${this.combo}`:'';combo.classList.toggle('on',this.combo>1)}return}
     if(mission)mission.textContent=this.challenge?.name||`Limpe ${this.missionTarget} linhas`;
     if(progress)progress.textContent=this.challenge?`${Math.min(this.challengeProgress,this.challenge.target)}/${this.challenge.target}`:`${this.missionProgress}/${this.missionTarget}`;
     if(powerCount)powerCount.textContent=`BOMBA ×${this.powerCharges}`;
     if(combo){combo.textContent=this.combo>1?`COMBO ×${this.combo}`:'';combo.classList.toggle('on',this.combo>1)}
     if(hint)hint.textContent=this.holdUsed?'Já usou nesta peça':this.hold?'Guardada · K / C para trocar':'Vazio · K / C para guardar';
+    if(mpHint)mpHint.textContent=this.holdUsed?'Já guardou nesta peça':'E / D7 para guardar';
     this.updateAbilityUI()}
   advanceMission(lines){this.missionProgress+=lines;
     while(this.missionProgress>=this.missionTarget){this.missionProgress-=this.missionTarget;this.missionsCompleted++;this.missionTarget=4+Math.min(4,Math.floor(this.missionsCompleted/2));this.powerCharges=Math.min(3,this.powerCharges+1);this.add(300*this.lv);pop(this.p,'🎯 MISSÃO! +300');}
     this.updateSoloUI()}
-  drawHold(){const canvas=$('hv'+this.p);if(!canvas)return;const ctx=canvas.getContext('2d');ctx.clearRect(0,0,88,88);if(!this.hold)return;
-    const m=this.hold,bs=20;ctx.save();ctx.translate((88-m[0].length*bs)/2,(88-m.length*bs)/2);m.forEach((r,y)=>r.forEach((v,x)=>v&&blk(ctx,x,y,v,bs)));ctx.restore()}
-  holdPiece(){if(count!==1||!this.ok()||this.holdUsed)return;
+  drawHold(){const canvases=[$('hv'+this.p),$('mpHv'+this.p)].filter(Boolean);
+    canvases.forEach(canvas=>{const ctx=canvas.getContext('2d');ctx.clearRect(0,0,88,88);if(!this.hold)return;
+      const m=this.hold,bs=20;ctx.save();ctx.translate((88-m[0].length*bs)/2,(88-m.length*bs)/2);m.forEach((r,y)=>r.forEach((v,x)=>v&&blk(ctx,x,y,v,bs)));ctx.restore()})}
+  holdPiece(){if(![1,2].includes(count)||!this.ok()||this.holdUsed)return;
     const current=this.cur.m.map(r=>[...r]);
     if(this.hold){const replacement=this.hold;this.hold=current;this.cur={m:replacement.map(r=>[...r]),x:COLS-replacement[0].length>>1,y:0};if(this.hit(this.cur.m,this.cur.x,this.cur.y))this.over=true}
     else{this.hold=current;this.next()}
-    this.holdUsed=true;this.holdCount++;if(this.challenge?.type==='noHold'){this.challengeInvalid=true;const progress=$('missionProgress'+this.p);if(progress)progress.textContent='FALHOU · reinicie'}
-    this.drawHold();this.updateSoloUI();sfx(620,.12,'triangle',.07,1.5)}
+    this.holdUsed=true;this.holdCount++;if(count===1&&this.challenge?.type==='noHold'){this.challengeInvalid=true;const progress=$('missionProgress'+this.p);if(progress)progress.textContent='FALHOU · reinicie'}
+    this.drawHold();this.updateSoloUI();const hint=$('mpHoldHint'+this.p);if(hint)hint.textContent=this.holdUsed?'Já guardou nesta peça':'E / D7 para guardar';sfx(620,.12,'triangle',.07,1.5)}
   updateZenAbilityUI(){const button=$('zen-clear-button');if(!button||count!==1||gameMode!=='zen')return;
     const remaining=this.zenClearPauseRemaining!==null?this.zenClearPauseRemaining:Math.max(0,this.zenClearReadyAt-performance.now());
     const status=$('zen-cooldown-status'),progress=$('zen-cooldown-progress'),hint=$('zen-ability-hint'),hasBlocks=this.b.some(row=>row.some(Boolean));
@@ -763,7 +870,10 @@ class Game{
     if(!exploded.length)return false;
     exploded.forEach(({x,y})=>this.parts.push({x:x*BS+BS/2,y:y*BS+BS/2,vx:(Math.random()-.5)*11,vy:-Math.random()*10-2,l:1.3,c:Math.random()>.5?'#ffb86b':'#ffe66d'}));
     if(!hasInfiniteAbilityEnergy())this.powerCharges--;this.flash=1;shake(this.p);playExplosionSound();sfx(90,.4,'sawtooth',.12,.4);pop(this.p,'💣 CENTRO LIMPO!','#ffcf70');return true}
-  activateShield(){this.shield+=POWERS_CONFIG.shieldGarbageHits;pop(this.p,`🛡️ ESCUDO: ${this.shield} LIXOS BLOQUEADOS`,'#8deaff');this.updateAbilityUI();return true}
+  activateShield(){this.shieldUntil=performance.now()+POWERS_CONFIG.shieldDuration;$('bw'+this.p)?.classList.add('shield-active');
+    pop(this.p,'🛡️ ESCUDO ATIVO · 45s','#8deaff');this.updateAbilityUI();return true}
+  cleanupShield(announce=false){if(!this.shieldUntil)return;this.shieldUntil=0;$('bw'+this.p)?.classList.remove('shield-active');
+    if(announce&&mode==='game'&&!ended)pop(this.p,'🛡️ ESCUDO QUEBRADO!','#ffcf70')}
   activateClear(){const cleared=[];
     this.b.forEach((row,y)=>row.forEach((value,x)=>{if(value)cleared.push({x,y,value})}));
     if(!cleared.length)return false;
@@ -771,7 +881,9 @@ class Game{
     this.trashMarkers=Array.from({length:ROWS},()=>Array(COLS).fill(false));
     cleared.forEach(({x,y})=>this.parts.push({x:x*BS+BS/2,y:y*BS+BS/2,vx:(Math.random()-.5)*12,vy:(Math.random()-.5)*12,l:1.25,c:Math.random()>.5?'#83ffd4':'#c6ff8a'}));
     this.flash=1;shake(this.p);sfx(480,.35,'sine',.1,1.8);pop(this.p,'🧹 TABULEIRO ZERADO!','#aaffc8');return true}
-  activateSlow(){this.slowUntil=performance.now()+POWERS_CONFIG.slowDuration;pop(this.p,'🐢 TEMPO LENTO!','#8deaff');return true}
+  activateSlow(){this.slowUntil=performance.now()+POWERS_CONFIG.slowDuration;$('bw'+this.p)?.classList.add('slow-active');
+    const blockedLightning=this.lightningActive;if(blockedLightning){this.lightningActive=false;$('bw'+this.p)?.classList.remove('lightning-active')}
+    pop(this.p,blockedLightning?'🐢 TEMPO LENTO! RAIO BLOQUEADO · 30s':'🐢 TEMPO LENTO! · 30s','#8deaff');return true}
   activateDoubleScore(){this.doubleScoreUntil=performance.now()+POWERS_CONFIG.doubleScoreDuration;pop(this.p,'✨ PONTOS ×2!','#ffe66d');return true}
   activateLuckyPiece(){const next={m:SH[2].map(row=>[...row]),x:COLS-SH[2][0].length>>1,y:0,luckyGrowthPending:true};
     if(this.hit(next.m,next.x,next.y))return false;this.cur=next;this.t=0;pop(this.p,'🍀 PEÇA T DA SORTE!','#7dff8a');this.drawNext();return true}
@@ -826,7 +938,7 @@ class Game{
       const id=this.pendingPowerRewards.shift();if(this.addPower(id))pop(this.p,POWER_DEFS[id].icon+' Poder adicionado ao deck!','#ffe66d')}}
   pui(animateLast=false){const e=$('pw'+this.p);if(!e)return;e.classList.toggle('on',this.pm);e.classList.toggle('dense',this.deck.length>3);
     e.innerHTML=this.deck.map((card,i)=>{const def=POWER_DEFS[card.id],icon=def.img?`<img src="${def.img}" alt="${def.n}" onerror="this.replaceWith('${def.icon}')">`:powerIconMarkup(card.id);
-      return `<div class="sl ${card.id}${card.used?' used':''}${this.pm&&i===this.ps?' sel':''}${animateLast&&i===this.deck.length-1?' power-enter':''}" title="${def.n}" aria-label="${def.n}"><span class="bubble">${def.n}</span><span class="ic">${icon}</span></div>`}).join('')}
+      return `<div class="sl ${card.id}${card.used?' used':''}${this.pm&&i===this.ps?' sel':''}${animateLast&&i===this.deck.length-1?' power-enter':''}" title="${def.description||def.n}" aria-label="${def.n}"><span class="bubble">${def.n}</span><span class="ic">${icon}</span></div>`}).join('')}
   setPM(v){if(v){if(this.deck.every(card=>card.used)){sfx(150,.1,'square',.06);return}
       if(this.deck[this.ps]?.used)this.ps=this.deck.findIndex(card=>!card.used)}
     this.pm=v;sfx(v?700:400,.08,'triangle',.07);this.pui()}
@@ -844,6 +956,7 @@ class Game{
     pop(this.p,POWER_DEFS[id].icon+' '+POWER_DEFS[id].n+'!');
     if(id==='bomb')this.bomb();else if(id==='swap')this.swapWith(o);else if(id==='time')this.timeBonus();
     else if(id==='lightning')this.activateLightning();else if(id==='curse')this.activateCurse();else if(id==='emp')this.activateEMP();else if(id==='trash')this.activateTrash();
+    else if(id==='shield')this.activateShield();else if(id==='slow')this.activateSlow();
     this.fillPendingPowerRewards();this.pui()}
   bomb(){let ty=ROWS/2;const r=this.b.findIndex(r=>r.some(Boolean));if(r>=0)ty=r;
     this.fx={t:0,boom:false,ty};sfx(300,.45,'sawtooth',.06,.3)}
@@ -863,6 +976,7 @@ class Game{
     if(timerBonusTimeout)clearTimeout(timerBonusTimeout);timerBonusTimeout=setTimeout(()=>{timer.classList.remove('timer-pop','green','timer-bonus');delete timer.dataset.bonus;timerBonusTimeout=null},POWERS_CONFIG.timerBonusAnimation);
     pop(this.p,'⏱ +'+formatMatchTime(added));if(this.opp)pop(this.opp.p,'⏱ +'+formatMatchTime(added));sfx(930,.2,'square',.09,1.8)}
   activateTrash(){const target=this.opp;if(!target||target.over)return false;
+    if(target.shieldUntil>performance.now()){target.cleanupShield();pop(target.p,'🛡️ ESCUDO BLOQUEOU O PRIMEIRO LIXO!','#8deaff');return true}
     const edge=POWERS_CONFIG.trashColumns;target.trashActiveUntil=performance.now()+POWERS_CONFIG.trashDuration;
     for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)if((x<edge||x>=COLS-edge)&&target.b[y][x]&&target.b[y][x]!==8){
       target.b[y][x]=8;target.trashMarkers[y][x]=true}
@@ -880,7 +994,9 @@ class Game{
     if(announce&&mode==='game'&&!ended)pop(this.p,'🗑️ Lixo do TRASH removido!','#d5d9df')}
   activateLightning(){if(lightningTimer)clearTimeout(lightningTimer);
     $('game').classList.add('lightning-active');
-    games.forEach(g=>{const needsPiece=!!g.anim&&!g.cur;g.cleanupTrash(false);g.anim=null;g.fx=null;g.lightningActive=true;g.b=Array.from({length:ROWS},()=>Array(COLS).fill(0));g.flash=1;g.t=0;
+    games.forEach(g=>{if(g.slowUntil>performance.now()){g.lightningActive=false;$('bw'+g.p)?.classList.remove('lightning-active');
+        pop(g.p,'🐢 TEMPO LENTO BLOQUEOU O RAIO!','#8deaff');return}
+      const needsPiece=!!g.anim&&!g.cur;g.cleanupTrash(false);g.anim=null;g.fx=null;g.lightningActive=true;$('bw'+g.p)?.classList.add('lightning-active');g.b=Array.from({length:ROWS},()=>Array(COLS).fill(0));g.flash=1;g.t=0;
       if(needsPiece)g.next();
       for(let k=0;k<100;k++){const a=Math.random()*Math.PI*2,sp=2+Math.random()*10;g.parts.push({x:COLS*BS/2,y:ROWS*BS/2,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,l:1.4,c:Math.random()>.5?'#b9f5ff':'#8d9cff'})}
       shake(g.p);pop(g.p,'⚡ RELÂMPAGO!','#c8f7ff')});
@@ -910,11 +1026,13 @@ class Game{
     if(performance.now()-this.abilityUiAt>=200){this.abilityUiAt=performance.now();this.updateAbilityUI()}
     if(this.fx){this.fxStep(dt);return}
     if(this.anim){this.anim.t+=dt;if(this.anim.t>(this.anim.duration||320))this.done();return}
+    if(this.shieldUntil&&performance.now()>=this.shieldUntil)this.cleanupShield();
+    if(this.slowUntil&&performance.now()>=this.slowUntil){this.slowUntil=0;$('bw'+this.p)?.classList.remove('slow-active')}
     if(count===1&&gameMode==='survival'){
       const interval=Math.max(POWERS_CONFIG.survivalMinInterval,POWERS_CONFIG.survivalStartInterval-
         Math.floor(this.modeElapsedMs/POWERS_CONFIG.survivalDifficultyStep)*POWERS_CONFIG.survivalIntervalDecay);
       if(this.modeElapsedMs>=this.nextGarbageAt){this.nextGarbageAt=this.modeElapsedMs+interval;
-        if(this.shield){this.shield--;pop(this.p,`🛡️ LIXO BLOQUEADO · ${this.shield} RESTANTES`,'#8deaff');this.updateAbilityUI()}
+        if(this.shieldUntil>performance.now()){this.cleanupShield();pop(this.p,'🛡️ ESCUDO BLOQUEOU O LIXO!','#8deaff');this.updateAbilityUI()}
         else{const top=this.b.shift();if(gameMode!=='zen'&&top.some(Boolean))this.over=true;
           const row=Array(COLS).fill(8);row[Math.random()*COLS|0]=0;this.b.push(row);pop(this.p,'⚠ LIXO SUBIU!','#ff7b7b')}}
     }
@@ -941,11 +1059,16 @@ class Game{
   drawNext(){const p=this.pc,m=this.nxt.m,bs=20;p.clearRect(0,0,88,88);if(this.curseActive)return;p.save();p.translate((88-m[0].length*bs)/2,(88-m.length*bs)/2);m.forEach((r,j)=>r.forEach((v,i)=>v&&blk(p,i,j,v,bs)));p.restore()}
   draw(){const c=this.c,W=COLS*BS,H=ROWS*BS;c.clearRect(0,0,W,H);
     for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){c.fillStyle=(x+y)%2?'rgba(255,255,255,.05)':'rgba(255,255,255,.1)';c.fillRect(x*BS,y*BS,BS,BS)}
-    if(this.anim?.magnet){const progress=Math.min(1,this.anim.t/this.anim.duration),ease=1-Math.pow(1-progress,3);
+    if(this.anim?.magnet){const progress=Math.min(1,this.anim.t/this.anim.duration),ease=1-Math.pow(1-progress,3),depth=Math.sin(progress*Math.PI);
+      c.save();c.strokeStyle=`rgba(101,232,255,${.35+.55*depth})`;c.shadowColor='#65e8ff';c.shadowBlur=18;c.lineWidth=3+depth*3;
+      c.beginPath();c.ellipse(W/2,H/2,W*(.2+.18*progress),H*(.09+.13*progress),progress*.45,0,Math.PI*2);c.stroke();
+      c.strokeStyle=`rgba(169,255,144,${.28+.5*depth})`;c.lineWidth=2;c.beginPath();c.ellipse(W/2,H/2,W*(.13+.23*progress),H*(.06+.16*progress),-progress*.65,Math.PI*.15,Math.PI*1.35);c.stroke();c.restore();
       this.anim.magnet.blocks.forEach(block=>{const x=block.fromX+(block.toX-block.fromX)*ease;
         const y=block.fromY+(block.toY-block.fromY)*ease-Math.sin(progress*Math.PI)*.65;
-        c.save();c.shadowColor=block.generated?'#a9ff90':'#65e8ff';c.shadowBlur=12*(1-progress)+2;
-        blk(c,x,y,block.value,BS,block.generated ? .88 : 1);c.restore()})}
+        c.save();c.translate((x+.5)*BS,(y+.5)*BS);c.rotate(Math.sin(progress*Math.PI+x*.23)*.48);
+        c.scale(1-depth*.3,1+depth*.12);c.transform(1,depth*.13,-depth*.18,1,0,0);
+        c.shadowColor=block.generated?'#a9ff90':'#65e8ff';c.shadowBlur=12*(1-progress)+8;
+        blk(c,-.5,-.5,block.value,BS,block.generated ? .88 : 1);c.restore()})}
     else this.b.forEach((r,y)=>{const fl=this.anim&&this.anim.f.includes(y),gravity=this.zenGravityAnimation&&y>0&&y<=this.zenGravityAnimation.row?
         y-Math.pow(1-Math.min(1,this.zenGravityAnimation.t/this.zenGravityAnimation.duration),2):y;
       r.forEach((v,x)=>{if(!v)return;if(fl&&this.anim.zenAbility){c.save();c.shadowColor='#71ead0';c.shadowBlur=18;c.fillStyle=(this.anim.t/70|0)%2?'#f4fff8':'#7fe4cf';c.fillRect(x*BS,y*BS,BS,BS);c.restore()}
@@ -982,18 +1105,22 @@ const tpl=i=>`<div class="pl${i>1?' hide':''}" id="pl${i}" style="--ry:${i==1?7:
 <button class="skill-menu-trigger" id="skills-open" type="button">ESCOLHER ✦</button><div class="selected-skill" id="selected-skill-label"><b>Selecionada</b>💣 BOMBA</div>
 <button class="skill-activate" id="selected-skill-activate" type="button">ATIVAR · F / V</button>
 <button class="holdCard" id="hold${i}" type="button" aria-label="Guardar ou trocar peça"><b>PEÇA GUARDADA</b><canvas id="hv${i}" width="88" height="88"></canvas><small id="holdHint${i}">Vazio · K / C para guardar</small></button>
-</aside>`:''}<canvas class="main" id="cv${i}" width="280" height="560"></canvas><div class="comboBadge" id="combo${i}"></div>
+</aside>`:''}<div class="board-stack"><canvas class="main" id="cv${i}" width="280" height="560"></canvas>
+<div class="rotation-charge" id="rotation-charge${i}" data-direction="none" data-ready="false" data-level="0" role="progressbar" aria-label="Carga de giro do jogador ${i}" aria-valuemin="0" aria-valuemax="360" aria-valuenow="0">
+<div class="rotation-charge-top"><span id="rotation-charge-label${i}">GIRE O JOYSTICK · 0%</span><span class="rotation-charge-degrees" id="rotation-charge-degrees${i}">0° / 360°</span></div><div class="rotation-charge-track"><span class="rotation-charge-fill" id="rotation-charge-fill${i}"></span></div><span class="rotation-charge-ready-label">READY · K</span></div></div><div class="comboBadge" id="combo${i}"></div>
 <div class="sd"><div class="nx">PRÓXIMA<canvas id="pv${i}" width="88" height="88"></canvas>RECORDE<i id="hi${i}">0</i></div>
+<button class="holdCard multiplayerHold" id="mpHold${i}" data-player="${i}" type="button" aria-label="Guardar ou trocar peça do jogador ${i}"><b>PEÇA GUARDADA</b><canvas id="mpHv${i}" width="88" height="88"></canvas><small id="mpHoldHint${i}">E / D7 para guardar</small></button>
 <div class="soloExtras"><div class="missionCard"><b>MISSÃO</b><span id="missionText${i}">Limpe linhas</span><i id="missionProgress${i}">0/4</i><small id="dailyText${i}"></small></div>
 <button class="soloPower" id="soloPower${i}" type="button" title="Use a bomba para limpar até 3 linhas inferiores" aria-label="Usar bomba" disabled><img src="./bomba.png" alt=""> <span id="soloPowerCount${i}">BOMBA ×0</span></button></div>
 <div class="pw" id="pw${i}">${pwHTML(i)}</div></div></div></div></div>`;
 $('arena').innerHTML=tpl(1)+'<div id="vs" class="hide">VS</div>'+tpl(2);
 $('soloPower1').onclick=event=>{event.preventDefault();event.stopPropagation();games[0]?.activateSoloPower()};
 $('hold1').onclick=event=>{event.preventDefault();event.stopPropagation();games[0]?.holdPiece()};
+document.querySelectorAll('.multiplayerHold').forEach(button=>button.onclick=event=>{event.preventDefault();event.stopPropagation();games[Number(button.dataset.player)-1]?.holdPiece()});
 $('ability-list').innerHTML=abilityButtonsHTML();
 
 /* ───── estado e navegação (estilo controle de console) ───── */
-let games=[],count=1,mode='menu',gameMode='classic',selectedChallenge='lines4',matchEndTimestamp=0,matchPausedAt=null,ended=false,last=0,lightningTimer=null,timerBonusTimeout=null,selectedAbilityId='bomb',skillsMenuOpen=false,skillsMenuPausedGame=null;const lastDown=[0,0,0],touchRepeatTimers=new Set();
+let games=[],count=1,mode='menu',gameMode='classic',multiplayerFormat='classic',x1Series=null,selectedChallenge='lines4',matchEndTimestamp=0,matchPausedAt=null,ended=false,last=0,lightningTimer=null,timerBonusTimeout=null,selectedAbilityId='bomb',skillsMenuOpen=false,skillsMenuPausedGame=null;const lastDown=[0,0,0],touchRepeatTimers=new Set();
 function clearTouchRepeats(){touchRepeatTimers.forEach(timer=>clearInterval(timer));touchRepeatTimers.clear()}
 function matchTimeRemaining(){return Math.max(0,matchEndTimestamp-performance.now())}
 function getMatchTimeBonusAmount(){return Math.max(0,Math.min(POWERS_CONFIG.timeBonus,POWERS_CONFIG.maxMatchDuration-matchTimeRemaining()))}
@@ -1008,8 +1135,8 @@ function updateMatchTimer(){const timer=$('timer'),timed=count===2||gameMode==='
     timer.textContent=gameMode==='challenge'&&g?.challenge?.timeLimit?formatMatchTime(g.challengeTimeLeft):formatMatchTime(elapsed);
     tsnd.pause();tsnd.currentTime=0}}
 function cleanupLightning(){if(lightningTimer){clearTimeout(lightningTimer);lightningTimer=null}
-  $('game').classList.remove('lightning-active');games.forEach(g=>{g.lightningActive=false})}
-function cleanupPowerEffects(){cleanupLightning();games.forEach(g=>{g.cleanupCurse();g.cleanupEMP();g.cleanupTrash(false)})}
+  $('game').classList.remove('lightning-active');games.forEach(g=>{g.lightningActive=false;$('bw'+g.p)?.classList.remove('lightning-active')})}
+function cleanupPowerEffects(){cleanupLightning();games.forEach(g=>{g.cleanupCurse();g.cleanupEMP();g.cleanupTrash(false);g.cleanupShield();g.slowUntil=0;$('bw'+g.p)?.classList.remove('slow-active')})}
 function runMatchTimeDebugTests(){const original=matchEndTimestamp,now=1000,cases=[[false,false,'2:00'],[true,false,'3:00'],[false,true,'3:00'],[true,true,'4:00']];
   try{for(const[p1,p2,expected]of cases){matchEndTimestamp=now+POWERS_CONFIG.matchDuration;if(p1)addMatchTimeBonus(now);if(p2)addMatchTimeBonus(now);
       const actual=formatMatchTime(matchEndTimestamp-now);if(actual!==expected)throw new Error(`Esperado ${expected}, recebido ${actual}`)}
@@ -1021,7 +1148,7 @@ window.runMatchTimeDebugTests=runMatchTimeDebugTests;
 if(new URLSearchParams(location.search).get('debug')==='1')console.info(runMatchTimeDebugTests());
 const CARDS=[
  {t:'1 JOGADOR',s:'Escolha entre seis modos',i:'<img src="./single_player.png" alt="1 jogador" onerror="this.replaceWith(\'🧱\')" style="width:72px;height:72px;object-fit:contain;display:block;">',c:'#4da6ff',scene:'classic',f:showSingleModes},
- {t:'2 JOGADORES',s:'Duelo! Combos mandam lixo e poderes mudam o jogo',i:'<img src="./multiplayer.png" alt="2 jogadores" onerror="this.replaceWith(\'⚔️\')" style="width:72px;height:72px;object-fit:contain;display:block;">',c:'#ff5fa2',scene:'multiplayer',f:()=>start(2)},
+ {t:'2 JOGADORES',s:'Clássico ou X1 dos Cria · poderes e disputa em séries',i:'<img src="./multiplayer.png" alt="2 jogadores" onerror="this.replaceWith(\'⚔️\')" style="width:72px;height:72px;object-fit:contain;display:block;">',c:'#ff5fa2',scene:'multiplayer',f:showMultiplayerModes},
  {t:'CONTROLES',s:'Veja como usar o controle',i:'<img src="./control.png" alt="Controles" onerror="this.replaceWith(\'🎮\')" style="width:72px;height:72px;object-fit:contain;display:block;">',c:'#ffb400',scene:'classic',f:showCtrl},
  {t:'MÚSICA',s:'',i:'<img src="./music_icon.png" alt="Música" onerror="this.replaceWith(\'🎵\')" style="width:72px;height:72px;object-fit:contain;display:block;">',c:'#2fcf6a',scene:'zen',f:toggleMusic},
  {t:'DESAFIOS',s:'Missões e progresso',i:'<img src="./desafios.png" alt="Alvo dos desafios" onerror="this.replaceWith(\'🎯\')" style="width:72px;height:72px;object-fit:contain;display:block;">',c:'#c792ff',scene:'challenge',f:showChallenges},
@@ -1037,6 +1164,13 @@ function renderCards(items){$('cards').innerHTML='';items.forEach((card,i)=>{con
     $('cards').append(e)});mark()}
 renderCards(CARDS);applyScene('menu');
 function backToMain(){mode='menu';menu.items=CARDS;menu.idx=0;menu.back=null;renderCards(CARDS);applyScene('menu');playMusicForCurrentMode()}
+function startX1(){x1Series={active:true,complete:false,round:1,wins:[0,0]};start(2,'classic',selectedChallenge,'x1')}
+function updateX1Scoreboard(){[1,2].forEach(player=>{const blocks=$('x1-score-p'+player)?.querySelectorAll('[data-score-block]')||[];
+    blocks.forEach((block,index)=>block.classList.toggle('filled',index<(x1Series?.wins[player-1]||0)))})}
+function showMultiplayerModes(){menu.items=[
+  {t:'CLÁSSICO',s:'O duelo de sempre · 2 minutos, lixo e poderes',i:'<span>⚔️</span>',c:'#ff5fa2',scene:'multiplayer',f:()=>start(2)},
+  {t:'X1 DOS CRIA',s:'Série até 3 vitórias · empate não pontua',i:'<span>🥊</span>',c:'#ffe06b',scene:'x1',f:startX1}
+];menu.idx=0;menu.back=backToMain;mode='modes';renderCards(menu.items);playMusicForCurrentMode()}
 function showSingleModes(){menu.items=SOLO_MODES.map(m=>({t:m.name,s:m.description,i:m.icon,scene:m.id,c:({classic:'#4c29bd',timeAttack:'#237dc4',survival:'#155a69',challenge:'#7251ad',hardcore:'#57262d',zen:'#a5dfcc'})[m.id],f:()=>m.id==='challenge'?showChallenges():start(1,m.id)}));
   menu.idx=0;menu.back=backToMain;mode='modes';renderCards(menu.items);playMusicForCurrentMode()}
 function showChallenges(){menu.items=CHALLENGES.map(c=>({t:c.name,s:c.description,scene:'challenge',i:`<div style="position:relative;display:inline-block"><img src="./desafios.png" alt="Desafio" onerror="this.replaceWith('🎯')" style="width:72px;height:72px;object-fit:contain;display:block;">${playerProgress.completedChallenges.includes(c.id)?'<span style="position:absolute;top:-6px;right:-6px;background:#2fcf6a;border:3px solid #2b1650;border-radius:50%;width:26px;height:26px;display:grid;place-items:center;font-size:14px">✓</span>':''}</div>`,c:'#c792ff',f:()=>start(1,'challenge',c.id)}));
@@ -1108,7 +1242,7 @@ function input(p,cmd,rep){
       if(cmd==='LEFT'||cmd==='UP'){moveSelectedAbility(-1);return}
       if(cmd==='RIGHT'||cmd==='DOWN'){moveSelectedAbility(1);return}
       if((cmd==='SKILLS'||cmd==='SELECT')&&!rep)closeSkillsMenu();return}
-    if(cmd==='RESTART'){start(count,gameMode,selectedChallenge);return}
+    if(cmd==='RESTART'){start(count,gameMode,selectedChallenge,multiplayerFormat);return}
     const g=games[count===1?0:p-1];
     if(cmd==='SELECT')return pause();
     if(!g||g.over)return;
@@ -1118,8 +1252,11 @@ function input(p,cmd,rep){
     if(count===1&&cmd==='POWER'){if(rep)return;markActivity(g);g.activateSoloPower();return}
     if(count===1&&cmd==='BTN_A'){markActivity(g);g.holdPiece();return}
     if(count===2){
+      if(cmd==='HOLD'){if(g.pm)g.setPM(false);markActivity(g);g.holdPiece();return}
       if(g.pm){markActivity(g);g.pin(cmd,rep);return}
-      if(cmd==='BTN_A'){g.setPM(true);markActivity(g);return}
+      if(cmd==='BTN_A'){markActivity(g);
+        if(multiplayerFormat==='x1'&&!g.pm&&g.rotationCharge.ready){g.activateRotationPower();return}
+        g.setPM(true);return}
     }
     if(cmd==='DOWN'&&rep&&performance.now()<g.lockT)return;
     if(cmd==='DOWN'&&performance.now()<g.pwLock)return;
@@ -1130,9 +1267,9 @@ function input(p,cmd,rep){
 
 function installControls(){
   const commandForKey={ArrowLeft:'LEFT',ArrowRight:'RIGHT',ArrowDown:'DOWN',ArrowUp:'UP',a:'LEFT',d:'RIGHT',s:'DOWN',w:'UP',c:'BTN_A',e:'SKILLS',f:'SKILL',x:'POWER',v:'SKILL',i:'SKILLS',r:'RESTART', ' ':'BTN_B',Escape:'SELECT',Enter:'BTN_A'};
-  addEventListener('keydown',event=>{const key=event.key.length===1?event.key.toLowerCase():event.key,cmd=commandForKey[key];
+  addEventListener('keydown',event=>{const key=event.key.length===1?event.key.toLowerCase():event.key,cmd=mode==='game'&&count===2&&['e','f'].includes(key)?'HOLD':commandForKey[key];
     if(event.key==='Escape'&&skillsMenuOpen){event.preventDefault();event.stopPropagation();closeSkillsMenu();return}
-    if(!cmd||mode==='game'&&count!==1)return;
+    if(!cmd)return;
     event.preventDefault();input(1,cmd,event.repeat)});
   document.querySelectorAll('.touch-button').forEach(button=>{let repeatTimer=null;
     const release=()=>{if(repeatTimer){clearInterval(repeatTimer);touchRepeatTimers.delete(repeatTimer);repeatTimer=null}};
@@ -1153,9 +1290,12 @@ function installControls(){
 }
 
 /* ───── fluxo ───── */
-function start(n,soloMode='classic',challengeId=selectedChallenge){clearTouchRepeats();cleanupPowerEffects();if(timerBonusTimeout){clearTimeout(timerBonusTimeout);timerBonusTimeout=null}
+function start(n,soloMode='classic',challengeId=selectedChallenge,requestedMultiplayerFormat='classic'){clearTouchRepeats();cleanupPowerEffects();if(timerBonusTimeout){clearTimeout(timerBonusTimeout);timerBonusTimeout=null}
   closeSkillsMenu();
-  $('timer').classList.remove('timer-pop','green','timer-bonus');delete $('timer').dataset.bonus;count=n;gameMode=n===1?soloMode:'classic';selectedChallenge=challengeId;ended=false;applyScene(count===2?'multiplayer':gameMode);
+  $('timer').classList.remove('timer-pop','green','timer-bonus');delete $('timer').dataset.bonus;count=n;gameMode=n===1?soloMode:'classic';selectedChallenge=challengeId;ended=false;
+  if(n===2&&requestedMultiplayerFormat==='x1'){if(!x1Series?.active||x1Series.complete)x1Series={active:true,complete:false,round:1,wins:[0,0]};multiplayerFormat='x1'}
+  else{multiplayerFormat='classic';x1Series=null}
+  applyScene(count===2?(multiplayerFormat==='x1'?'x1':'multiplayer'):gameMode);
   matchEndTimestamp=count===2||gameMode==='timeAttack'?performance.now()+POWERS_CONFIG.matchDuration:0;matchPausedAt=null;closeDlg();tsnd.pause();
   games.forEach(g=>{g.hideIdleAlert();if(g.idleAudioTimer){clearTimeout(g.idleAudioTimer);g.idleAudioTimer=null}});
   activeAlerts=0;stopAlertSound(true);stopTntSound();document.querySelectorAll('.idle-alert').forEach(e=>e.remove());
@@ -1166,12 +1306,13 @@ function start(n,soloMode='classic',challengeId=selectedChallenge){clearTouchRep
   $('timer').classList.toggle('hide',n===1&&(gameMode==='classic'||gameMode==='zen'));$('arena').classList.toggle('one',n<2);$('arena').classList.toggle('zen',zenMode);$('mobile-controls').classList.toggle('hide',n!==1);
   if(powerButton){powerButton.textContent=zenMode?'🌿 LIMPAR LINHA':'💣';powerButton.setAttribute('aria-label',zenMode?'Limpar uma linha com blocos':'Usar bomba')}
   games=[1,2].slice(0,n).map(p=>new Game(p));if(n===2){games[0].opp=games[1];games[1].opp=games[0]}
-  $('mode-label').textContent=n===2?'MULTIJOGADOR':SOLO_MODES.find(m=>m.id===gameMode)?.name||'CLÁSSICO';
+  $('mode-label').textContent=n===2?multiplayerFormat==='x1'?`X1 DOS CRIA · PARTIDA ${x1Series.round}`:'MULTIJOGADOR · CLÁSSICO':SOLO_MODES.find(m=>m.id===gameMode)?.name||'CLÁSSICO';
+  updateX1Scoreboard();
   $('timer').classList.remove('u');$('timer').textContent=n===2||gameMode==='timeAttack'?'2:00':'0:00';
   updateDailyOnStart();mode='game';updateMatchTimer();playMusicForCurrentMode();sfx(440,.3,'triangle',.08,2)}
 function toMenu(){clearTouchRepeats();closeSkillsMenu();cleanupPowerEffects();if(timerBonusTimeout){clearTimeout(timerBonusTimeout);timerBonusTimeout=null}
   $('timer').classList.remove('timer-pop','green','timer-bonus','u');delete $('timer').dataset.bonus;closeDlg();tsnd.pause();tsnd.currentTime=0;games.forEach(g=>{g.hideIdleAlert();if(g.idleAudioTimer){clearTimeout(g.idleAudioTimer);g.idleAudioTimer=null}});
-  activeAlerts=0;stopAlertSound(true);stopTntSound();document.querySelectorAll('.idle-alert').forEach(e=>e.remove());games=[];matchPausedAt=null;$('game').classList.add('hide');$('menu').classList.remove('hide');mode='menu';menu.idx=0;playMusicForCurrentMode();mark();applyScene('menu')}
+  activeAlerts=0;stopAlertSound(true);stopTntSound();document.querySelectorAll('.idle-alert').forEach(e=>e.remove());games=[];matchPausedAt=null;x1Series=null;multiplayerFormat='classic';$('game').classList.add('hide');$('menu').classList.remove('hide');mode='menu';menu.idx=0;playMusicForCurrentMode();mark();applyScene('menu')}
 function resume(){if(matchPausedAt!==null){matchEndTimestamp+=performance.now()-matchPausedAt;matchPausedAt=null}
   const now=performance.now();closeDlg();games.forEach(g=>{if(gameMode==='zen'&&g.zenClearPauseRemaining!==null){g.zenClearReadyAt=now+g.zenClearPauseRemaining;g.zenClearPauseRemaining=null}
     g.paused=false;g.lastAct=now;g.resumeIdleVideo()});if(activeAlerts>0)scheduleTntSound();mode='game';if(gameMode==='zen')games[0]?.updateZenAbilityUI();if(count===2||gameMode==='timeAttack')updateMatchTimer();playMusicForCurrentMode()}
@@ -1183,8 +1324,10 @@ function showCtrl(){const close=()=>{closeDlg();mode='menu';mark()};
   <span><b class="k">▼</b></span><i style="font-style:normal">Descer (segure = mais rápido) · CLICAR</i>
   <span><b class="k">B</b></span><i style="font-style:normal">Queda instantânea ⚡</i>
   <span><b class="k">K / C</b></span><i style="font-style:normal">Joystick K / teclado C: guardar peça (1P) · abrir poderes (2P)</i>
-  <span><b class="k">E</b></span><i style="font-style:normal">Voltar nos menus · abrir habilidades durante a partida (inclui Zen)</i>
-  <span><b class="k">F</b></span><i style="font-style:normal">Ativar habilidade selecionada · limpar linha no Zen</i>
+  <span><b class="k">E / F</b></span><i style="font-style:normal">No duelo: guardar/trocar peça pelo teclado ou pelos botões E (D6) / F (D7)</i>
+  <span><b class="k">360°</b></span><i style="font-style:normal">No X1: gire o analógico horário para carregar TRASH, anti-horário para carregar escudo; K ativa quando estiver READY. Sem carga, K abre o baralho normal.</i>
+  <span><b class="k">E</b></span><i style="font-style:normal">Nos menus: voltar · no 1P: abrir habilidades</i>
+  <span><b class="k">F</b></span><i style="font-style:normal">No 1P: ativar habilidade selecionada · limpar linha no Zen</i>
   <span><b class="k">X</b></span><i style="font-style:normal">Poder carregado · limpar linha no Zen</i>
   <span><b class="k">R</b></span><i style="font-style:normal">Reiniciar a partida (teclado)</i>
   <span><b class="k">◀▶ ▼</b></span><i style="font-style:normal">Nos poderes: ◀▶ escolhe, ▼ usa, ▲/K fecha</i>
@@ -1213,9 +1356,19 @@ function end(o,reason){if(ended)return;closeSkillsMenu();clearTouchRepeats();
   else if(endReason==='idle'){winner=idleOuts.length===1?(idleOuts[0]===games[0]?2:1):0;outcome=winner?`🏆 JOGADOR ${winner} VENCEU POR INATIVIDADE!`:'🤝 EMPATE!'}
   else{winner=topOuts.length===1?(topOuts[0]===games[0]?2:1):games[0].score>games[1].score?1:games[1].score>games[0].score?2:0;
     outcome=winner?`🏆 JOGADOR ${winner} VENCEU!`:'🤝 EMPATE!'}
-  const h=`<p class="result-outcome">${outcome}</p><table class="result-table"><thead><tr><th>JOGADOR</th><th>PONTOS</th><th>COMBOS</th><th>LINHAS</th></tr></thead><tbody>${games.map(g=>`<tr><th>P${g.p}</th><td>${g.score}</td><td>${g.combos}</td><td>${g.lines}</td></tr>`).join('')}</tbody></table><p>${endReason==='time'?'⏱ Tempo esgotado':endReason==='idle'?'⚠ Fim por inatividade':'🧱 Campo sem espaço'}</p>`;
+  const isX1=multiplayerFormat==='x1'&&x1Series;
+  let seriesComplete=false,seriesSummary='';
+  if(isX1){if(winner)x1Series.wins[winner-1]++;seriesComplete=x1Series.wins.some(wins=>wins>=3);
+    if(seriesComplete){x1Series.active=false;x1Series.complete=true;const champion=x1Series.wins[0]>=3?1:2;seriesSummary=`🏆 JOGADOR ${champion} levou o X1 com ${x1Series.wins[champion-1]} vitórias!`}
+    else{seriesSummary=`Placar da série: P1 ${x1Series.wins[0]} × ${x1Series.wins[1]} P2 · ${winner?'primeiro a 3 vence':'empate: ninguém pontua'}`;
+      x1Series.round++}
+    updateX1Scoreboard()}
+  const h=`<p class="result-outcome">${outcome}</p><table class="result-table"><thead><tr><th>JOGADOR</th><th>PONTOS</th><th>COMBOS</th><th>LINHAS</th></tr></thead><tbody>${games.map(g=>`<tr><th>P${g.p}</th><td>${g.score}</td><td>${g.combos}</td><td>${g.lines}</td></tr>`).join('')}</tbody></table><p>${endReason==='time'?'⏱ Tempo esgotado':endReason==='idle'?'⚠ Fim por inatividade':'🧱 Campo sem espaço'}</p>${isX1?`<p class="result-outcome">${seriesSummary}</p>`:''}`;
+  const resultButtons=isX1?(seriesComplete?[{t:'NOVA SÉRIE',c:'green',f:()=>{x1Series=null;startX1()}},{t:'MENU',c:'blue',f:toMenu}]:
+    [{t:'PRÓXIMA PARTIDA',c:'green',f:()=>start(2,'classic',selectedChallenge,'x1')},{t:'MENU',c:'blue',f:toMenu}]):
+    [{t:'JOGAR DE NOVO',c:'green',f:()=>start(count)},{t:'MENU',c:'blue',f:toMenu}];
   const resultDelay=games.some(g=>g.idleExploded)?250:1800;
-  setTimeout(()=>{dlg('FIM DE PARTIDA',h,[{t:'JOGAR DE NOVO',c:'green',f:()=>start(count)},{t:'MENU',c:'blue',f:toMenu}],null);$('dlg').classList.add('match-result')},resultDelay)}
+  setTimeout(()=>{dlg(isX1?(seriesComplete?'X1 DOS CRIA · SÉRIE ENCERRADA':'X1 DOS CRIA · PLACAR DA SÉRIE'):'FIM DE PARTIDA',h,resultButtons,null);$('dlg').classList.add('match-result')},resultDelay)}
 
 function loop(t){const dt=Math.min(50,t-last);last=t;
   if(games.length){
@@ -1228,16 +1381,19 @@ function loop(t){const dt=Math.min(50,t-last);last=t;
 
 /* ───── Arduino (Web Serial) — o jogador é detectado pelo prefixo P1:/P2: ───── */
 function setPill(p,on){const e=$('pp'+p);e.classList.toggle('ok',on);e.textContent=`P${p} · ${on?'conectado ✓':'sem controle'}`}
+function updateJoystickCharge(p,rawX,rawY){if(mode!=='game'||count!==2||multiplayerFormat!=='x1')return;
+  const game=games.find(item=>item.p===p);game?.updateRotationCharge(rawX,rawY)}
 function fromSerial(p,cmd){const rep=cmd.endsWith('_HOLD'),received=rep?cmd.slice(0,-5):cmd;
-  const command={E:'SKILLS',F:'SKILL',K:'BTN_A'}[received]||received;
+  const command=mode==='game'&&count===2&&['E','F'].includes(received)?'HOLD':{E:'SKILLS',F:'SKILL',K:'BTN_A'}[received]||received;
   if(new URLSearchParams(location.search).get('debug')==='1'&&['E','F','K'].includes(received))
     console.info(`Arduino P${p}: botão ${received} → ${command}`);
   input(p,command,rep)}
 async function openPort(port){let who=0;
   try{await port.open({baudRate:9600});const rd=port.readable.pipeThrough(new TextDecoderStream()).getReader();let buf='';
     for(;;){const{value,done}=await rd.read();if(done)break;buf+=value;const ls_=buf.split('\n');buf=ls_.pop();
-      for(const l of ls_){const line=l.trim(),ready=line.match(/^ARDUINO_P([12])_READY$/),m=line.match(/^P([12]):(\w+)$/),player=ready?.[1]||m?.[1];if(!player)continue;
+      for(const l of ls_){const line=l.trim(),ready=line.match(/^ARDUINO_P([12])_READY$/),joystick=line.match(/^P([12]):JOY:(\d{1,4}),(\d{1,4})$/),m=line.match(/^P([12]):(\w+)$/),player=ready?.[1]||joystick?.[1]||m?.[1];if(!player)continue;
         if(who!==+player){who=+player;setPill(who,true);sfx(700,.15,'triangle',.08,1.5)}
+        if(joystick){const x=Number(joystick[2]),y=Number(joystick[3]);if(x<=1023&&y<=1023)updateJoystickCharge(who,x,y);continue}
         if(m)fromSerial(who,m[2])}}
   }catch(e){console.error('Arduino serial connection failed',e)}
   if(who)setPill(who,false)}

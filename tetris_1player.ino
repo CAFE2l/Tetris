@@ -6,6 +6,8 @@
 //   E / D6 → abrir habilidades (exceto no Zen)
 //   F / D7 → ativar habilidade selecionada (ou habilidade Zen)
 //   K / D8 → guardar/trocar peça
+//   No duelo 2P, E / D6 e F / D7 também guardam/trocam a peça.
+//   A0 / A1 → X / Y analógicos para carregar o giro 360° no X1.
 //   D9    → queda instantânea (entrada auxiliar, se conectada)
 //
 // Serial: P1:E, P1:F e P1:K identificam os botões físicos sem ambiguidade.
@@ -23,6 +25,8 @@
 const unsigned long DEBOUNCE_MS = 35;
 const unsigned long HOLD_DELAY_MS = 200;
 const unsigned long HOLD_REPEAT_MS = 80;
+const unsigned long JOYSTICK_REPORT_MS = 40;
+unsigned long lastJoystickReport = 0;
 
 struct Button {
   uint8_t pin;
@@ -50,6 +54,13 @@ const uint8_t BUTTON_COUNT = sizeof(buttons) / sizeof(buttons[0]);
 void sendCommand(const char* command) {
   Serial.print("P1:");
   Serial.println(command);
+}
+
+void sendJoystickPosition() {
+  Serial.print("P1:JOY:");
+  Serial.print(analogRead(A0));
+  Serial.print(',');
+  Serial.println(analogRead(A1));
 }
 
 void setup() {
@@ -88,6 +99,11 @@ void loop() {
       sendCommand(button.command);
       button.lastRepeat = now;
     }
+  }
+
+  if (now - lastJoystickReport >= JOYSTICK_REPORT_MS) {
+    lastJoystickReport = now;
+    sendJoystickPosition();
   }
 
   delay(2);

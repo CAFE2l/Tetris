@@ -5,10 +5,12 @@
 //   A / D2 → cima; B / D3 → direita; C / D4 → baixo; D / D5 → esquerda
 //   E / D6 → evento E
 //   F / D7 → evento F
-//   K / D8 → ação BTN_A existente
+//   K / D8 → ação BTN_A existente (inventário / poder carregado no X1)
+//   No duelo 2P, E / D6 e F / D7 guardam/trocam a peça.
+//   A0 / A1 → X / Y analógicos para carregar o giro 360° no X1.
 //   D9    → queda instantânea (entrada auxiliar, se conectada)
 //
-// Protocolo: P2:LEFT, P2:LEFT_HOLD, P2:E, P2:F, P2:K e P2:PING.
+// Protocolo: P2:LEFT, P2:LEFT_HOLD, P2:E/F/K, P2:JOY:x,y e P2:PING.
 // Os botões usam INPUT_PULLUP e são ativos em LOW.
 
 #define PLAYER_ID "P2"
@@ -26,6 +28,7 @@ const unsigned long DEBOUNCE_MS = 35;
 const unsigned long HOLD_DELAY_MS = 220;
 const unsigned long HOLD_REPEAT_MS = 75;
 const unsigned long PING_MS = 2000;
+const unsigned long JOYSTICK_REPORT_MS = 40;
 
 struct Button {
   uint8_t pin;
@@ -51,6 +54,7 @@ Button buttons[] = {
 const uint8_t BUTTON_COUNT = sizeof(buttons) / sizeof(buttons[0]);
 
 unsigned long lastPing = 0;
+unsigned long lastJoystickReport = 0;
 
 void sendCommand(const char* command, bool hold = false) {
   Serial.print(PLAYER_ID);
@@ -58,6 +62,14 @@ void sendCommand(const char* command, bool hold = false) {
   Serial.print(command);
   if (hold) Serial.print("_HOLD");
   Serial.println();
+}
+
+void sendJoystickPosition() {
+  Serial.print(PLAYER_ID);
+  Serial.print(":JOY:");
+  Serial.print(analogRead(A0));
+  Serial.print(',');
+  Serial.println(analogRead(A1));
 }
 
 void setup() {
@@ -101,6 +113,10 @@ void loop() {
   if (now - lastPing >= PING_MS) {
     lastPing = now;
     sendCommand("PING");
+  }
+  if (now - lastJoystickReport >= JOYSTICK_REPORT_MS) {
+    lastJoystickReport = now;
+    sendJoystickPosition();
   }
   delay(2);
 }
