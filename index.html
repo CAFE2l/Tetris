@@ -180,7 +180,8 @@ body[data-scene="zen"] .card.sel{animation:none}
 .ability-button:hover{transform:translateY(-2px)}
 .ability-button.selected{background:#d9ffdf;outline:4px solid #268f49;box-shadow:0 5px 0 #258d49,0 0 0 7px rgba(53,179,93,.2)}
 .ability-button.unavailable{opacity:.68}
-.ability-button .ability-icon{font-size:34px;text-align:center}
+.ability-button .ability-icon{display:grid;place-items:center;font-size:34px;text-align:center}
+.ability-button .ability-icon img{width:42px;height:42px;object-fit:contain}
 .ability-button strong{display:block;font-size:16px}
 .ability-button small{display:block;margin-top:3px;font-size:12px;line-height:1.3;font-weight:500}
 .ability-button .ability-state{max-width:90px;font-size:11px;font-weight:700;text-align:right}
@@ -406,6 +407,7 @@ body[data-scene="zen"] .touch-button[data-command="SELECT"]{display:none}
 <audio id="hardcore-music" loop preload="auto"><source src="./hardcore.mp3" type="audio/mpeg"></audio>
 <audio id="zen-music" loop preload="auto"><source src="./zen_mode.mp3" type="audio/mpeg"></audio>
 <audio id="classic-music" loop preload="auto"><source src="./classic.mp3" type="audio/mpeg"></audio>
+<audio id="x1-music" loop preload="auto"><source src="./x1_crias.mp3" type="audio/mpeg"></audio>
 <audio id="alert-sound" loop preload="auto"><source src="./alert.mp3" type="audio/mpeg"></audio>
 <audio id="explosion-sound" preload="auto"><source src="./explosion.mp3" type="audio/mpeg"></audio>
 <audio id="tnt-sound" preload="auto"><source src="./tnt.mp3" type="audio/mpeg"></audio>
@@ -487,22 +489,25 @@ const POWERS_CONFIG={
 };
 const {speed:SPEED,inactivity:IDLE}=POWERS_CONFIG;
 const hasInfiniteAbilityEnergy=()=>count===1&&gameMode==='zen';
-// Troque estes placeholders pelos caminhos dos ícones quando estiverem prontos.
-const POWER_ICONS={lightning:'⚡',curse:'☠️',emp:'▣',trash:'🗑️',shield:'🛡️',slow:'🐢'};
+const POWER_ICONS={lightning:'⚡',curse:'☠️',emp:'▣',trash:'🗑️',shield:'🛡️',slow:'🐢',magnet:'🧲',clear:'🧹'};
 const POWER_DEFS={
   bomb:{id:'bomb',n:'BOMBA',icon:'💣',img:'./bomba.png'},
   swap:{id:'swap',n:'TROCA',icon:'🔄',img:'./reverse.png'},
   time:{id:'time',n:'+1 MINUTO',icon:'⏱️',img:'./one_more_minutes.png'},
   lightning:{id:'lightning',n:'RELÂMPAGO',icon:POWER_ICONS.lightning},
   curse:{id:'curse',n:'CURSE',icon:POWER_ICONS.curse,img:'./caveira.png'},
-  emp:{id:'emp',n:'EMP',icon:POWER_ICONS.emp},
+  emp:{id:'emp',n:'INVERSÃO',icon:POWER_ICONS.emp,img:'./cabe%C3%A7a_pra_baixo.png',description:'Inverte o campo e os controles laterais do adversário por 10s.'},
   trash:{id:'trash',n:'TRASH',icon:'🗑️'},
   shield:{id:'shield',n:'ESCUDO',icon:POWER_ICONS.shield,description:'Dura 45s: bloqueia o primeiro TRASH; o próximo ativa as barreiras por 30s.'},
-  slow:{id:'slow',n:'TEMPO LENTO',icon:POWER_ICONS.slow,description:'Queda 2,5× mais lenta e imunidade ao raio por 30s.'}
+  slow:{id:'slow',n:'TEMPO LENTO',icon:POWER_ICONS.slow,img:'./lento.png',description:'Queda 2,5× mais lenta e imunidade ao raio por 30s.'},
+  magnet:{id:'magnet',n:'ÍMÃ',icon:POWER_ICONS.magnet,img:'./ima.png'},
+  clear:{id:'clear',n:'LIMPAR',icon:POWER_ICONS.clear,img:'./limpoa.png',description:'Limpa o próprio tabuleiro sem apagar pontos ou estatísticas.'}
 };
 const STARTING_POWER_IDS=['bomb','swap','time'];
-const MULTIPLAYER_REWARD_IDS=['bomb','swap','time','lightning','curse','emp','shield','slow'];
+const MULTIPLAYER_REWARD_IDS=['bomb','swap','time','lightning','curse','emp','shield','slow','magnet','clear'];
 function powerIconMarkup(id){const icon=POWER_ICONS[id]||POWER_DEFS[id]?.icon||'▣';
+  const image=POWER_DEFS[id]?.img;
+  if(image)return `<img src="${image}" alt="${POWER_DEFS[id].n}" onerror="this.replaceWith('${icon}')">`;
   if(/^(\.\/|\.\.\/|\/|https?:)/i.test(icon))return `<img src="${icon}" alt="${POWER_DEFS[id].n}" onerror="this.replaceWith('▣')">`;
   return `<span>${icon}</span>`}
 const SOLO_MODES=[
@@ -525,12 +530,12 @@ const CHALLENGES=[
 const ABILITIES=[
   {id:'bomb',name:'BOMBA',icon:'💣',description:'Limpa as 6 colunas centrais e mantém as duas laterais.',rarity:'comum',cost:POWERS_CONFIG.abilityCosts.bomb,cooldown:POWERS_CONFIG.abilityCooldowns.bomb,activate:g=>g.activateBomb()},
   {id:'shield',name:'ESCUDO',icon:'🛡️',description:'Protege contra lixo por 45 segundos.',rarity:'incomum',cost:POWERS_CONFIG.abilityCosts.shield,cooldown:POWERS_CONFIG.abilityCooldowns.shield,activate:g=>g.activateShield()},
-  {id:'clear',name:'LIMPAR',icon:'🧹',description:'Zera o tabuleiro inteiro sem apagar seus pontos ou estatísticas.',rarity:'comum',cost:POWERS_CONFIG.abilityCosts.clear,cooldown:POWERS_CONFIG.abilityCooldowns.clear,activate:g=>g.activateClear()},
-  {id:'slow',name:'TEMPO LENTO',icon:'🐢',description:'Deixa a queda 2,5× mais lenta e bloqueia o raio por 30 segundos.',rarity:'incomum',cost:POWERS_CONFIG.abilityCosts.slow,cooldown:POWERS_CONFIG.abilityCooldowns.slow,activate:g=>g.activateSlow()},
+  {id:'clear',name:'LIMPAR',icon:'🧹',img:'./limpoa.png',description:'Zera o tabuleiro inteiro sem apagar seus pontos ou estatísticas.',rarity:'comum',cost:POWERS_CONFIG.abilityCosts.clear,cooldown:POWERS_CONFIG.abilityCooldowns.clear,activate:g=>g.activateClear()},
+  {id:'slow',name:'TEMPO LENTO',icon:'🐢',img:'./lento.png',description:'Deixa a queda 2,5× mais lenta e bloqueia o raio por 30 segundos.',rarity:'incomum',cost:POWERS_CONFIG.abilityCosts.slow,cooldown:POWERS_CONFIG.abilityCooldowns.slow,activate:g=>g.activateSlow()},
   {id:'double',name:'PONTOS ×2',icon:'✨',description:'Dobra os pontos ganhos por 35 segundos.',rarity:'rara',cost:POWERS_CONFIG.abilityCosts.double,cooldown:POWERS_CONFIG.abilityCooldowns.double,activate:g=>g.activateDoubleScore()},
   {id:'lucky',name:'PEÇA DA SORTE',icon:'🍀',description:'Transforma a peça atual em T; ao tocar, cresce 1 bloco à direita e 1 abaixo.',rarity:'comum',cost:POWERS_CONFIG.abilityCosts.lucky,cooldown:POWERS_CONFIG.abilityCooldowns.lucky,activate:g=>g.activateLuckyPiece()},
   {id:'rewind',name:'VOLTAR',icon:'⏪',description:'Desfaz apenas a peça colocada mais recentemente.',rarity:'rara',cost:POWERS_CONFIG.abilityCosts.rewind,cooldown:POWERS_CONFIG.abilityCooldowns.rewind,activate:g=>g.activateRewind()},
-  {id:'magnet',name:'ÍMÃ',icon:'🧲',description:'Reúne os blocos em 2 linhas completas e limpa as linhas; preenche os espaços vazios.',rarity:'rara',cost:POWERS_CONFIG.abilityCosts.magnet,cooldown:POWERS_CONFIG.abilityCooldowns.magnet,activate:g=>g.activateMagnet()}
+  {id:'magnet',name:'ÍMÃ',icon:'🧲',img:'./ima.png',description:'Reúne os blocos em 2 linhas completas e limpa as linhas; preenche os espaços vazios.',rarity:'rara',cost:POWERS_CONFIG.abilityCosts.magnet,cooldown:POWERS_CONFIG.abilityCooldowns.magnet,activate:g=>g.activateMagnet()}
 ];
 const PLAYER_KEY='ttr_player_progress';
 function loadPlayerProgress(){try{return JSON.parse(ls(PLAYER_KEY)||'{}')||{}}catch{return{}}}
@@ -550,7 +555,7 @@ const SCENE_CONFIG={
   multiplayer:{sky:'radial-gradient(ellipse at 50% 45%,rgba(255,95,162,.3),transparent 38%),linear-gradient(155deg,#19134d,#311866 52%,#782b7c)',board:'#23174e',particles:'blocks',count:14,led:'#ff72b2'},
   x1:{sky:'radial-gradient(ellipse at 15% 28%,rgba(255,125,0,.52),transparent 35%),radial-gradient(ellipse at 82% 15%,rgba(255,213,62,.42),transparent 34%),radial-gradient(ellipse at 50% 100%,rgba(255,255,255,.12),transparent 48%),linear-gradient(145deg,#090909,#241a0b 52%,#080808)',board:'#10100e',particles:'sparks',count:20,led:'#ffd34e'}
 };
-const SCENE_MUSIC={menu:'lobby',classic:'classic',hardcore:'hardcore',zen:'zen',multiplayer:'multiplayer',timeAttack:'single',survival:'single',challenge:'single'};
+const SCENE_MUSIC={menu:'lobby',classic:'classic',hardcore:'hardcore',zen:'zen',multiplayer:'multiplayer',x1:'x1',timeAttack:'single',survival:'single',challenge:'single'};
 let sceneCurrent='',sceneLayerIndex=0;
 const sceneLayers=[document.createElement('div'),document.createElement('div')];
 sceneLayers.forEach(layer=>{layer.className='scene-sky';$('bg').append(layer)});
@@ -584,8 +589,8 @@ applyScene('menu');
 $('logo').innerHTML=[...'TETRIS'].map((l,i)=>`<span style="--i:${i};--r:${i%2?-4:4}deg;--c:${['#ff5fa2','#ffb400','#ffe66d','#5be37d','#4da6ff','#c792ff'][i]}">${l}</span>`).join('');
 
 /* ───── áudio ───── */
-let AC,music=true,started=false;const lobbyMusic=$('lobby-music'),singlePlayerMusic=$('single-player-music'),multiplayerMusic=$('multiplayer-music'),hardcoreMusic=$('hardcore-music'),zenMusicTrack=$('zen-music'),classicMusic=$('classic-music'),alertSound=$('alert-sound'),explosionSound=$('explosion-sound'),tntSound=$('tnt-sound'),tsnd=$('timer-sound');
-const musicTracks=[lobbyMusic,singlePlayerMusic,multiplayerMusic,hardcoreMusic,zenMusicTrack,classicMusic],musicTrackByKey={lobby:lobbyMusic,classic:classicMusic,single:singlePlayerMusic,multiplayer:multiplayerMusic,hardcore:hardcoreMusic,zen:zenMusicTrack},musicTrackVolume=.4;
+let AC,music=true,started=false;const lobbyMusic=$('lobby-music'),singlePlayerMusic=$('single-player-music'),multiplayerMusic=$('multiplayer-music'),hardcoreMusic=$('hardcore-music'),zenMusicTrack=$('zen-music'),classicMusic=$('classic-music'),x1Music=$('x1-music'),alertSound=$('alert-sound'),explosionSound=$('explosion-sound'),tntSound=$('tnt-sound'),tsnd=$('timer-sound');
+const musicTracks=[lobbyMusic,singlePlayerMusic,multiplayerMusic,hardcoreMusic,zenMusicTrack,classicMusic,x1Music],musicTrackByKey={lobby:lobbyMusic,classic:classicMusic,single:singlePlayerMusic,multiplayer:multiplayerMusic,hardcore:hardcoreMusic,zen:zenMusicTrack,x1:x1Music},musicTrackVolume=.4;
 let activeMusicKey=null,requestedMusicKey=null,musicFadeTimer=null,musicFadeTarget=null;
 let activeAlerts=0,alertFallbackTimer=null,tntStartTimer=null;
 musicTracks.forEach(track=>track.volume=musicTrackVolume);alertSound.volume=.6;explosionSound.volume=.9;tntSound.volume=.9;
@@ -610,7 +615,7 @@ function primeAudio(audio,vol){if(!audio)return;audio.volume=0;audio.currentTime
 function playMusicForCurrentMode(){
   let desired=null;
   if(mode==='game'||mode==='dlg'&&games.length&&!ended){
-    if(count===2)desired=SCENE_MUSIC.multiplayer;
+    if(count===2)desired=SCENE_MUSIC[multiplayerFormat==='x1'?'x1':'multiplayer'];
     else desired=SCENE_MUSIC[gameMode]||null}
   else if(mode==='menu'||mode==='modes'||mode==='challenges'||mode==='dlg'&&!games.length)desired=SCENE_MUSIC.menu;
   if(!music)desired=null;requestedMusicKey=desired;
@@ -802,7 +807,7 @@ class Game{
       button.classList.toggle('unavailable',!ready);button.classList.toggle('selected',ability.id===selectedAbilityId);button.setAttribute('aria-pressed',String(ability.id===selectedAbilityId));
       if(state)state.textContent=this.abilityStatusLabel(ability)});
     const selected=ABILITIES.find(a=>a.id===selectedAbilityId),selectedLabel=$('selected-skill-label');
-    if(selectedLabel&&selected&&selectedLabel.dataset.ability!==selected.id){selectedLabel.dataset.ability=selected.id;selectedLabel.innerHTML=`<b>Selecionada</b>${selected.icon} ${selected.name}`}
+    if(selectedLabel&&selected&&selectedLabel.dataset.ability!==selected.id){selectedLabel.dataset.ability=selected.id;selectedLabel.innerHTML=`<b>Selecionada</b>${abilityIconMarkup(selected)} ${selected.name}`}
     const selectedAbility=selected,activateReason=this.abilityBlockReason(selectedAbility),canActivate=!!selectedAbility&&!activateReason;
     ['selected-skill-activate','modal-skill-activate'].forEach(id=>{const button=$(id);if(button){button.disabled=!canActivate;button.textContent=canActivate?'ATIVAR · F / V':this.abilityStatusLabel(selectedAbility)}});
     const bomb=$('soloPower'+this.p);if(bomb){const bombAbility=ABILITIES.find(ability=>ability.id==='bomb'),bombReason=this.abilityBlockReason(bombAbility);
@@ -950,13 +955,14 @@ class Game{
     else if(cmd==='UP'||cmd==='BTN_A')this.setPM(false)}
   usePower(i){const o=this.opp,card=this.deck[i],id=card?.id;
     if(!card||this.idle||card.used||!this.cur||this.anim||this.fx||this.over||matchTimeRemaining()<=0||count!==2){sfx(150,.1,'square',.06);pop(this.p,'AGORA NÃO!','#ff7b7b');return}
-    const needs=id==='swap'?(o&&!o.over&&o.cur&&!o.anim&&!o.fx):id==='time'?(o&&!o.over&&getMatchTimeBonusAmount()>0):['curse','emp','trash'].includes(id)?(o&&!o.over):true;
+    const needs=id==='swap'?(o&&!o.over&&o.cur&&!o.anim&&!o.fx):id==='time'?(o&&!o.over&&getMatchTimeBonusAmount()>0):
+      ['curse','emp','trash'].includes(id)?(o&&!o.over):['clear','magnet'].includes(id)?this.hasAbilityTarget(id):true;
     if(!needs){sfx(150,.1,'square',.06);pop(this.p,'AGORA NÃO!','#ff7b7b');return}
     this.deck.splice(i,1);this.pm=false;this.ps=this.deck.length?i%this.deck.length:0;this.pwLock=performance.now()+POWERS_CONFIG.powerInputLock;
     pop(this.p,POWER_DEFS[id].icon+' '+POWER_DEFS[id].n+'!');
     if(id==='bomb')this.bomb();else if(id==='swap')this.swapWith(o);else if(id==='time')this.timeBonus();
     else if(id==='lightning')this.activateLightning();else if(id==='curse')this.activateCurse();else if(id==='emp')this.activateEMP();else if(id==='trash')this.activateTrash();
-    else if(id==='shield')this.activateShield();else if(id==='slow')this.activateSlow();
+    else if(id==='shield')this.activateShield();else if(id==='slow')this.activateSlow();else if(id==='magnet')this.activateMagnet();else if(id==='clear')this.activateClear();
     this.fillPendingPowerRewards();this.pui()}
   bomb(){let ty=ROWS/2;const r=this.b.findIndex(r=>r.some(Boolean));if(r>=0)ty=r;
     this.fx={t:0,boom:false,ty};sfx(300,.45,'sawtooth',.06,.3)}
@@ -1095,8 +1101,9 @@ function pop(p,t,c='#ffe66d'){const e=document.createElement('div');e.className=
 
 /* ───── interface do jogo ───── */
 const pwHTML=()=>STARTING_POWER_IDS.map(id=>{const w=POWER_DEFS[id];return `<div class="sl ${id}" title="${w.n}" aria-label="${w.n}"><span class="bubble">${w.n}</span><span class="ic"><img src="${w.img}" alt="${w.n}" onerror="this.replaceWith('${w.icon}')"></span></div>`}).join('');
+const abilityIconMarkup=a=>a.img?`<img src="${a.img}" alt="${a.name}" onerror="this.replaceWith('${a.icon}')">`:a.icon;
 const abilityButtonsHTML=()=>ABILITIES.map(a=>`<button class="ability-button" type="button" data-ability="${a.id}" aria-pressed="false" title="${a.description}">
-  <span class="ability-icon">${a.icon}</span><span><strong>${a.name}</strong><small>${a.description} · ${a.cost} EN · recarga ${Math.ceil(a.cooldown/1000)}s</small></span><span class="ability-state">${a.cost} EN</span></button>`).join('');
+<span class="ability-icon">${abilityIconMarkup(a)}</span><span><strong>${a.name}</strong><small>${a.description} · ${a.cost} EN · recarga ${Math.ceil(a.cooldown/1000)}s</small></span><span class="ability-state">${a.cost} EN</span></button>`).join('');
 const tpl=i=>`<div class="pl${i>1?' hide':''}" id="pl${i}" style="--ry:${i==1?7:-7}deg;--pc:${i==1?'#4da6ff':'#ff5fa2'};animation-delay:-${i*2}s">
 <div class="tag">P${i}</div><div class="tilt">
 <div class="chips"><b>PONTOS<i id="sc${i}">0</i></b><b>LINHAS<i id="li${i}">0</i></b><b>NÍVEL<i id="lv${i}">1</i></b></div>
