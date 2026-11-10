@@ -168,25 +168,27 @@ body[data-scene="zen"] .card.sel{animation:none}
 .skill-side .holdCard{margin-top:auto}
 .skill-modal{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:18px;background:rgba(35,12,76,.72);backdrop-filter:blur(5px);opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s}
 .skill-modal.open{opacity:1;visibility:visible}
-.skill-dialog{width:min(760px,94vw);max-height:min(86vh,760px);overflow:auto;padding:20px;background:linear-gradient(145deg,#fff,#f5e9ff);color:var(--ink);border:6px solid var(--ink);border-radius:26px;box-shadow:0 12px 0 var(--ink);transform:translateY(18px) scale(.96);transition:transform .25s cubic-bezier(.2,1.3,.4,1)}
+.skill-dialog{width:min(900px,94vw);max-height:min(90vh,820px);overflow:auto;padding:22px;background:linear-gradient(145deg,#fff,#f5e9ff);color:var(--ink);border:6px solid var(--ink);border-radius:26px;box-shadow:0 12px 0 var(--ink);transform:translateY(18px) scale(.96);transition:transform .25s cubic-bezier(.2,1.3,.4,1)}
 .skill-modal.open .skill-dialog{transform:translateY(0) scale(1)}
 .skill-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
 .skill-dialog-head h2{font-size:clamp(20px,4vw,30px)}
-.skill-dialog-head p{font-size:13px}
+.skill-dialog-head p{font-size:15px;margin-top:3px}
+.skill-instructions{margin:0 0 14px;padding:10px 12px;border:2px solid #cbb4e8;border-radius:12px;background:#fff;color:#47306b;font-size:14px;line-height:1.35}
 .skill-close{width:40px;height:40px;border:3px solid var(--ink);border-radius:50%;background:#ff8a8a;color:var(--ink);font:inherit;font-size:23px;font-weight:700;cursor:pointer}
 .ability-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-.ability-button{position:relative;display:grid;grid-template-columns:38px 1fr auto;align-items:center;gap:8px;min-height:60px;padding:7px;border:3px solid var(--ink);border-radius:14px;background:#f3eaff;color:var(--ink);text-align:left;font:inherit;cursor:pointer;box-shadow:0 4px 0 var(--ink);transition:transform .15s,background .15s,opacity .15s}
+.ability-button{position:relative;display:grid;grid-template-columns:46px 1fr auto;align-items:center;gap:10px;min-height:82px;padding:10px;border:3px solid var(--ink);border-radius:16px;background:#f3eaff;color:var(--ink);text-align:left;font:inherit;cursor:pointer;box-shadow:0 4px 0 var(--ink);transition:transform .15s,background .15s,opacity .15s}
 .ability-button:hover{transform:translateY(-2px)}
-.ability-button.selected{background:#d9ffdf;outline:3px solid #35b35d}
+.ability-button.selected{background:#d9ffdf;outline:4px solid #268f49;box-shadow:0 5px 0 #258d49,0 0 0 7px rgba(53,179,93,.2)}
 .ability-button.unavailable{opacity:.68}
-.ability-button .ability-icon{font-size:26px;text-align:center}
-.ability-button strong{display:block;font-size:13px}
-.ability-button small{display:block;font-size:10px;line-height:1.2;font-weight:500}
-.ability-button .ability-state{font-size:10px;font-weight:700;text-align:right}
+.ability-button .ability-icon{font-size:34px;text-align:center}
+.ability-button strong{display:block;font-size:16px}
+.ability-button small{display:block;margin-top:3px;font-size:12px;line-height:1.3;font-weight:500}
+.ability-button .ability-state{max-width:90px;font-size:11px;font-weight:700;text-align:right}
 .ability-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:14px;padding-top:12px;border-top:3px dashed #cbb4e8;font-size:12px}
-.ability-feedback{display:block;min-height:34px;padding:8px 10px;border-radius:10px;background:#eee7fa;color:var(--ink);font-weight:600;line-height:1.35}
+.ability-feedback{display:block;min-height:42px;padding:10px 12px;border-radius:10px;background:#eee7fa;color:var(--ink);font-size:14px;font-weight:600;line-height:1.4}
 .ability-footer .skill-activate{min-width:170px;font-size:14px}
-.skill-hint{margin-top:8px;font-size:11px;opacity:.75;text-align:right}
+.skill-hint{margin-top:10px;font-size:13px;opacity:.8;text-align:right}
+@media(max-width:620px){.skill-dialog{padding:14px;border-width:4px}.ability-list{grid-template-columns:1fr;gap:8px}.ability-button{min-height:74px}.ability-footer{align-items:stretch;flex-direction:column}.ability-footer .skill-activate{min-height:48px}.skill-hint{text-align:center}}
 .result-outcome{font-size:23px;margin:6px 0}
 #game.lightning-active::before{content:'';position:fixed;inset:0;z-index:8;pointer-events:none;box-shadow:inset 0 0 130px 35px rgba(13,25,83,.62);animation:stormPulse .8s ease-in-out infinite alternate}
 #game.lightning-active .pl{position:relative;filter:drop-shadow(0 0 12px #9ff5ff)}
@@ -382,10 +384,11 @@ body[data-scene="zen"] .touch-button[data-command="SELECT"]{display:none}
 
 <div class="skill-modal" id="skill-modal" aria-hidden="true">
   <div class="skill-dialog" role="dialog" aria-modal="true" aria-labelledby="skill-title">
-    <div class="skill-dialog-head"><div><h2 id="skill-title">HABILIDADES & INVENTÁRIO</h2><p id="skill-modal-energy">Energia 0/100</p></div><button class="skill-close" id="skill-close" type="button" aria-label="Fechar menu">×</button></div>
+    <div class="skill-dialog-head"><div><h2 id="skill-title">ESCOLHA UM PODER</h2><p id="skill-modal-energy">Energia 0/100</p></div><button class="skill-close" id="skill-close" type="button" aria-label="Fechar menu">×</button></div>
+    <p class="skill-instructions"><strong>A partida está pausada.</strong> Selecione um poder para ver o efeito e o custo. Depois pressione <strong>F</strong> para ativar; escolher não gasta energia.</p>
     <div class="ability-list" id="ability-list"></div>
     <div class="ability-footer"><span id="ability-selection-hint" class="ability-feedback" role="status" aria-live="polite">Escolha uma habilidade; ela não será ativada automaticamente.</span><button class="skill-activate" id="modal-skill-activate" type="button">ATIVAR SELECIONADA</button></div>
-    <p class="skill-hint">←/→ escolhe · F ou V ativa · ESC/Ⅱ fecha · Clique fora para sair</p>
+    <p class="skill-hint">←/→ escolhe · F ou V ativa · E/ESC/Ⅱ fecha · Clique fora para sair</p>
   </div>
 </div>
 
@@ -407,7 +410,7 @@ const POWERS_CONFIG={
   energyPerLine:8,energyPerCombo:4,energyPerTetris:15,energyMax:100,
   abilityCosts:{bomb:20,shield:25,clear:30,slow:25,double:35,lucky:20,rewind:40,magnet:35},
   abilityCooldowns:{bomb:8000,shield:12000,clear:10000,slow:15000,double:20000,lucky:10000,rewind:25000,magnet:18000},
-  bombRadius:1,slowDuration:8000,slowFallMultiplier:2.5,doubleScoreDuration:30000,
+  bombRadius:1,slowDuration:15000,slowFallMultiplier:2.5,doubleScoreDuration:35000,shieldGarbageHits:3,
   survivalStartInterval:15000,survivalMinInterval:4000,survivalIntervalDecay:350,survivalDifficultyStep:30000,
   challengeTimeLimit:60000,timeAttackLineBonus:8000,
   speed:{start:800,decay:.965,min:70,soft:45,softHold:130,modeMultiplier:{classic:1,hardcore:.5,zen:1.5}},
@@ -449,14 +452,14 @@ const CHALLENGES=[
   {id:'timedLines',name:'CORRIDA 60s',description:'Limpe 4 linhas em 60 segundos',type:'timedLines',target:4,timeLimit:60000}
 ];
 const ABILITIES=[
-  {id:'bomb',name:'BOMBA',icon:'💣',description:'Explosão 3×3',rarity:'comum',cost:POWERS_CONFIG.abilityCosts.bomb,cooldown:POWERS_CONFIG.abilityCooldowns.bomb,activate:g=>g.activateBomb()},
-  {id:'shield',name:'ESCUDO',icon:'🛡️',description:'Bloqueia 1 lixo',rarity:'incomum',cost:POWERS_CONFIG.abilityCosts.shield,cooldown:POWERS_CONFIG.abilityCooldowns.shield,activate:g=>g.activateShield()},
-  {id:'clear',name:'LIMPAR',icon:'🧹',description:'Remove a linha mais cheia',rarity:'comum',cost:POWERS_CONFIG.abilityCosts.clear,cooldown:POWERS_CONFIG.abilityCooldowns.clear,activate:g=>g.activateClear()},
-  {id:'slow',name:'TEMPO LENTO',icon:'🐢',description:'Queda lenta por 8s',rarity:'incomum',cost:POWERS_CONFIG.abilityCosts.slow,cooldown:POWERS_CONFIG.abilityCooldowns.slow,activate:g=>g.activateSlow()},
-  {id:'double',name:'PONTOS ×2',icon:'✨',description:'Pontuação dobrada por 30s',rarity:'rara',cost:POWERS_CONFIG.abilityCosts.double,cooldown:POWERS_CONFIG.abilityCooldowns.double,activate:g=>g.activateDoubleScore()},
-  {id:'lucky',name:'PEÇA DA SORTE',icon:'🍀',description:'Troca a peça atual',rarity:'comum',cost:POWERS_CONFIG.abilityCosts.lucky,cooldown:POWERS_CONFIG.abilityCooldowns.lucky,activate:g=>g.activateLuckyPiece()},
-  {id:'rewind',name:'VOLTAR',icon:'⏪',description:'Desfaz a última colocação',rarity:'rara',cost:POWERS_CONFIG.abilityCosts.rewind,cooldown:POWERS_CONFIG.abilityCooldowns.rewind,activate:g=>g.activateRewind()},
-  {id:'magnet',name:'ÍMÃ',icon:'🧲',description:'Completa uma linha quase cheia',rarity:'rara',cost:POWERS_CONFIG.abilityCosts.magnet,cooldown:POWERS_CONFIG.abilityCooldowns.magnet,activate:g=>g.activateMagnet()}
+  {id:'bomb',name:'BOMBA',icon:'💣',description:'Limpa as 6 colunas centrais e mantém as duas laterais.',rarity:'comum',cost:POWERS_CONFIG.abilityCosts.bomb,cooldown:POWERS_CONFIG.abilityCooldowns.bomb,activate:g=>g.activateBomb()},
+  {id:'shield',name:'ESCUDO',icon:'🛡️',description:'Protege contra as próximas 3 subidas de lixo.',rarity:'incomum',cost:POWERS_CONFIG.abilityCosts.shield,cooldown:POWERS_CONFIG.abilityCooldowns.shield,activate:g=>g.activateShield()},
+  {id:'clear',name:'LIMPAR',icon:'🧹',description:'Zera o tabuleiro inteiro sem apagar seus pontos ou estatísticas.',rarity:'comum',cost:POWERS_CONFIG.abilityCosts.clear,cooldown:POWERS_CONFIG.abilityCooldowns.clear,activate:g=>g.activateClear()},
+  {id:'slow',name:'TEMPO LENTO',icon:'🐢',description:'Deixa a queda 2,5× mais lenta por 15 segundos.',rarity:'incomum',cost:POWERS_CONFIG.abilityCosts.slow,cooldown:POWERS_CONFIG.abilityCooldowns.slow,activate:g=>g.activateSlow()},
+  {id:'double',name:'PONTOS ×2',icon:'✨',description:'Dobra os pontos ganhos por 35 segundos.',rarity:'rara',cost:POWERS_CONFIG.abilityCosts.double,cooldown:POWERS_CONFIG.abilityCooldowns.double,activate:g=>g.activateDoubleScore()},
+  {id:'lucky',name:'PEÇA DA SORTE',icon:'🍀',description:'Transforma a peça atual em T; ao tocar, cresce 1 bloco à direita e 1 abaixo.',rarity:'comum',cost:POWERS_CONFIG.abilityCosts.lucky,cooldown:POWERS_CONFIG.abilityCooldowns.lucky,activate:g=>g.activateLuckyPiece()},
+  {id:'rewind',name:'VOLTAR',icon:'⏪',description:'Desfaz apenas a peça colocada mais recentemente.',rarity:'rara',cost:POWERS_CONFIG.abilityCosts.rewind,cooldown:POWERS_CONFIG.abilityCooldowns.rewind,activate:g=>g.activateRewind()},
+  {id:'magnet',name:'ÍMÃ',icon:'🧲',description:'Reúne os blocos em 2 linhas completas e limpa as linhas; preenche os espaços vazios.',rarity:'rara',cost:POWERS_CONFIG.abilityCosts.magnet,cooldown:POWERS_CONFIG.abilityCooldowns.magnet,activate:g=>g.activateMagnet()}
 ];
 const PLAYER_KEY='ttr_player_progress';
 function loadPlayerProgress(){try{return JSON.parse(ls(PLAYER_KEY)||'{}')||{}}catch{return{}}}
@@ -571,8 +574,22 @@ class Game{
   hit(m,x,y){const narrow=this.trashActiveUntil>performance.now(),edge=POWERS_CONFIG.trashColumns;
     return m.some((r,j)=>r.some((v,i)=>v&&(x+i<0||x+i>=COLS||y+j>=ROWS||narrow&&(x+i<edge||x+i>=COLS-edge)||this.b[y+j][x+i])))}
   isCompleteLine(row){if(this.trashActiveUntil>performance.now()){const edge=POWERS_CONFIG.trashColumns;return row.slice(edge,COLS-edge).every(Boolean)}return row.every(Boolean)}
-  ok(){return this.cur&&!this.over&&!this.paused&&!this.fx}
-  mv(dx,dy){if(!this.ok())return false;const c=this.cur;if(this.hit(c.m,c.x+dx,c.y+dy))return false;c.x+=dx;c.y+=dy;if(dx)sfx(330,.04,'square',.03);return true}
+  ok(){return this.cur&&!this.over&&!this.paused&&!this.fx&&!this.anim}
+  mv(dx,dy){if(!this.ok())return false;const c=this.cur;if(this.hit(c.m,c.x+dx,c.y+dy)){
+      if(dx===0&&dy===1)this.tryGrowLuckyPiece();return false}
+    c.x+=dx;c.y+=dy;if(dx)sfx(330,.04,'square',.03);return true}
+  tryGrowLuckyPiece(){const piece=this.cur;if(!piece?.luckyGrowthPending)return false;
+    const grown=[[0,3,0,0],[3,3,3,3],[0,0,0,3]],positions=[];
+    for(const dy of[0,-1])for(const dx of[0,-1,1,-2,2])positions.push({x:piece.x+dx,y:piece.y+dy});
+    positions.sort((a,b)=>Math.abs(a.x-piece.x)+Math.abs(a.y-piece.y)-Math.abs(b.x-piece.x)-Math.abs(b.y-piece.y));
+    let spot=positions.find(({x,y})=>y>=0&&!this.hit(grown,x,y));
+    if(!spot){const all=[];for(let y=0;y<=ROWS-grown.length;y++)for(let x=0;x<=COLS-grown[0].length;x++)all.push({x,y});
+      all.sort((a,b)=>Math.abs(a.x-piece.x)+Math.abs(a.y-piece.y)-Math.abs(b.x-piece.x)-Math.abs(b.y-piece.y));
+      spot=all.find(({x,y})=>!this.hit(grown,x,y))}
+    if(!spot)return false;
+    piece.m=grown;piece.x=spot.x;piece.y=spot.y;piece.luckyGrowthPending=false;
+    for(const [x,y] of[[3,1],[3,2]])this.parts.push({x:(piece.x+x)*BS+BS/2,y:(piece.y+y)*BS+BS/2,vx:(Math.random()-.5)*5,vy:-Math.random()*5-1,l:1.2,c:'#a9ff90'});
+    this.flash=.55;pop(this.p,'🍀 T CRESCEU! +2 BLOCOS','#a9ff90');sfx(620,.22,'triangle',.08,1.5);return true}
   rot(){if(!this.ok())return;const c=this.cur,m=c.m,R=m.length,C=m[0].length,n=Array.from({length:C},(_,i)=>Array.from({length:R},(_,j)=>m[R-1-j][i]));
     for(const k of[0,-1,1,-2,2])if(!this.hit(n,c.x+k,c.y)){c.m=n;c.x+=k;sfx(520,.07,'triangle',.05,1.5);return}}
   /* velocidade: cada peça colocada deixa a queda mais rápida */
@@ -586,14 +603,16 @@ class Game{
     const n=performance.now();
     if(rep||n-this.lastSoft<300)this.sd=SPEED.softHold;  // detecta "segurar" mesmo sem _HOLD
     this.lastSoft=n}
-  hard(){if(!this.ok())return;const c=this.cur;let n=0;while(!this.hit(c.m,c.x,c.y+1)){c.y++;n++}this.add(n*2);shake(this.p);this.settle()}
+  hard(){if(!this.ok())return;const c=this.cur;let n=0;
+    while(true){if(!this.hit(c.m,c.x,c.y+1)){c.y++;n++;continue}if(this.tryGrowLuckyPiece())continue;break}
+    this.add(n*2);shake(this.p);this.settle()}
   settle(){this.boardHistory={b:this.b.map(r=>[...r]),score:this.score,lines:this.lines,lv:this.lv,combo:this.combo,
-      piece:{m:this.cur.m.map(r=>[...r]),x:this.cur.x,y:this.cur.y}};
+      piece:{m:this.cur.m.map(r=>[...r]),x:this.cur.x,y:this.cur.y,luckyGrowthPending:!!this.cur.luckyGrowthPending}};
     this.placed++;const c=this.cur;c.m.forEach((r,j)=>r.forEach((v,i)=>v&&(this.b[c.y+j][c.x+i]=v)));sfx(140,.12,'sine',.12,.5);this.cur=null;
     const f=[];this.b.forEach((r,i)=>this.isCompleteLine(r)&&f.push(i));
     if(f.length){this.anim={f,t:0};f.forEach(r=>{for(let k=0;k<16;k++)this.parts.push({x:Math.random()*COLS*BS,y:r*BS+BS/2,vx:(Math.random()-.5)*9,vy:-Math.random()*8-2,l:1,c:COL[1+Math.random()*7|0][0]})});sfx(660,.25,'triangle',.08,2)}
     else{this.combo=0;this.comboStreak=0;this.updateSoloUI();this.next()}}
-  done(){const animation=this.anim,f=animation.f,n=f.length,zenAbility=!!animation.zenAbility;f.forEach(r=>{this.b.splice(r,1);this.b.unshift(Array(COLS).fill(0));if(this.trashMarkers){this.trashMarkers.splice(r,1);this.trashMarkers.unshift(Array(COLS).fill(false))}});this.anim=null;
+  done(){const animation=this.anim,f=animation.f,n=f.length,zenAbility=!!animation.zenAbility,magnetAbility=!!animation.magnet;f.forEach(r=>{this.b.splice(r,1);this.b.unshift(Array(COLS).fill(0));if(this.trashMarkers){this.trashMarkers.splice(r,1);this.trashMarkers.unshift(Array(COLS).fill(false))}});this.anim=null;
     if(zenAbility)this.zenGravityAnimation={row:f[0],t:0,duration:260};
     this.combo++;this.maxCombo=Math.max(this.maxCombo,this.combo);this.lines+=n;
     if(count===1&&gameMode==='timeAttack'){matchEndTimestamp+=n*POWERS_CONFIG.timeAttackLineBonus;updateMatchTimer();pop(this.p,`⏱ +${n*POWERS_CONFIG.timeAttackLineBonus/1000}s`,'#7dff8a')}
@@ -604,7 +623,7 @@ class Game{
       this.onLinesCleared(n);if(gameMode!=='zen')this.updateAbilityUI()}
     if(count===2){if(this.comboStreak>0)this.combos++;this.comboStreak++;if(this.comboStreak>=POWERS_CONFIG.comboThreshold){this.comboStreak=0;this.rewardRandomPower('COMBO 2x! Poder ganho')}}
     if(count===1&&gameMode!=='zen')this.advanceMission(n);
-    this.updateSoloUI();if(!this.challengeCompleted&&!zenAbility)this.next()}
+    this.updateSoloUI();if(!this.challengeCompleted&&!zenAbility&&!magnetAbility)this.next()}
   add(n){if(count===1&&gameMode==='hardcore')n*=2;if(count===1&&this.doubleScoreUntil>performance.now())n*=2;
     this.score+=n;if(this.score>this.hi){this.hi=this.score;ss(this.hiKey,this.hi)}
     if(count===2)this.checkMultiplayerPowerMilestones();
@@ -642,12 +661,10 @@ class Game{
     const progress=$('missionProgress'+this.p);if(progress)progress.textContent=display;
     if(this.challengeProgress>=target){this.challengeCompleted=true;if(!playerProgress.completedChallenges.includes(this.challenge.id)){playerProgress.completedChallenges.push(this.challenge.id);playerProgress.completedMissions++}addPlayerXP(80);savePlayerProgress();
       pop(this.p,'🎯 DESAFIO COMPLETO! +80 XP','#ffe66d');end(null,'challenge')}}
-  hasAbilityTarget(id){if(id==='bomb'||id==='clear')return this.b.some(row=>row.some(Boolean));
+  hasAbilityTarget(id){if(id==='bomb')return this.b.some(row=>row.slice(POWERS_CONFIG.trashColumns,COLS-POWERS_CONFIG.trashColumns).some(Boolean));
+    if(id==='clear')return this.b.some(row=>row.some(Boolean));
     if(id==='rewind')return !!this.boardHistory;
-    if(id==='magnet'){let target=-1,filled=0;
-      this.b.forEach((row,index)=>{const count=row.filter(Boolean).length;if(count>filled){filled=count;target=index}});
-      if(target<0||filled<COLS-3)return false;
-      return this.b[target].every((cell,x)=>cell||this.b.slice(0,target).some(row=>row[x]))}
+    if(id==='magnet')return this.b.some(row=>row.some(Boolean));
     return true}
   abilityBlockReason(ability){if(!ability)return'Escolha uma habilidade.';
     if(mode!=='game'||this.over||!this.cur)return'Partida indisponível.';
@@ -659,7 +676,7 @@ class Game{
     if(!this.hasAbilityTarget(ability.id))return'Não há alvo válido para este poder agora.';
     if(!hasInfiniteAbilityEnergy()&&this.energy<ability.cost)return`Energia insuficiente: faltam ${ability.cost-this.energy} EN.`;
     return''}
-  abilityStatusLabel(ability){const reason=this.abilityBlockReason(ability);if(!reason)return'PRONTO';
+  abilityStatusLabel(ability){const reason=this.abilityBlockReason(ability);if(!reason)return ability.id==='shield'&&this.shield?`ATIVO ×${this.shield}`:'PRONTO';
     const cooldown=reason.match(/^Aguarde a recarga: (\d+)s\.$/);if(cooldown)return`RECARGA ${cooldown[1]}s`;
     const energy=reason.match(/^Energia insuficiente: faltam (\d+) EN\.$/);if(energy)return`PRECISA ${energy[1]} EN`;
     if(reason.startsWith('Sem cargas'))return'SEM CARGA';
@@ -740,36 +757,45 @@ class Game{
     this.abilityCooldowns[id]=performance.now()+ability.cooldown;this.updateAbilityUI();
     setAbilityFeedback(hasInfiniteAbilityEnergy()?`${ability.name} ativado! Energia infinita; nenhum custo.`:`${ability.name} ativado! ${this.energy} EN restantes.`);
     return true}
-  activateBomb(){const occupied=[];this.b.forEach((row,y)=>row.forEach((v,x)=>{if(v)occupied.push({x,y})}));
-    if(!occupied.length)return false;
-    const center=occupied[Math.floor(occupied.length/2)],piece=this.cur,exploded=[];
-    for(let y=Math.max(0,center.y-POWERS_CONFIG.bombRadius);y<=Math.min(ROWS-1,center.y+POWERS_CONFIG.bombRadius);y++)
-      for(let x=Math.max(0,center.x-POWERS_CONFIG.bombRadius);x<=Math.min(COLS-1,center.x+POWERS_CONFIG.bombRadius);x++){
-        const isFalling=piece&&piece.m.some((row,j)=>row.some((v,i)=>v&&piece.x+i===x&&piece.y+j===y));
-        if(this.b[y][x]&&!isFalling){exploded.push({x,y});this.b[y][x]=0}}
+  activateBomb(){const exploded=[];
+    for(let y=0;y<ROWS;y++)for(let x=POWERS_CONFIG.trashColumns;x<COLS-POWERS_CONFIG.trashColumns;x++){
+      if(this.b[y][x]){exploded.push({x,y,value:this.b[y][x]});this.b[y][x]=0;this.trashMarkers[y][x]=false}}
     if(!exploded.length)return false;
-    exploded.forEach(({x,y})=>this.parts.push({x:x*BS+BS/2,y:y*BS+BS/2,vx:(Math.random()-.5)*9,vy:-Math.random()*8-2,l:1.2,c:'#ffb86b'}));
-    if(!hasInfiniteAbilityEnergy())this.powerCharges--;this.flash=1;shake(this.p);playExplosionSound();sfx(90,.4,'sawtooth',.12,.4);pop(this.p,'💣 BOOM!');return true}
-  activateShield(){this.shield++;pop(this.p,'🛡️ ESCUDO PRONTO!','#8deaff');return true}
-  activateClear(){const y=this.b.reduce((best,row,index)=>row.filter(Boolean).length>this.b[best].filter(Boolean).length?index:best,0);
-    if(!this.b[y].some(Boolean))return false;
-    this.b.splice(y,1);this.b.unshift(Array(COLS).fill(0));this.lines++;this.lv=gameMode==='hardcore'?5+this.lines/10|0:1+this.lines/10|0;
-    this.add(100*this.lv);if(!hasInfiniteAbilityEnergy())this.energy=Math.min(POWERS_CONFIG.energyMax,this.energy+POWERS_CONFIG.energyPerLine);
-    this.flash=1;this.onLinesCleared(1);this.advanceMission(1);this.updateAbilityUI();pop(this.p,'🧹 LINHA LIMPA!');return true}
+    exploded.forEach(({x,y})=>this.parts.push({x:x*BS+BS/2,y:y*BS+BS/2,vx:(Math.random()-.5)*11,vy:-Math.random()*10-2,l:1.3,c:Math.random()>.5?'#ffb86b':'#ffe66d'}));
+    if(!hasInfiniteAbilityEnergy())this.powerCharges--;this.flash=1;shake(this.p);playExplosionSound();sfx(90,.4,'sawtooth',.12,.4);pop(this.p,'💣 CENTRO LIMPO!','#ffcf70');return true}
+  activateShield(){this.shield+=POWERS_CONFIG.shieldGarbageHits;pop(this.p,`🛡️ ESCUDO: ${this.shield} LIXOS BLOQUEADOS`,'#8deaff');this.updateAbilityUI();return true}
+  activateClear(){const cleared=[];
+    this.b.forEach((row,y)=>row.forEach((value,x)=>{if(value)cleared.push({x,y,value})}));
+    if(!cleared.length)return false;
+    this.b=Array.from({length:ROWS},()=>Array(COLS).fill(0));
+    this.trashMarkers=Array.from({length:ROWS},()=>Array(COLS).fill(false));
+    cleared.forEach(({x,y})=>this.parts.push({x:x*BS+BS/2,y:y*BS+BS/2,vx:(Math.random()-.5)*12,vy:(Math.random()-.5)*12,l:1.25,c:Math.random()>.5?'#83ffd4':'#c6ff8a'}));
+    this.flash=1;shake(this.p);sfx(480,.35,'sine',.1,1.8);pop(this.p,'🧹 TABULEIRO ZERADO!','#aaffc8');return true}
   activateSlow(){this.slowUntil=performance.now()+POWERS_CONFIG.slowDuration;pop(this.p,'🐢 TEMPO LENTO!','#8deaff');return true}
   activateDoubleScore(){this.doubleScoreUntil=performance.now()+POWERS_CONFIG.doubleScoreDuration;pop(this.p,'✨ PONTOS ×2!','#ffe66d');return true}
-  activateLuckyPiece(){const next=this.take();if(this.hit(next.m,next.x,next.y))return false;this.cur=next;this.t=0;pop(this.p,'🍀 PEÇA DA SORTE!','#7dff8a');return true}
+  activateLuckyPiece(){const next={m:SH[2].map(row=>[...row]),x:COLS-SH[2][0].length>>1,y:0,luckyGrowthPending:true};
+    if(this.hit(next.m,next.x,next.y))return false;this.cur=next;this.t=0;pop(this.p,'🍀 PEÇA T DA SORTE!','#7dff8a');this.drawNext();return true}
   activateRewind(){if(!this.boardHistory)return false;const h=this.boardHistory;this.b=h.b.map(r=>[...r]);this.score=h.score;this.lines=h.lines;this.lv=h.lv;this.combo=h.combo;
-    this.cur={m:h.piece.m.map(r=>[...r]),x:h.piece.x,y:h.piece.y};this.boardHistory=null;this.anim=null;this.ui();this.updateSoloUI();this.flash=1;pop(this.p,'⏪ PEÇA DESFEITA!','#c792ff');return true}
-  activateMagnet(){let y=-1,filled=0;
-    this.b.forEach((row,index)=>{const n=row.filter(Boolean).length;if(n>filled){filled=n;y=index}});
-    if(y<0||filled<COLS-3)return false;
-    const board=this.b.map(row=>[...row]);
-    for(let x=0;x<COLS;x++)if(!board[y][x]){let donor=-1;for(let r=y-1;r>=0;r--)if(board[r][x]){donor=r;break}
-      if(donor<0)return false;const value=board[donor][x];for(let r=donor;r<y;r++)board[r][x]=board[r+1][x];board[y][x]=value}
-    if(!board[y].every(Boolean))return false;
-    this.b=board;
-    this.anim={f:[y],t:0};pop(this.p,'🧲 ÍMÃ!','#8deaff');return true}
+    this.cur={m:h.piece.m.map(r=>[...r]),x:h.piece.x,y:h.piece.y,luckyGrowthPending:!!h.piece.luckyGrowthPending};this.boardHistory=null;this.anim=null;this.ui();this.updateSoloUI();this.flash=1;pop(this.p,'⏪ PEÇA DESFEITA!','#c792ff');return true}
+  activateMagnet(){const source=this.b.map(row=>[...row]),blocks=[];
+    source.forEach((row,y)=>row.forEach((value,x)=>{if(value)blocks.push({x,y,value})}));
+    if(!blocks.length)return false;
+    const board=Array.from({length:ROWS},()=>Array(COLS).fill(0)),moving=[];
+    for(let index=0;index<blocks.length;index++){
+      const sourceBlock=blocks[index],slot=index%20,to={x:slot%COLS,y:ROWS-2+Math.floor(slot/COLS)};
+      if(index<20)board[to.y][to.x]=sourceBlock.value;
+      moving.push({fromX:sourceBlock.x,fromY:sourceBlock.y,toX:to.x,toY:to.y,value:sourceBlock.value})}
+    for(let index=blocks.length;index<20;index++){
+      const sourceBlock=blocks[index%blocks.length],to={x:index%COLS,y:ROWS-2+Math.floor(index/COLS)};
+      board[to.y][to.x]=sourceBlock.value;moving.push({fromX:sourceBlock.x,fromY:sourceBlock.y,toX:to.x,toY:to.y,value:sourceBlock.value,generated:true})}
+    this.b=board;this.trashMarkers=Array.from({length:ROWS},()=>Array(COLS).fill(false));
+    if(this.cur&&this.hit(this.cur.m,this.cur.x,this.cur.y)){
+      let fit=null;
+      for(let y=0;y<ROWS&&!fit;y++)for(let x=0;x<=COLS-this.cur.m[0].length;x++)if(!this.hit(this.cur.m,x,y)){fit={x,y};break}
+      if(fit){this.cur.x=fit.x;this.cur.y=fit.y}}
+    this.anim={f:[ROWS-2,ROWS-1],t:0,duration:620,magnet:{blocks:moving}};this.flash=.5;
+    for(let i=0;i<36;i++)this.parts.push({x:COLS*BS/2+(Math.random()-.5)*COLS*BS,y:ROWS*BS/2+(Math.random()-.5)*ROWS*BS,vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5,l:1.1,c:i%2?'#91f7ff':'#a9ff90'});
+    pop(this.p,'🧲 ÍMÃ! DUAS LINHAS ORGANIZADAS','#8deaff');sfx(500,.5,'sine',.1,2);return true}
 
   /* ───── PODERES (só no modo 2 jogadores) ───── */
   showIdleAlert(){const bw=$('bw'+this.p);if(!bw)return;const box=document.createElement('div');box.className='idle-alert';box.innerHTML=`<div class="idle-number" hidden>${Math.max(1,Math.ceil(this.idleCountdown/1000))}</div><div class="idle-text">⚠ MEXA-SE!</div>`;bw.appendChild(box);this.playIdleExplosionVideo()}
@@ -883,12 +909,13 @@ class Game{
     this.modeElapsedMs+=dt;this.updateSceneIntensity();
     if(performance.now()-this.abilityUiAt>=200){this.abilityUiAt=performance.now();this.updateAbilityUI()}
     if(this.fx){this.fxStep(dt);return}
-    if(this.anim){this.anim.t+=dt;if(this.anim.t>320)this.done();return}
+    if(this.anim){this.anim.t+=dt;if(this.anim.t>(this.anim.duration||320))this.done();return}
     if(count===1&&gameMode==='survival'){
       const interval=Math.max(POWERS_CONFIG.survivalMinInterval,POWERS_CONFIG.survivalStartInterval-
         Math.floor(this.modeElapsedMs/POWERS_CONFIG.survivalDifficultyStep)*POWERS_CONFIG.survivalIntervalDecay);
       if(this.modeElapsedMs>=this.nextGarbageAt){this.nextGarbageAt=this.modeElapsedMs+interval;
-        if(this.shield)this.shield--;else{const top=this.b.shift();if(gameMode!=='zen'&&top.some(Boolean))this.over=true;
+        if(this.shield){this.shield--;pop(this.p,`🛡️ LIXO BLOQUEADO · ${this.shield} RESTANTES`,'#8deaff');this.updateAbilityUI()}
+        else{const top=this.b.shift();if(gameMode!=='zen'&&top.some(Boolean))this.over=true;
           const row=Array(COLS).fill(8);row[Math.random()*COLS|0]=0;this.b.push(row);pop(this.p,'⚠ LIXO SUBIU!','#ff7b7b')}}
     }
     if(count===1&&this.challenge?.timeLimit){this.challengeTimeLeft=Math.max(0,this.challengeTimeLeft-dt);
@@ -914,7 +941,12 @@ class Game{
   drawNext(){const p=this.pc,m=this.nxt.m,bs=20;p.clearRect(0,0,88,88);if(this.curseActive)return;p.save();p.translate((88-m[0].length*bs)/2,(88-m.length*bs)/2);m.forEach((r,j)=>r.forEach((v,i)=>v&&blk(p,i,j,v,bs)));p.restore()}
   draw(){const c=this.c,W=COLS*BS,H=ROWS*BS;c.clearRect(0,0,W,H);
     for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){c.fillStyle=(x+y)%2?'rgba(255,255,255,.05)':'rgba(255,255,255,.1)';c.fillRect(x*BS,y*BS,BS,BS)}
-    this.b.forEach((r,y)=>{const fl=this.anim&&this.anim.f.includes(y),gravity=this.zenGravityAnimation&&y>0&&y<=this.zenGravityAnimation.row?
+    if(this.anim?.magnet){const progress=Math.min(1,this.anim.t/this.anim.duration),ease=1-Math.pow(1-progress,3);
+      this.anim.magnet.blocks.forEach(block=>{const x=block.fromX+(block.toX-block.fromX)*ease;
+        const y=block.fromY+(block.toY-block.fromY)*ease-Math.sin(progress*Math.PI)*.65;
+        c.save();c.shadowColor=block.generated?'#a9ff90':'#65e8ff';c.shadowBlur=12*(1-progress)+2;
+        blk(c,x,y,block.value,BS,block.generated ? .88 : 1);c.restore()})}
+    else this.b.forEach((r,y)=>{const fl=this.anim&&this.anim.f.includes(y),gravity=this.zenGravityAnimation&&y>0&&y<=this.zenGravityAnimation.row?
         y-Math.pow(1-Math.min(1,this.zenGravityAnimation.t/this.zenGravityAnimation.duration),2):y;
       r.forEach((v,x)=>{if(!v)return;if(fl&&this.anim.zenAbility){c.save();c.shadowColor='#71ead0';c.shadowBlur=18;c.fillStyle=(this.anim.t/70|0)%2?'#f4fff8':'#7fe4cf';c.fillRect(x*BS,y*BS,BS,BS);c.restore()}
         else if(fl){c.fillStyle=(this.anim.t/60|0)%2?'#fff':COL[v][0];c.fillRect(x*BS,y*BS,BS,BS)}
