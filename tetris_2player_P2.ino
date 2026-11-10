@@ -1,25 +1,15 @@
-// ============================================================
-//  TETRIS POP! — CONTROLE DO JOGADOR 2 (P2)
-//  Arduino UNO + Joystick Shield | Baud rate: 9600
+// TETRIS POP! — CONTROLE DO JOGADOR 2 (P2)
+// Arduino Joystick Shield + Arduino UNO | 9600 baud
 //
-//  BOTÕES (pino → comando enviado ao jogo):
-//    BTN_UP  (2) → UP      girar peça  | no menu: VOLTAR
-//    BTN_RGT (3) → RIGHT   mover →     | no menu: próximo cartão
-//    BTN_DWN (4) → DOWN    descer      | no menu: CLICAR / CONFIRMAR
-//    BTN_LFT (5) → LEFT    mover ←     | no menu: cartão anterior
-//    BTN_SEL (6) → SELECT  pausar      | no menu: voltar
-//    BTN_STR (7) → (reservado, não envia nada)
-//    BTN_A   (8) → BTN_A   girar peça  | no menu: CONFIRMAR
-//    BTN_B   (9) → BTN_B   queda instantânea | no menu: voltar
+// Joystick Shield:
+//   A / D2 → cima; B / D3 → direita; C / D4 → baixo; D / D5 → esquerda
+//   E / D6 → evento E
+//   F / D7 → evento F
+//   K / D8 → ação BTN_A existente
+//   D9    → queda instantânea (entrada auxiliar, se conectada)
 //
-//  PROTOCOLO (uma linha por evento):
-//    P2:LEFT        → botão acabou de ser apertado
-//    P2:LEFT_HOLD   → botão segurado (só LEFT, RIGHT e DOWN repetem)
-//    P2:PING        → sinal de vida a cada 2 s (o site usa para
-//                     reconhecer que este controle é o P2)
-//
-//  O joystick analógico fica desativado.
-// ============================================================
+// Protocolo: P2:LEFT, P2:LEFT_HOLD, P2:E, P2:F, P2:K e P2:PING.
+// Os botões usam INPUT_PULLUP e são ativos em LOW.
 
 #define PLAYER_ID "P2"
 
@@ -27,95 +17,90 @@
 #define BTN_RGT  3
 #define BTN_DWN  4
 #define BTN_LFT  5
-#define BTN_SEL  6
-#define BTN_STR  7
-#define BTN_A    8
-#define BTN_B    9
+#define BTN_E    6
+#define BTN_F    7
+#define BTN_K    8
+#define BTN_HARD 9
 
-const unsigned long DEBOUNCE_MS    = 25;    // ignora trepidação do botão
-const unsigned long HOLD_DELAY_MS  = 220;   // espera antes de começar a repetir
-const unsigned long HOLD_REPEAT_MS = 75;    // intervalo entre repetições
-const unsigned long PING_MS        = 2000;  // sinal de vida
+const unsigned long DEBOUNCE_MS = 35;
+const unsigned long HOLD_DELAY_MS = 220;
+const unsigned long HOLD_REPEAT_MS = 75;
+const unsigned long PING_MS = 2000;
 
-struct Btn {
-  uint8_t       pin;
-  const char*   cmd;
-  bool          repeat;     // repete ao segurar?
-  bool          down;       // está pressionado?
-  unsigned long lastLow;    // última vez que leu LOW
+struct Button {
+  uint8_t pin;
+  const char* command;
+  bool repeat;
+  bool stableState;
+  bool reading;
+  unsigned long changedAt;
   unsigned long pressedAt;
-  unsigned long lastRep;
+  unsigned long lastRepeat;
 };
 
-Btn btns[] = {
-  { BTN_UP,  "UP",     false, false, 0, 0, 0 },
-  { BTN_RGT, "RIGHT",  true,  false, 0, 0, 0 },
-  { BTN_DWN, "DOWN",   true,  false, 0, 0, 0 },
-  { BTN_LFT, "LEFT",   true,  false, 0, 0, 0 },
-  { BTN_SEL, "SELECT", false, false, 0, 0, 0 },
-  { BTN_A,   "BTN_A",  false, false, 0, 0, 0 },
-  { BTN_B,   "BTN_B",  false, false, 0, 0, 0 },
+Button buttons[] = {
+  { BTN_UP, "UP", false, HIGH, HIGH, 0, 0, 0 },
+  { BTN_RGT, "RIGHT", true, HIGH, HIGH, 0, 0, 0 },
+  { BTN_DWN, "DOWN", true, HIGH, HIGH, 0, 0, 0 },
+  { BTN_LFT, "LEFT", true, HIGH, HIGH, 0, 0, 0 },
+  { BTN_E, "E", false, HIGH, HIGH, 0, 0, 0 },
+  { BTN_F, "F", false, HIGH, HIGH, 0, 0, 0 },
+  { BTN_K, "K", false, HIGH, HIGH, 0, 0, 0 },
+  { BTN_HARD, "BTN_B", false, HIGH, HIGH, 0, 0, 0 },
 };
-const int BTN_COUNT = sizeof(btns) / sizeof(btns[0]);
+const uint8_t BUTTON_COUNT = sizeof(buttons) / sizeof(buttons[0]);
 
 unsigned long lastPing = 0;
 
-void sendCmd(const char* cmd, bool hold) {
+void sendCommand(const char* command, bool hold = false) {
   Serial.print(PLAYER_ID);
   Serial.print(':');
-  Serial.print(cmd);
+  Serial.print(command);
   if (hold) Serial.print("_HOLD");
   Serial.println();
 }
 
 void setup() {
   Serial.begin(9600);
-
-  pinMode(BTN_UP,  INPUT_PULLUP);
-  pinMode(BTN_RGT, INPUT_PULLUP);
-  pinMode(BTN_DWN, INPUT_PULLUP);
-  pinMode(BTN_LFT, INPUT_PULLUP);
-  pinMode(BTN_SEL, INPUT_PULLUP);
-  pinMode(BTN_STR, INPUT_PULLUP);
-  pinMode(BTN_A,   INPUT_PULLUP);
-  pinMode(BTN_B,   INPUT_PULLUP);
-
-  delay(500);
+  for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
+    pinMode(buttons[i].pin, INPUT_PULLUP);
+  }
+  delay(300);
   Serial.println("ARDUINO_P2_READY");
 }
 
 void loop() {
-  unsigned long now = millis();
+  const unsigned long now = millis();
 
-  for (int i = 0; i < BTN_COUNT; i++) {
-    Btn& b = btns[i];
+  for (uint8_t i = 0; i < BUTTON_COUNT; i++) {
+    Button& button = buttons[i];
+    const bool current = digitalRead(button.pin);
 
-    if (digitalRead(b.pin) == LOW) {
-      b.lastLow = now;
-
-      if (!b.down) {
-        // Aperto agora: envia na hora (sem atraso)
-        b.down      = true;
-        b.pressedAt = now;
-        b.lastRep   = now;
-        sendCmd(b.cmd, false);
-      }
-      else if (b.repeat &&
-               now - b.pressedAt >= HOLD_DELAY_MS &&
-               now - b.lastRep   >= HOLD_REPEAT_MS) {
-        // Segurado: repete marcando como HOLD
-        b.lastRep = now;
-        sendCmd(b.cmd, true);
-      }
+    if (current != button.reading) {
+      button.reading = current;
+      button.changedAt = now;
     }
-    else if (b.down && now - b.lastLow >= DEBOUNCE_MS) {
-      // Só considera "solto" depois de ficar solto por DEBOUNCE_MS
-      b.down = false;
+
+    if (button.reading != button.stableState &&
+        now - button.changedAt >= DEBOUNCE_MS) {
+      button.stableState = button.reading;
+      if (button.stableState == LOW) {
+        sendCommand(button.command);
+        button.pressedAt = now;
+        button.lastRepeat = now;
+      }
+    } else if (button.repeat &&
+               button.stableState == LOW &&
+               now - button.pressedAt >= HOLD_DELAY_MS &&
+               now - button.lastRepeat >= HOLD_REPEAT_MS) {
+      sendCommand(button.command, true);
+      button.lastRepeat = now;
     }
   }
 
   if (now - lastPing >= PING_MS) {
     lastPing = now;
-    sendCmd("PING", false);
+    sendCommand("PING");
   }
+  delay(2);
 }

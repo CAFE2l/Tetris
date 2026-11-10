@@ -24,9 +24,9 @@ body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradi
 .ambient-particles{position:absolute;inset:0;perspective:800px}
 .fb,.ambient-particle{position:absolute;bottom:-120px;border:4px solid var(--ink);border-radius:28%;box-shadow:inset -6px -8px 0 rgba(0,0,0,.18),inset 6px 6px 0 rgba(255,255,255,.35);animation:rise linear infinite}
 @keyframes rise{to{transform:translateY(-125vh) rotateX(360deg) rotateY(300deg) rotateZ(200deg)}}
-.ambient-particle.leaf{border:0;border-radius:4px 85% 4px 85%;background:linear-gradient(145deg,#d9f6ad,#62b98d);box-shadow:inset 3px 2px 4px rgba(255,255,255,.55),0 5px 12px rgba(16,87,74,.15);animation:leafFall linear infinite}
-@keyframes leafFall{0%{transform:translate3d(0,-12vh,0) rotate(0)}35%{transform:translate3d(34px,30vh,0) rotate(110deg)}68%{transform:translate3d(-26px,68vh,0) rotate(250deg)}100%{transform:translate3d(15px,125vh,0) rotate(440deg)}}
-.ambient-particle.mote{width:7px;height:7px;border:0;border-radius:50%;background:#eaffeb;box-shadow:0 0 14px rgba(255,255,255,.8);animation:moteFloat linear infinite}
+.ambient-particle.leaf{top:-60px;bottom:auto;border:0;border-radius:4px 85% 4px 85%;background:linear-gradient(145deg,#d9f6ad,#62b98d);box-shadow:inset 3px 2px 4px rgba(255,255,255,.55),0 5px 12px rgba(16,87,74,.15);animation:leafFall linear infinite}
+@keyframes leafFall{0%{transform:translate3d(0,-12vh,0) rotate(var(--leaf-rotation,0deg))}35%{transform:translate3d(var(--leaf-drift,34px),30vh,0) rotate(calc(var(--leaf-rotation,0deg) + 110deg))}68%{transform:translate3d(var(--leaf-drift-back,-26px),68vh,0) rotate(calc(var(--leaf-rotation,0deg) + 250deg))}100%{transform:translate3d(var(--leaf-drift-end,15px),125vh,0) rotate(calc(var(--leaf-rotation,0deg) + 440deg))}}
+.ambient-particle.mote{bottom:-12px;width:7px;height:7px;border:0;border-radius:50%;background:#eaffeb;box-shadow:0 0 14px rgba(255,255,255,.8);animation:moteFloat linear infinite}
 @keyframes moteFloat{0%{transform:translate3d(0,0,0);opacity:0}20%{opacity:.55}80%{opacity:.45}100%{transform:translate3d(24px,-115vh,0);opacity:0}}
 .ambient-particle.spark{width:5px;height:18px;border:0;border-radius:99px;background:linear-gradient(#ffbd6d,#ff394c);box-shadow:0 0 15px #ff5b46;animation:sparkRise linear infinite}
 @keyframes sparkRise{to{transform:translate3d(45px,-120vh,0) rotate(55deg);opacity:0}}
@@ -68,8 +68,12 @@ section{position:relative;z-index:2;width:100%;display:flex;flex-direction:colum
 @keyframes hint{to{transform:translateY(8px)}}
 .card.press{transform:translateY(14px) scale(1)!important}
 .keys{display:flex;gap:6px;align-items:center;margin-top:2vh;font-size:18px;flex-wrap:wrap;justify-content:center}
-body[data-scene="zen"]{color:#f5fff8}
-body[data-scene="zen"]::before{opacity:.13;background:radial-gradient(ellipse at 18% 20%,rgba(240,255,239,.4),transparent 42%),radial-gradient(ellipse at 80% 60%,rgba(114,221,202,.3),transparent 46%)}
+body[data-scene="zen"]{color:#f5fff8;background:#91d9d4}
+body[data-scene="zen"]::before{opacity:.2;background:radial-gradient(ellipse at 16% 18%,rgba(255,255,255,.34),transparent 38%),radial-gradient(ellipse at 82% 28%,rgba(197,255,226,.34),transparent 40%),linear-gradient(120deg,rgba(49,177,191,.12),transparent 52%,rgba(109,196,147,.14));animation:zenWind 28s ease-in-out infinite alternate}
+@keyframes zenWind{to{background-position:30px 0,-24px 12px,0 0}}
+body[data-scene="zen"] #bg .scene-landscape{opacity:.48;filter:blur(1px)}
+body[data-scene="zen"] #bg .scene-landscape::before{background:linear-gradient(160deg,rgba(226,255,238,.36),rgba(66,169,157,.18))}
+body[data-scene="zen"] #bg .scene-landscape::after{background:linear-gradient(160deg,rgba(238,255,218,.42),rgba(48,142,146,.16))}
 body[data-scene="zen"] .card{--ink:#355f60;--led:#d7fff1;background:linear-gradient(150deg,rgba(245,255,250,.8),rgba(163,224,210,.48));color:#24565a;text-shadow:none;box-shadow:0 12px 0 rgba(30,83,81,.45),0 0 24px rgba(209,255,237,.45),inset 0 0 24px rgba(255,255,255,.5)}
 body[data-scene="zen"] .card p{color:#326c6a}
 body[data-scene="zen"] .card.sel{box-shadow:0 12px 0 rgba(30,83,81,.38),0 0 40px rgba(222,255,241,.8),inset 0 0 30px rgba(255,255,255,.68)}
@@ -97,10 +101,30 @@ body .card[data-scene="challenge"]{--ink:#31214f;--led:#fff099;background:linear
 body[data-scene="survival"]::before{opacity:.22;background:repeating-linear-gradient(0deg,transparent 0 46px,rgba(66,247,218,.08) 47px 48px)}
 body[data-scene="timeAttack"]::before{opacity:.2;background:repeating-linear-gradient(105deg,transparent 0 80px,rgba(255,238,172,.15) 81px 83px,transparent 84px 150px)}
 body[data-scene="challenge"]::before{opacity:.24;background:radial-gradient(circle at 20% 20%,rgba(255,245,177,.2) 0 2px,transparent 3px),radial-gradient(circle at 70% 65%,rgba(255,245,177,.18) 0 2px,transparent 3px);background-size:95px 95px,135px 135px}
-body[data-scene="zen"] .ambient-particle{filter:saturate(.8)}
-body[data-scene="zen"] #game .bw canvas.main{border-color:#5f9290;border-radius:26px;box-shadow:0 10px 24px rgba(28,92,91,.18),0 0 0 5px rgba(224,255,239,.8);filter:saturate(.72)}
-body[data-scene="zen"] #game .skill-side,body[data-scene="zen"] #game .nx,body[data-scene="zen"] #game .missionCard{border-color:#79aaa0;box-shadow:0 6px 16px rgba(35,107,94,.12);backdrop-filter:blur(8px)}
-body[data-scene="zen"] #game .comboBadge{background:#dff7d9;border-color:#78aa88;box-shadow:0 4px 12px rgba(39,112,89,.2);animation:zenGlow 2.8s ease-in-out infinite alternate}
+body[data-scene="zen"] .ambient-particle{filter:saturate(.9)}
+body[data-scene="zen"] #game .bw canvas.main{border-color:#66a99e;border-radius:26px;box-shadow:0 12px 28px rgba(28,92,91,.24),0 0 0 5px rgba(224,255,239,.9),0 0 32px rgba(114,220,203,.3)}
+body[data-scene="zen"] #game .skill-side,body[data-scene="zen"] #game .nx,body[data-scene="zen"] #game .missionCard{border-color:#79aaa0;box-shadow:0 6px 16px rgba(35,107,94,.12)}
+body[data-scene="zen"] #game .tag,body[data-scene="zen"] #game .chips b,body[data-scene="zen"] #game .nx{background:rgba(246,255,252,.9);color:#24565a;border-color:#78aaa0;box-shadow:0 5px 0 rgba(50,119,108,.34)}
+body[data-scene="zen"] #game .chips i,body[data-scene="zen"] #game .nx i{color:#218d89}
+body[data-scene="zen"] #game .soloExtras{display:none!important}
+body[data-scene="zen"] #game .game-hud{gap:9px}
+body[data-scene="zen"] #game .hud-pill{background:rgba(245,255,251,.9);color:#24565a;border-color:#78aaa0;box-shadow:0 4px 0 rgba(50,119,108,.34)}
+body[data-scene="zen"] #game .comboBadge{background:#dff7d9;color:#24565a;border-color:#78aa88;box-shadow:0 4px 12px rgba(39,112,89,.2);animation:zenGlow 2.8s ease-in-out infinite alternate}
+.zen-game-control{display:none;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:5px 12px;border:3px solid #78aaa0;border-radius:16px;background:rgba(246,255,252,.94);color:#24565a;box-shadow:0 4px 0 rgba(50,119,108,.34);font:inherit;font-weight:700;cursor:pointer;touch-action:manipulation;transition:transform .15s,filter .15s}
+.zen-game-control:hover{transform:translateY(-2px);filter:brightness(1.04)}
+.zen-game-control:focus-visible{outline:3px solid #28a99f;outline-offset:3px}
+.zen-ability-ring{position:relative;display:grid;place-items:center;width:34px;height:34px;flex:none}
+.zen-ability-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.zen-ability-ring circle{fill:none;stroke-width:3}
+.zen-ability-ring .track{stroke:rgba(55,143,133,.18)}
+.zen-ability-ring .progress{stroke:#32b8ac;stroke-linecap:round;stroke-dasharray:100.5;stroke-dashoffset:0;transition:stroke-dashoffset .2s linear}
+.zen-ability-status{position:relative;font-size:9px;line-height:1;text-align:center}
+.zen-ability-copy{display:grid;gap:2px;text-align:left;white-space:nowrap;font-size:12px}
+.zen-ability-copy small{font-size:9px;opacity:.72}
+.zen-ability-button{min-width:132px}
+.zen-ability-button[aria-disabled="true"]{opacity:.64;cursor:default}
+.zen-ability-button[aria-disabled="true"]:hover{transform:none}
+.zen-pause-button{width:44px;padding:4px;font-size:20px}
 @keyframes zenGlow{to{filter:brightness(1.05);transform:translateX(-50%) translateY(-3px)}}
 body[data-scene="classic"] #game .bw canvas.main{box-shadow:0 10px 0 #120a34,0 0 0 6px #57d8ff,0 0 32px rgba(52,192,255,.56)}
 body[data-scene="classic"] #game .comboBadge{box-shadow:0 0 24px #ffd93d,0 5px 0 var(--ink)}
@@ -160,6 +184,7 @@ body[data-scene="zen"] .card.sel{animation:none}
 .ability-button small{display:block;font-size:10px;line-height:1.2;font-weight:500}
 .ability-button .ability-state{font-size:10px;font-weight:700;text-align:right}
 .ability-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:14px;padding-top:12px;border-top:3px dashed #cbb4e8;font-size:12px}
+.ability-feedback{display:block;min-height:34px;padding:8px 10px;border-radius:10px;background:#eee7fa;color:var(--ink);font-weight:600;line-height:1.35}
 .ability-footer .skill-activate{min-width:170px;font-size:14px}
 .skill-hint{margin-top:8px;font-size:11px;opacity:.75;text-align:right}
 .result-outcome{font-size:23px;margin:6px 0}
@@ -302,7 +327,10 @@ body[data-scene="zen"] .card.sel{animation:none}
   .skill-hint{text-align:center}
   #dlg.match-result .dbox{padding:16px 10px 20px}
 }
-@media(prefers-reduced-motion:reduce){.fb,.ambient-particle,body::before,.card.sel,.card.confirming{animation:none!important}.scene-sky,.card,.card-content{transition-duration:.01ms!important}}
+body[data-scene="zen"] .zen-game-control{display:flex}
+body[data-scene="zen"] .touch-button[data-command="SELECT"]{display:none}
+@media(max-width:600px){body[data-scene="zen"] #game .game-hud{gap:5px}.zen-ability-button{min-width:118px;padding:4px 8px}.zen-ability-copy{font-size:10px}.zen-ability-copy small{font-size:8px}.zen-ability-ring{width:30px;height:30px}.zen-pause-button{width:38px;min-height:38px}}
+@media(prefers-reduced-motion:reduce){.fb,.ambient-particle,body::before,.card.sel,.card.confirming{animation:none!important}body[data-scene="zen"] .ambient-particle.leaf{animation:leafFall 65s linear infinite!important}.scene-sky,.card,.card-content,.zen-game-control,.zen-ability-ring .progress{transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
@@ -310,6 +338,9 @@ body[data-scene="zen"] .card.sel{animation:none}
 <audio id="lobby-music" loop preload="auto"><source src="./lobby_music.mp3" type="audio/mpeg"></audio>
 <audio id="single-player-music" loop preload="auto"><source src="./single_player.mp3" type="audio/mpeg"></audio>
 <audio id="multiplayer-music" loop preload="auto"><source src="./multiplayer.mp3" type="audio/mpeg"></audio>
+<audio id="hardcore-music" loop preload="auto"><source src="./hardcore.mp3" type="audio/mpeg"></audio>
+<audio id="zen-music" loop preload="auto"><source src="./zen_mode.mp3" type="audio/mpeg"></audio>
+<audio id="classic-music" loop preload="auto"><source src="./classic.mp3" type="audio/mpeg"></audio>
 <audio id="alert-sound" loop preload="auto"><source src="./alert.mp3" type="audio/mpeg"></audio>
 <audio id="explosion-sound" preload="auto"><source src="./explosion.mp3" type="audio/mpeg"></audio>
 <audio id="tnt-sound" preload="auto"><source src="./tnt.mp3" type="audio/mpeg"></audio>
@@ -325,12 +356,14 @@ body[data-scene="zen"] .card.sel{animation:none}
   </div>
   <div class="bar"><span class="pill" id="player-level">NÍVEL 1 · 0 XP</span><span class="pill" id="daily-progress">MISSÃO DIÁRIA</span></div>
   <div id="cards"></div>
-  <div class="keys"><span class="k">◀</span><span class="k">▶</span> escolher <span class="k">▼</span> confirmar</div>
+  <div class="keys"><span class="k">◀</span><span class="k">▶</span> escolher <span class="k">▼</span> confirmar <span class="k">E</span> voltar</div>
 </section>
 
 <section id="game" class="hide">
   <div id="timer" class="hide">2:00</div>
-  <div class="game-hud"><span class="hud-pill" id="mode-label"></span></div>
+  <div class="game-hud"><span class="hud-pill" id="mode-label"></span><button class="zen-game-control zen-ability-button" id="zen-clear-button" type="button" aria-label="Limpar uma linha com blocos, atalho X do teclado" aria-disabled="false">
+    <span class="zen-ability-ring" aria-hidden="true"><svg viewBox="0 0 36 36"><circle class="track" cx="18" cy="18" r="16"></circle><circle class="progress" id="zen-cooldown-progress" cx="18" cy="18" r="16"></circle></svg><strong class="zen-ability-status" id="zen-cooldown-status">READY</strong></span>
+    <span class="zen-ability-copy">LIMPAR LINHA<small id="zen-ability-hint">X · sem custo</small></span></button><button class="zen-game-control zen-pause-button" id="zen-pause-button" type="button" aria-label="Pausar partida">Ⅱ</button></div>
   <div id="arena"></div>
   <div class="mobile-controls" id="mobile-controls" aria-label="Controles touch">
     <button class="touch-button" data-command="LEFT" aria-label="Mover à esquerda">◀</button>
@@ -351,15 +384,15 @@ body[data-scene="zen"] .card.sel{animation:none}
   <div class="skill-dialog" role="dialog" aria-modal="true" aria-labelledby="skill-title">
     <div class="skill-dialog-head"><div><h2 id="skill-title">HABILIDADES & INVENTÁRIO</h2><p id="skill-modal-energy">Energia 0/100</p></div><button class="skill-close" id="skill-close" type="button" aria-label="Fechar menu">×</button></div>
     <div class="ability-list" id="ability-list"></div>
-    <div class="ability-footer"><span id="ability-selection-hint">Escolha uma habilidade; ela não será ativada automaticamente.</span><button class="skill-activate" id="modal-skill-activate" type="button">ATIVAR SELECIONADA</button></div>
-    <p class="skill-hint">←/→ escolhe · V ou BTN_B ativa · ESC/Ⅱ fecha · Clique fora para sair</p>
+    <div class="ability-footer"><span id="ability-selection-hint" class="ability-feedback" role="status" aria-live="polite">Escolha uma habilidade; ela não será ativada automaticamente.</span><button class="skill-activate" id="modal-skill-activate" type="button">ATIVAR SELECIONADA</button></div>
+    <p class="skill-hint">←/→ escolhe · F ou V ativa · ESC/Ⅱ fecha · Clique fora para sair</p>
   </div>
 </div>
 
 <div id="dlg"><div class="dbox"><div id="dt"></div><div id="db"></div><div id="dbtns"></div></div></div>
 
 <script>
-const $=id=>document.getElementById(id),COLS=10,ROWS=20,BS=28,INK='#2b1650';
+const $=id=>document.getElementById(id),COLS=10,ROWS=20,BS=28,INK='#2b1650',ZEN_CLEAR_COOLDOWN=10000;
 const ls=k=>{try{return localStorage.getItem(k)}catch{}},ss=(k,v)=>{try{localStorage.setItem(k,v)}catch{}};
 const SH=[[[1,1,1,1]],[[2,2],[2,2]],[[0,3,0],[3,3,3]],[[0,4,4],[4,4,0]],[[5,5,0],[0,5,5]],[[6,0,0],[6,6,6]],[[0,0,7],[7,7,7]]];
 const COL=[0,['#6ee7ff','#1aa7d6'],['#ffe66d','#e0a800'],['#c792ff','#8a4fe0'],['#7dff8a','#2fbf4a'],['#ff8a8a','#e03c3c'],['#7ba5ff','#3560d9'],['#ffb86b','#e57b1a'],['#b8b2c8','#7d7694']];
@@ -377,10 +410,11 @@ const POWERS_CONFIG={
   bombRadius:1,slowDuration:8000,slowFallMultiplier:2.5,doubleScoreDuration:30000,
   survivalStartInterval:15000,survivalMinInterval:4000,survivalIntervalDecay:350,survivalDifficultyStep:30000,
   challengeTimeLimit:60000,timeAttackLineBonus:8000,
-  speed:{start:800,decay:.965,min:70,soft:45,softHold:130,hardcoreMin:45,hardcoreMultiplier:.62,zenMin:420,zenMultiplier:1.65},
+  speed:{start:800,decay:.965,min:70,soft:45,softHold:130,modeMultiplier:{classic:1,hardcore:.5,zen:1.5}},
   inactivity:{warnAfter:12000,countdown:5000,videoLead:1000}
 };
 const {speed:SPEED,inactivity:IDLE}=POWERS_CONFIG;
+const hasInfiniteAbilityEnergy=()=>count===1&&gameMode==='zen';
 // Troque estes placeholders pelos caminhos dos ícones quando estiverem prontos.
 const POWER_ICONS={lightning:'⚡',curse:'☠️',emp:'▣',trash:'🗑️'};
 const POWER_DEFS={
@@ -434,14 +468,14 @@ const THEMES={pop:{bg:'linear-gradient(160deg,#5b3df5,#a04dff 45%,#ff6fb5)',boar
 const SCENE_CONFIG={
   menu:{sky:'linear-gradient(145deg,#3923b8,#8b36df 48%,#ed519e)',board:'#2a1a5e',particles:'blocks',count:18,led:'#a2e8ff'},
   classic:{sky:'radial-gradient(ellipse at 50% 35%,rgba(28,110,255,.48),transparent 42%),linear-gradient(155deg,#10083b,#32127a 55%,#a326a4)',board:'#211557',particles:'blocks',count:18,led:'#5be5ff'},
-  zen:{sky:'radial-gradient(ellipse at 72% 20%,rgba(251,255,219,.75),transparent 24%),linear-gradient(165deg,#9de6d2 0%,#bcebd7 38%,#88d2d3 70%,#92cbdc)',board:'#315d60',particles:'leaves',count:16,led:'#d7fff1'},
+  zen:{sky:'radial-gradient(ellipse at 18% 12%,rgba(255,255,255,.62),transparent 32%),radial-gradient(ellipse at 82% 18%,rgba(188,255,226,.46),transparent 36%),linear-gradient(155deg,#75c9e8 0%,#8fe0dc 36%,#9be5c2 68%,#73cdb5 100%)',board:'#28545c',particles:'leaves',count:22,leafCount:14,led:'#c9fff0'},
   hardcore:{sky:'radial-gradient(ellipse at 50% 100%,rgba(172,36,26,.36),transparent 36%),linear-gradient(155deg,#090b18,#1a1322 52%,#321a26)',board:'#130f20',particles:'sparks',count:16,led:'#ff6848'},
   survival:{sky:'radial-gradient(ellipse at 80% 75%,rgba(21,179,161,.28),transparent 35%),linear-gradient(160deg,#071d32,#103949 58%,#17504d)',board:'#102b3c',particles:'sparks',count:12,led:'#54f0d7'},
   timeAttack:{sky:'radial-gradient(ellipse at 15% 50%,rgba(77,186,255,.35),transparent 34%),linear-gradient(150deg,#071b4a,#105698 55%,#e67836)',board:'#10284f',particles:'streaks',count:13,led:'#ffd45e'},
   challenge:{sky:'radial-gradient(ellipse at 50% 38%,rgba(255,230,151,.32),transparent 32%),linear-gradient(150deg,#382667,#61439b 55%,#a84f99)',board:'#302452',particles:'stars',count:13,led:'#fff099'},
   multiplayer:{sky:'radial-gradient(ellipse at 50% 45%,rgba(255,95,162,.3),transparent 38%),linear-gradient(155deg,#19134d,#311866 52%,#782b7c)',board:'#23174e',particles:'blocks',count:14,led:'#ff72b2'}
 };
-const SCENE_MUSIC={menu:'lobby',classic:'classic',hardcore:'hardcore',zen:'zen'};
+const SCENE_MUSIC={menu:'lobby',classic:'classic',hardcore:'hardcore',zen:'zen',multiplayer:'multiplayer',timeAttack:'single',survival:'single',challenge:'single'};
 let sceneCurrent='',sceneLayerIndex=0;
 const sceneLayers=[document.createElement('div'),document.createElement('div')];
 sceneLayers.forEach(layer=>{layer.className='scene-sky';$('bg').append(layer)});
@@ -449,14 +483,16 @@ const landscape=document.createElement('div');landscape.className='scene-landsca
 const ambientParticles=document.createElement('div');ambientParticles.className='ambient-particles';$('bg').append(ambientParticles);
 function renderAmbientParticles(sceneId){const scene=SCENE_CONFIG[sceneId]||SCENE_CONFIG.menu,types=scene.particles;
   ambientParticles.replaceChildren();
-  for(let i=0;i<scene.count;i++){const particle=document.createElement('div'),isMote=types==='leaves'&&i>=10,kind=types==='blocks'?'fb':types==='leaves'?isMote?'mote':'leaf':types==='sparks'?'spark':types==='streaks'?'streak':'star';
+  for(let i=0;i<scene.count;i++){const particle=document.createElement('div'),isMote=types==='leaves'&&i>=(scene.leafCount||10),kind=types==='blocks'?'fb':types==='leaves'?isMote?'mote':'leaf':types==='sparks'?'spark':types==='streaks'?'streak':'star';
     const size=kind==='fb'?26+Math.random()*44:kind==='leaf'?13+Math.random()*20:kind==='streak'?2+Math.random()*3:kind==='spark'?3+Math.random()*5:4+Math.random()*7;
     particle.className=kind==='fb'?'fb ambient-particle fb':`ambient-particle ${kind}`;
     particle.style.left=`${Math.random()*100}%`;particle.style.width=`${size}px`;particle.style.height=`${kind==='streak'?45+Math.random()*60:kind==='leaf'?size*.65:size}px`;
     particle.style.animationDuration=`${kind==='leaf'?18+Math.random()*18:kind==='mote'?20+Math.random()*20:kind==='streak'?6+Math.random()*8:kind==='spark'?8+Math.random()*12:14+Math.random()*17}s`;
     particle.style.animationDelay=`-${Math.random()*22}s`;
     if(kind==='fb')particle.style.background=COL[1+(i%7)][0];
-    if(kind==='leaf')particle.style.opacity=`${.32+Math.random()*.42}`;
+    if(kind==='leaf'){const drift=Math.round((Math.random()-.5)*100);particle.style.opacity=`${.34+Math.random()*.4}`;particle.style.setProperty('--leaf-drift',`${drift}px`);
+      particle.style.setProperty('--leaf-drift-back',`${Math.round(-drift*.75)}px`);particle.style.setProperty('--leaf-drift-end',`${Math.round(drift*.45)}px`);
+      particle.style.setProperty('--leaf-rotation',`${Math.round(Math.random()*360)}deg`);particle.style.background=`linear-gradient(145deg,${['#e3f7b3','#a9e49b','#79c99d','#d5f0a2'][i%4]},${['#64b995','#4eaa91','#65b786','#80c89d'][i%4]})`}
     if(kind==='spark')particle.style.opacity=`${.25+Math.random()*.45}`;
     ambientParticles.append(particle)}
   landscape.style.opacity=sceneId==='zen'?'1':'0'}
@@ -473,28 +509,16 @@ applyScene('menu');
 $('logo').innerHTML=[...'TETRIS'].map((l,i)=>`<span style="--i:${i};--r:${i%2?-4:4}deg;--c:${['#ff5fa2','#ffb400','#ffe66d','#5be37d','#4da6ff','#c792ff'][i]}">${l}</span>`).join('');
 
 /* ───── áudio ───── */
-let AC,music=true,started=false;const lobbyMusic=$('lobby-music'),singlePlayerMusic=$('single-player-music'),multiplayerMusic=$('multiplayer-music'),alertSound=$('alert-sound'),explosionSound=$('explosion-sound'),tntSound=$('tnt-sound'),tsnd=$('timer-sound');
-const musicTracks=[lobbyMusic,singlePlayerMusic,multiplayerMusic],musicTrackByKey={lobby:lobbyMusic,classic:singlePlayerMusic,hardcore:multiplayerMusic},musicTrackVolume=.4;
-let activeMusicKey=null,requestedMusicKey=null,musicFadeTimer=null,musicFadeTarget=null,zenMusic=null,zenMusicSequence=null,zenMusicNote=0;
+let AC,music=true,started=false;const lobbyMusic=$('lobby-music'),singlePlayerMusic=$('single-player-music'),multiplayerMusic=$('multiplayer-music'),hardcoreMusic=$('hardcore-music'),zenMusicTrack=$('zen-music'),classicMusic=$('classic-music'),alertSound=$('alert-sound'),explosionSound=$('explosion-sound'),tntSound=$('tnt-sound'),tsnd=$('timer-sound');
+const musicTracks=[lobbyMusic,singlePlayerMusic,multiplayerMusic,hardcoreMusic,zenMusicTrack,classicMusic],musicTrackByKey={lobby:lobbyMusic,classic:classicMusic,single:singlePlayerMusic,multiplayer:multiplayerMusic,hardcore:hardcoreMusic,zen:zenMusicTrack},musicTrackVolume=.4;
+let activeMusicKey=null,requestedMusicKey=null,musicFadeTimer=null,musicFadeTarget=null;
 let activeAlerts=0,alertFallbackTimer=null,tntStartTimer=null;
 musicTracks.forEach(track=>track.volume=musicTrackVolume);alertSound.volume=.6;explosionSound.volume=.9;tntSound.volume=.9;
 function ensureAudioContext(){AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume().catch(error=>console.warn('Audio context could not resume',error));return AC}
-function startZenMusic(){if(zenMusic)return;
-  const ctx=ensureAudioContext(),gain=ctx.createGain();gain.gain.value=0;gain.connect(ctx.destination);
-  const oscillators=[110,164.81,220,329.63].map((frequency,index)=>{const oscillator=ctx.createOscillator(),level=ctx.createGain();
-    oscillator.type='sine';oscillator.frequency.value=frequency;level.gain.value=index===3?.035:.075;oscillator.connect(level);level.connect(gain);oscillator.start();return oscillator});
-  zenMusic={gain,oscillators};const notes=[261.63,329.63,392,329.63,293.66,349.23,440,349.23];
-  const playNote=()=>{if(!zenMusic||ctx.state!=='running')return;const oscillator=ctx.createOscillator(),level=ctx.createGain(),now=ctx.currentTime;
-    oscillator.type='sine';oscillator.frequency.value=notes[zenMusicNote++%notes.length];level.gain.setValueAtTime(.0001,now);level.gain.exponentialRampToValueAtTime(.055,now+.22);
-    level.gain.exponentialRampToValueAtTime(.0001,now+2.7);oscillator.connect(level);level.connect(gain);oscillator.onended=()=>{oscillator.disconnect();level.disconnect()};oscillator.start(now);oscillator.stop(now+2.8)};
-  playNote();zenMusicSequence=setInterval(playNote,1250)}
-function stopZenMusic(){if(zenMusicSequence){clearInterval(zenMusicSequence);zenMusicSequence=null}
-  if(zenMusic){zenMusic.oscillators.forEach(oscillator=>{try{oscillator.stop()}catch{}oscillator.disconnect()});zenMusic.gain.disconnect();zenMusic=null}}
-function activeMusicGain(){if(activeMusicKey==='zen')return zenMusic?.gain.gain.value||0;return musicTrackByKey[activeMusicKey]?.volume||0}
-function setActiveMusicGain(value){if(activeMusicKey==='zen'&&zenMusic)zenMusic.gain.gain.value=value;
-  else if(musicTrackByKey[activeMusicKey])musicTrackByKey[activeMusicKey].volume=value}
+function activeMusicGain(){return musicTrackByKey[activeMusicKey]?.volume||0}
+function setActiveMusicGain(value){if(musicTrackByKey[activeMusicKey])musicTrackByKey[activeMusicKey].volume=value}
 function stopActiveMusic(){if(!activeMusicKey)return;
-  if(activeMusicKey==='zen')stopZenMusic();else{const track=musicTrackByKey[activeMusicKey];track.pause();track.currentTime=0;track.volume=musicTrackVolume}
+  const track=musicTrackByKey[activeMusicKey];if(track){track.pause();track.currentTime=0;track.volume=musicTrackVolume}
   activeMusicKey=null}
 function fadeActiveMusic(target,duration,complete){if(musicFadeTimer){clearInterval(musicFadeTimer);musicFadeTimer=null}
   musicFadeTarget=target;if(!activeMusicKey){musicFadeTarget=null;complete?.();return}
@@ -502,19 +526,20 @@ function fadeActiveMusic(target,duration,complete){if(musicFadeTimer){clearInter
   let elapsed=0;musicFadeTimer=setInterval(()=>{elapsed+=25;const progress=Math.min(1,elapsed/duration);setActiveMusicGain(start+(target-start)*progress);
     if(progress>=1){clearInterval(musicFadeTimer);musicFadeTimer=null;musicFadeTarget=null;complete?.()}},25)}
 function startRequestedMusic(){const key=requestedMusicKey;if(!key||!music)return;
-  if(key==='zen')startZenMusic();else{const track=musicTrackByKey[key];if(!track)return;track.volume=0;
-    track.play().catch(error=>{if(error.name==='AbortError'&&requestedMusicKey!==key)return;
-      console.warn(`Music playback failed for ${key}`,error);if(activeMusicKey===key)stopActiveMusic()})}
-  activeMusicKey=key;setActiveMusicGain(0);fadeActiveMusic(key==='zen' ? .22 : musicTrackVolume,450)}
+  const track=musicTrackByKey[key];if(!track)return;track.volume=0;
+  track.play().catch(error=>{if(error.name==='AbortError'&&requestedMusicKey!==key)return;
+    console.warn(`Music playback failed for ${key}`,error);if(activeMusicKey===key)stopActiveMusic()});
+  activeMusicKey=key;setActiveMusicGain(0);fadeActiveMusic(musicTrackVolume,450)}
 function stopAllMusic(){requestedMusicKey=null;fadeActiveMusic(0,350,stopActiveMusic)}
 function primeAudio(audio,vol){if(!audio)return;audio.volume=0;audio.currentTime=0;audio.pause();audio.play().catch(()=>{});setTimeout(()=>{audio.pause();audio.currentTime=0;audio.volume=vol},50)}
 function playMusicForCurrentMode(){
   let desired=null;
   if(mode==='game'||mode==='dlg'&&games.length&&!ended){
-    if(count===1)desired=SCENE_MUSIC[gameMode]||null}
+    if(count===2)desired=SCENE_MUSIC.multiplayer;
+    else desired=SCENE_MUSIC[gameMode]||null}
   else if(mode==='menu'||mode==='modes'||mode==='challenges'||mode==='dlg'&&!games.length)desired=SCENE_MUSIC.menu;
   if(!music)desired=null;requestedMusicKey=desired;
-  if(activeMusicKey===desired){if(desired&&musicFadeTarget===0)fadeActiveMusic(desired==='zen' ? .22 : musicTrackVolume,350);return}
+  if(activeMusicKey===desired){if(desired&&musicFadeTarget===0)fadeActiveMusic(musicTrackVolume,350);return}
   if(activeMusicKey){fadeActiveMusic(0,350,()=>{stopActiveMusic();startRequestedMusic()});return}
   startRequestedMusic()
 }
@@ -535,27 +560,24 @@ function blk(c,gx,gy,i,bs,a=1){const[l,d]=COL[i],p=gx*bs,q=gy*bs,r=bs*.3,f=(x,y,
 
 class Game{
   constructor(p){this.p=p;this.c=$('cv'+p).getContext('2d');this.pc=$('pv'+p).getContext('2d');this.hiKey=count===1?`ttr_sp_${gameMode}_hi`:'ttr_hi_mp_p'+p;this.hi=this.hi0=+(ls(this.hiKey)||0);this.opp=null;this.reset()}
-  reset(){this.b=Array.from({length:ROWS},()=>Array(COLS).fill(0));this.score=this.lines=this.combo=this.comboStreak=this.combos=this.maxCombo=this.placed=0;this.nextPowerScore=POWERS_CONFIG.firstPowerScore;this.nextPowerLine=POWERS_CONFIG.linesPerPower;this.pendingPowerRewards=[];this.trashActiveUntil=0;this.trashMarkers=Array.from({length:ROWS},()=>Array(COLS).fill(false));this.lv=gameMode==='hardcore'?5:1;this.over=this.paused=false;this.t=0;this.modeElapsedMs=0;this.survivalElapsedMs=0;this.sceneIntensityBucket=-1;this.sceneIntensityMode='';this.nextGarbageAt=POWERS_CONFIG.survivalStartInterval;this.energy=0;this.abilityCooldowns={};this.slowUntil=0;this.doubleScoreUntil=0;this.shield=0;this.boardHistory=null;this.holdCount=0;this.challenge=CHALLENGES.find(c=>c.id===selectedChallenge)||null;this.challengeProgress=0;this.challengeCompleted=false;this.challengeInvalid=false;this.challengeTimeLeft=this.challenge?.timeLimit||POWERS_CONFIG.challengeTimeLimit;
+  reset(){this.b=Array.from({length:ROWS},()=>Array(COLS).fill(0));this.score=this.lines=this.combo=this.comboStreak=this.combos=this.maxCombo=this.placed=0;this.nextPowerScore=POWERS_CONFIG.firstPowerScore;this.nextPowerLine=POWERS_CONFIG.linesPerPower;this.pendingPowerRewards=[];this.trashActiveUntil=0;this.trashMarkers=Array.from({length:ROWS},()=>Array(COLS).fill(false));this.lv=gameMode==='hardcore'?5:1;this.over=this.paused=false;this.t=0;this.modeElapsedMs=0;this.survivalElapsedMs=0;this.sceneIntensityBucket=-1;this.sceneIntensityMode='';this.nextGarbageAt=POWERS_CONFIG.survivalStartInterval;this.energy=count===1&&gameMode==='zen'?POWERS_CONFIG.energyMax:0;this.abilityCooldowns={};this.zenClearReadyAt=0;this.zenClearPauseRemaining=null;this.zenGravityAnimation=null;this.slowUntil=0;this.doubleScoreUntil=0;this.shield=0;this.boardHistory=null;this.holdCount=0;this.challenge=count===1&&gameMode==='zen'?null:CHALLENGES.find(c=>c.id===selectedChallenge)||null;this.challengeProgress=0;this.challengeCompleted=false;this.challengeInvalid=false;this.challengeTimeLeft=this.challenge?.timeLimit||POWERS_CONFIG.challengeTimeLimit;
     this.flash=this.sd=this.lastSoft=this.pwLock=0;this.abilityUiAt=0;this.parts=[];this.anim=null;this.fx=null;this.boomT=null;this.idle=false;this.idleLeadIn=IDLE.videoLead;this.idleCountdown=IDLE.countdown;this.lastAct=performance.now();
-    this.deck=STARTING_POWER_IDS.map(id=>({id,used:false}));this.ps=0;this.pm=false;this.lightningActive=false;this.curseActive=false;this.curseTimer=null;this.empActive=false;this.empTimer=null;this.idleAudioTimer=null;this.idleExploded=false;this.idleVideoDone=false;this.idleVideoFallback=false;this.idleVideoTimer=null;
-    this.hold=null;this.holdUsed=false;this.missionTarget=4;this.missionProgress=0;this.missionsCompleted=0;this.powerCharges=count===1?1:0;
+    this.deck=count===1&&gameMode==='zen'?[]:STARTING_POWER_IDS.map(id=>({id,used:false}));this.ps=0;this.pm=false;this.lightningActive=false;this.curseActive=false;this.curseTimer=null;this.empActive=false;this.empTimer=null;this.idleAudioTimer=null;this.idleExploded=false;this.idleVideoDone=false;this.idleVideoFallback=false;this.idleVideoTimer=null;
+    this.hold=null;this.holdUsed=false;this.missionTarget=4;this.missionProgress=0;this.missionsCompleted=0;this.powerCharges=count===1&&gameMode!=='zen'?1:0;
     if(gameMode==='hardcore')this.placed=12;
     this.bag=[];this.nxt=this.take();this.lockT=performance.now()+700;this.next();this.ui();this.drawHold();this.updateSoloUI();this.pui();this.hideIdleAlert()}
   take(){if(!this.bag.length)this.bag=[0,1,2,3,4,5,6].sort(()=>Math.random()-.5);const m=SH[this.bag.pop()].map(r=>[...r]);return{m,x:COLS-m[0].length>>1,y:0}}
+  next(){this.cur=this.nxt;this.nxt=this.take();this.holdUsed=false;this.drawNext();if(this.hit(this.cur.m,this.cur.x,this.cur.y))this.over=true}
   hit(m,x,y){const narrow=this.trashActiveUntil>performance.now(),edge=POWERS_CONFIG.trashColumns;
     return m.some((r,j)=>r.some((v,i)=>v&&(x+i<0||x+i>=COLS||y+j>=ROWS||narrow&&(x+i<edge||x+i>=COLS-edge)||this.b[y+j][x+i])))}
   isCompleteLine(row){if(this.trashActiveUntil>performance.now()){const edge=POWERS_CONFIG.trashColumns;return row.slice(edge,COLS-edge).every(Boolean)}return row.every(Boolean)}
-  next(){this.cur=this.nxt;this.nxt=this.take();this.holdUsed=false;this.drawNext();
-    if(this.hit(this.cur.m,this.cur.x,this.cur.y)){if(gameMode==='zen'){for(let y=0;y<4;y++)this.b[y].fill(0);pop(this.p,'ZEN · ESPAÇO ABERTO','#7dff8a')}
-      else this.over=true}}
   ok(){return this.cur&&!this.over&&!this.paused&&!this.fx}
   mv(dx,dy){if(!this.ok())return false;const c=this.cur;if(this.hit(c.m,c.x+dx,c.y+dy))return false;c.x+=dx;c.y+=dy;if(dx)sfx(330,.04,'square',.03);return true}
   rot(){if(!this.ok())return;const c=this.cur,m=c.m,R=m.length,C=m[0].length,n=Array.from({length:C},(_,i)=>Array.from({length:R},(_,j)=>m[R-1-j][i]));
     for(const k of[0,-1,1,-2,2])if(!this.hit(n,c.x+k,c.y)){c.m=n;c.x+=k;sfx(520,.07,'triangle',.05,1.5);return}}
   /* velocidade: cada peça colocada deixa a queda mais rápida */
   speed(){let s=Math.max(SPEED.min,SPEED.start*Math.pow(SPEED.decay,this.placed));
-    if(gameMode==='hardcore')s=Math.max(SPEED.hardcoreMin,s*SPEED.hardcoreMultiplier);
-    if(gameMode==='zen')s=Math.max(SPEED.zenMin,s*SPEED.zenMultiplier);
+    s*=SPEED.modeMultiplier[gameMode]??SPEED.modeMultiplier.classic;
     if(this.slowUntil>performance.now())s*=POWERS_CONFIG.slowFallMultiplier;
     if(this.sd>0)s=Math.min(s,SPEED.soft);   // segurando ▼ = queda turbinada
     if(this.lightningActive)s/=POWERS_CONFIG.lightningFallMultiplier;
@@ -571,16 +593,18 @@ class Game{
     const f=[];this.b.forEach((r,i)=>this.isCompleteLine(r)&&f.push(i));
     if(f.length){this.anim={f,t:0};f.forEach(r=>{for(let k=0;k<16;k++)this.parts.push({x:Math.random()*COLS*BS,y:r*BS+BS/2,vx:(Math.random()-.5)*9,vy:-Math.random()*8-2,l:1,c:COL[1+Math.random()*7|0][0]})});sfx(660,.25,'triangle',.08,2)}
     else{this.combo=0;this.comboStreak=0;this.updateSoloUI();this.next()}}
-  done(){const f=this.anim.f,n=f.length;f.forEach(r=>{this.b.splice(r,1);this.b.unshift(Array(COLS).fill(0));if(this.trashMarkers){this.trashMarkers.splice(r,1);this.trashMarkers.unshift(Array(COLS).fill(false))}});this.anim=null;this.combo++;this.maxCombo=Math.max(this.maxCombo,this.combo);this.lines+=n;
+  done(){const animation=this.anim,f=animation.f,n=f.length,zenAbility=!!animation.zenAbility;f.forEach(r=>{this.b.splice(r,1);this.b.unshift(Array(COLS).fill(0));if(this.trashMarkers){this.trashMarkers.splice(r,1);this.trashMarkers.unshift(Array(COLS).fill(false))}});this.anim=null;
+    if(zenAbility)this.zenGravityAnimation={row:f[0],t:0,duration:260};
+    this.combo++;this.maxCombo=Math.max(this.maxCombo,this.combo);this.lines+=n;
     if(count===1&&gameMode==='timeAttack'){matchEndTimestamp+=n*POWERS_CONFIG.timeAttackLineBonus;updateMatchTimer();pop(this.p,`⏱ +${n*POWERS_CONFIG.timeAttackLineBonus/1000}s`,'#7dff8a')}
     this.add([0,100,300,500,800][n]*this.lv+(this.combo-1)*50*this.lv+(count===1?this.combo*100*this.lv:0));this.lv=gameMode==='hardcore'?5+this.lines/10|0:1+this.lines/10|0;
     pop(this.p,['','NICE!','DOUBLE!','TRIPLE!','TETRIS!!'][n]+(this.combo>1?' x'+this.combo:''));
     if(count===1){if(this.combo>1){this.combos++;this.trackDaily('combos',1)}
-      this.energy=Math.min(POWERS_CONFIG.energyMax,this.energy+n*POWERS_CONFIG.energyPerLine+(this.combo>1?POWERS_CONFIG.energyPerCombo:0)+(n===4?POWERS_CONFIG.energyPerTetris:0));
-      this.onLinesCleared(n);this.updateAbilityUI()}
+      if(gameMode!=='zen')this.energy=Math.min(POWERS_CONFIG.energyMax,this.energy+n*POWERS_CONFIG.energyPerLine+(this.combo>1?POWERS_CONFIG.energyPerCombo:0)+(n===4?POWERS_CONFIG.energyPerTetris:0));
+      this.onLinesCleared(n);if(gameMode!=='zen')this.updateAbilityUI()}
     if(count===2){if(this.comboStreak>0)this.combos++;this.comboStreak++;if(this.comboStreak>=POWERS_CONFIG.comboThreshold){this.comboStreak=0;this.rewardRandomPower('COMBO 2x! Poder ganho')}}
-    if(count===1)this.advanceMission(n);
-    this.updateSoloUI();if(!this.challengeCompleted)this.next()}
+    if(count===1&&gameMode!=='zen')this.advanceMission(n);
+    this.updateSoloUI();if(!this.challengeCompleted&&!zenAbility)this.next()}
   add(n){if(count===1&&gameMode==='hardcore')n*=2;if(count===1&&this.doubleScoreUntil>performance.now())n*=2;
     this.score+=n;if(this.score>this.hi){this.hi=this.score;ss(this.hiKey,this.hi)}
     if(count===2)this.checkMultiplayerPowerMilestones();
@@ -625,28 +649,45 @@ class Game{
       if(target<0||filled<COLS-3)return false;
       return this.b[target].every((cell,x)=>cell||this.b.slice(0,target).some(row=>row[x]))}
     return true}
-  updateAbilityUI(){const label=$('energy-label'),fill=$('energy-fill'),modalEnergy=$('skill-modal-energy');
-    if(label)label.textContent=`ENERGIA ${this.energy}/${POWERS_CONFIG.energyMax}`;
-    if(modalEnergy)modalEnergy.textContent=`Energia atual: ${this.energy}/${POWERS_CONFIG.energyMax}`;
+  abilityBlockReason(ability){if(!ability)return'Escolha uma habilidade.';
+    if(mode!=='game'||this.over||!this.cur)return'Partida indisponível.';
+    if(this.paused&&!skillsMenuOpen)return'Partida pausada.';
+    if(this.fx||this.anim)return'Aguarde a animação terminar.';
+    const remaining=(this.abilityCooldowns[ability.id]||0)-performance.now();
+    if(remaining>0)return`Aguarde a recarga: ${Math.ceil(remaining/1000)}s.`;
+    if(ability.id==='bomb'&&!hasInfiniteAbilityEnergy()&&!this.powerCharges)return'Sem cargas de bomba. Complete uma missão para ganhar outra.';
+    if(!this.hasAbilityTarget(ability.id))return'Não há alvo válido para este poder agora.';
+    if(!hasInfiniteAbilityEnergy()&&this.energy<ability.cost)return`Energia insuficiente: faltam ${ability.cost-this.energy} EN.`;
+    return''}
+  abilityStatusLabel(ability){const reason=this.abilityBlockReason(ability);if(!reason)return'PRONTO';
+    const cooldown=reason.match(/^Aguarde a recarga: (\d+)s\.$/);if(cooldown)return`RECARGA ${cooldown[1]}s`;
+    const energy=reason.match(/^Energia insuficiente: faltam (\d+) EN\.$/);if(energy)return`PRECISA ${energy[1]} EN`;
+    if(reason.startsWith('Sem cargas'))return'SEM CARGA';
+    if(reason.startsWith('Não há alvo'))return'SEM ALVO';
+    if(reason.startsWith('Aguarde a animação'))return'AGUARDE';
+    if(reason==='Partida pausada.')return'PAUSADO';
+    return'INDISPONÍVEL'}
+  updateAbilityUI(){
+    const label=$('energy-label'),fill=$('energy-fill'),modalEnergy=$('skill-modal-energy');
+    if(label)label.textContent=hasInfiniteAbilityEnergy()?'ENERGIA ∞':'ENERGIA '+this.energy+'/'+POWERS_CONFIG.energyMax;
+    if(modalEnergy)modalEnergy.textContent=hasInfiniteAbilityEnergy()?'Energia infinita · poderes sem custo':`Energia atual: ${this.energy}/${POWERS_CONFIG.energyMax}`;
     if(fill)fill.style.width=`${100*this.energy/POWERS_CONFIG.energyMax}%`;
-    const now=performance.now();
-    document.querySelectorAll('.ability-button').forEach(button=>{const ability=ABILITIES.find(a=>a.id===button.dataset.ability);if(!ability)return;const remaining=Math.max(0,(this.abilityCooldowns[ability.id]||0)-now);
-      const needsBomb=ability.id!=='bomb'||this.powerCharges>0,hasTarget=this.hasAbilityTarget(ability.id),ready=!!this.cur&&!this.over&&!this.paused&&!this.fx&&!this.anim&&this.energy>=ability.cost&&needsBomb&&hasTarget&&!remaining;
+    document.querySelectorAll('.ability-button').forEach(button=>{const ability=ABILITIES.find(a=>a.id===button.dataset.ability);if(!ability)return;
+      const reason=this.abilityBlockReason(ability),ready=!reason;
       const state=button.querySelector('.ability-state');
+      const description=button.querySelector('small');
+      if(description)description.textContent=`${ability.description} · ${hasInfiniteAbilityEnergy()?'ENERGIA INFINITA · sem custo':`${ability.cost} EN · recarga ${Math.ceil(ability.cooldown/1000)}s`}`;
       button.classList.toggle('unavailable',!ready);button.classList.toggle('selected',ability.id===selectedAbilityId);button.setAttribute('aria-pressed',String(ability.id===selectedAbilityId));
-      if(state)state.textContent=remaining?`RECARGA ${Math.ceil(remaining/1000)}s`:!needsBomb?'SEM CARGA':!hasTarget?'SEM ALVO':!this.cur||this.over||this.paused?'INDISPONÍVEL':this.energy<ability.cost?`PRECISA ${ability.cost-this.energy} EN`:'PRONTO'});
+      if(state)state.textContent=this.abilityStatusLabel(ability)});
     const selected=ABILITIES.find(a=>a.id===selectedAbilityId),selectedLabel=$('selected-skill-label');
     if(selectedLabel&&selected&&selectedLabel.dataset.ability!==selected.id){selectedLabel.dataset.ability=selected.id;selectedLabel.innerHTML=`<b>Selecionada</b>${selected.icon} ${selected.name}`}
-    const selectedAbility=selected,selectedRemaining=selectedAbility?Math.max(0,(this.abilityCooldowns[selectedAbility.id]||0)-now):0;
-    const canActivate=!!selectedAbility&&!!this.cur&&!this.over&&!this.paused&&!this.fx&&!this.anim&&this.energy>=selectedAbility.cost&&
-      (selectedAbility.id!=='bomb'||this.powerCharges>0)&&this.hasAbilityTarget(selectedAbility.id)&&!selectedRemaining;
-    const activateLabel=selectedRemaining?`RECARGA ${Math.ceil(selectedRemaining/1000)}s`:selectedAbility?.id==='bomb'&&!this.powerCharges?'SEM CARGA':selectedAbility&&!this.hasAbilityTarget(selectedAbility.id)?'SEM ALVO':selectedAbility&&this.energy<selectedAbility.cost?`PRECISA ${selectedAbility.cost-this.energy} EN`:!this.cur||this.over||this.paused?'INDISPONÍVEL':'ATIVAR · V';
-    ['selected-skill-activate','modal-skill-activate'].forEach(id=>{const button=$(id);if(button){button.disabled=!canActivate;button.textContent=canActivate?'ATIVAR · V':activateLabel}});
-    const bomb=$('soloPower'+this.p);if(bomb){const remaining=Math.max(0,(this.abilityCooldowns.bomb||0)-performance.now());
-      bomb.disabled=this.over||!this.cur||this.energy<ABILITIES[0].cost||!this.powerCharges||!this.hasAbilityTarget('bomb')||!!remaining;
+    const selectedAbility=selected,activateReason=this.abilityBlockReason(selectedAbility),canActivate=!!selectedAbility&&!activateReason;
+    ['selected-skill-activate','modal-skill-activate'].forEach(id=>{const button=$(id);if(button){button.disabled=!canActivate;button.textContent=canActivate?'ATIVAR · F / V':this.abilityStatusLabel(selectedAbility)}});
+    const bomb=$('soloPower'+this.p);if(bomb){const bombAbility=ABILITIES.find(ability=>ability.id==='bomb'),bombReason=this.abilityBlockReason(bombAbility);
+      bomb.disabled=!!bombReason;
       const count=$('soloPowerCount'+this.p);
-      if(count)count.textContent=remaining?`BOMBA ${Math.ceil(remaining/1000)}s`:this.energy<ABILITIES[0].cost?`BOMBA · ${ABILITIES[0].cost-this.energy} EN`: `BOMBA ×${this.powerCharges}`;
-      bomb.title=remaining?`Bomba em recarga: ${Math.ceil(remaining/1000)}s`:this.energy<ABILITIES[0].cost?`Bomba precisa de ${ABILITIES[0].cost-this.energy} energia`: `Bomba ×${this.powerCharges}`}}
+      if(count)count.textContent=hasInfiniteAbilityEnergy()?'BOMBA · ∞':bombReason==='Sem cargas de bomba. Complete uma missão para ganhar outra.'?'BOMBA · SEM CARGAS':bombReason.startsWith('Energia insuficiente:')?`BOMBA · PRECISA ${bombAbility.cost-this.energy} EN`: `BOMBA ×${this.powerCharges}`;
+      bomb.title=bombReason||`Bomba ${hasInfiniteAbilityEnergy()?'sem custo · cargas infinitas':'×'+this.powerCharges}`}}
   updateSceneIntensity(){if(count!==1||!['hardcore','survival'].includes(gameMode))return;
     const bucket=gameMode==='hardcore'?Math.min(8,Math.floor(Math.max(0,this.lv-5)/2)):Math.min(6,Math.floor(this.modeElapsedMs/POWERS_CONFIG.survivalDifficultyStep));
     if(bucket===this.sceneIntensityBucket&&this.sceneIntensityMode===gameMode)return;
@@ -654,11 +695,12 @@ class Game{
     document.body.style.setProperty('--mode-intensity',gameMode==='hardcore'?String(.42+bucket*.055):String(.25+bucket*.09))}
   ui(){$('sc'+this.p).textContent=this.score;$('li'+this.p).textContent=this.lines;$('lv'+this.p).textContent=this.lv;$('hi'+this.p).textContent=this.hi;this.updateSceneIntensity()}
   updateSoloUI(){const mission=$('missionText'+this.p),progress=$('missionProgress'+this.p),power=$('soloPower'+this.p),powerCount=$('soloPowerCount'+this.p),combo=$('combo'+this.p),hint=$('holdHint'+this.p);
+    if(count===1&&gameMode==='zen'){this.updateAbilityUI();this.updateZenAbilityUI();if(combo){combo.textContent=this.combo>1?`COMBO ×${this.combo}`:'';combo.classList.toggle('on',this.combo>1)}return}
     if(mission)mission.textContent=this.challenge?.name||`Limpe ${this.missionTarget} linhas`;
     if(progress)progress.textContent=this.challenge?`${Math.min(this.challengeProgress,this.challenge.target)}/${this.challenge.target}`:`${this.missionProgress}/${this.missionTarget}`;
     if(powerCount)powerCount.textContent=`BOMBA ×${this.powerCharges}`;
     if(combo){combo.textContent=this.combo>1?`COMBO ×${this.combo}`:'';combo.classList.toggle('on',this.combo>1)}
-    if(hint)hint.textContent=this.holdUsed?'Já usou nesta peça':this.hold?'Guardada · HOLD / C para trocar':'Vazio · HOLD / C para guardar';
+    if(hint)hint.textContent=this.holdUsed?'Já usou nesta peça':this.hold?'Guardada · K / C para trocar':'Vazio · K / C para guardar';
     this.updateAbilityUI()}
   advanceMission(lines){this.missionProgress+=lines;
     while(this.missionProgress>=this.missionTarget){this.missionProgress-=this.missionTarget;this.missionsCompleted++;this.missionTarget=4+Math.min(4,Math.floor(this.missionsCompleted/2));this.powerCharges=Math.min(3,this.powerCharges+1);this.add(300*this.lv);pop(this.p,'🎯 MISSÃO! +300');}
@@ -671,13 +713,33 @@ class Game{
     else{this.hold=current;this.next()}
     this.holdUsed=true;this.holdCount++;if(this.challenge?.type==='noHold'){this.challengeInvalid=true;const progress=$('missionProgress'+this.p);if(progress)progress.textContent='FALHOU · reinicie'}
     this.drawHold();this.updateSoloUI();sfx(620,.12,'triangle',.07,1.5)}
-  activateSoloPower(){this.activateAbility('bomb')}
+  updateZenAbilityUI(){const button=$('zen-clear-button');if(!button||count!==1||gameMode!=='zen')return;
+    const remaining=this.zenClearPauseRemaining!==null?this.zenClearPauseRemaining:Math.max(0,this.zenClearReadyAt-performance.now());
+    const status=$('zen-cooldown-status'),progress=$('zen-cooldown-progress'),hint=$('zen-ability-hint'),hasBlocks=this.b.some(row=>row.some(Boolean));
+    if(status)status.textContent=this.paused?'PAUSA':remaining>0?`${Math.ceil(remaining/1000)}s`:'READY';
+    if(progress)progress.style.strokeDashoffset=String(100.5*Math.min(1,remaining/ZEN_CLEAR_COOLDOWN));
+    if(hint)hint.textContent=remaining>0?'recarga · X':hasBlocks?'X · sem custo':'sem blocos · X';
+    const unavailable=this.paused||this.over||!this.cur||mode!=='game'||!!this.anim||!!this.fx||!hasBlocks;
+    button.setAttribute('aria-disabled',String(unavailable||remaining>0));
+    button.title=remaining>0?`Disponível em ${Math.ceil(remaining/1000)} segundos`:hasBlocks?'Remove uma linha com blocos; atalho X, sem custo':'Não há blocos para limpar'}
+  activateZenLineClear(){if(gameMode!=='zen'||count!==1||mode!=='game'||this.over||this.paused||!this.cur||this.fx||this.anim)return false;
+    const remaining=this.zenClearReadyAt-performance.now();if(remaining>0){pop(this.p,`⏳ ${Math.ceil(remaining/1000)}s`,'#66cfc1');return false}
+    let row=-1,filled=0;
+    for(let y=ROWS-1;y>=0;y--){const cells=this.b[y].filter(Boolean).length;if(cells>filled){row=y;filled=cells}}
+    if(row<0){pop(this.p,'NÃO HÁ BLOCOS PARA LIMPAR','#65c9ba');sfx(260,.07,'sine',.025,.8);this.updateZenAbilityUI();return false}
+    this.anim={f:[row],t:0,zenAbility:true};this.zenClearReadyAt=performance.now()+ZEN_CLEAR_COOLDOWN;
+    for(let i=0;i<24;i++)this.parts.push({x:(Math.random()*COLS)*BS,y:row*BS+BS/2,vx:(Math.random()-.5)*4,vy:-Math.random()*5-1,l:.8,c:i%2?'#70dfc3':'#bcf7d8'});
+    pop(this.p,'+1 LINHA','#74dfcb');sfx(520,.24,'sine',.055,1.35);this.updateZenAbilityUI();return true}
+  activateSoloPower(){if(gameMode==='zen')return false;return this.activateAbility('bomb')}
   activateAbility(id){const ability=ABILITIES.find(a=>a.id===id);if(!ability||count!==1)return false;
-    const remaining=(this.abilityCooldowns[id]||0)-performance.now();
-    if(mode!=='game'||this.over||this.paused||!this.cur||this.fx||this.anim||this.energy<ability.cost||
-      (id==='bomb'&&!this.powerCharges)||remaining>0){pop(this.p,remaining>0?`⏳ ${Math.ceil(remaining/1000)}s`:'SEM ENERGIA / CARGA!','#ff7b7b');return false}
-    if(!ability.activate(this)){pop(this.p,'NÃO HÁ ALVO VÁLIDO!','#ff7b7b');return false}
-    this.energy-=ability.cost;this.abilityCooldowns[id]=performance.now()+ability.cooldown;this.updateAbilityUI();return true}
+    const reason=this.abilityBlockReason(ability);
+    if(reason){setAbilityFeedback(reason);pop(this.p,reason,'#ff7b7b');return false}
+    if(!ability.activate(this)){const failure='O poder não encontrou um alvo válido; energia e recarga foram preservadas.';
+      setAbilityFeedback(failure);pop(this.p,'NÃO HÁ ALVO VÁLIDO!','#ff7b7b');return false}
+    if(!hasInfiniteAbilityEnergy())this.energy-=ability.cost;
+    this.abilityCooldowns[id]=performance.now()+ability.cooldown;this.updateAbilityUI();
+    setAbilityFeedback(hasInfiniteAbilityEnergy()?`${ability.name} ativado! Energia infinita; nenhum custo.`:`${ability.name} ativado! ${this.energy} EN restantes.`);
+    return true}
   activateBomb(){const occupied=[];this.b.forEach((row,y)=>row.forEach((v,x)=>{if(v)occupied.push({x,y})}));
     if(!occupied.length)return false;
     const center=occupied[Math.floor(occupied.length/2)],piece=this.cur,exploded=[];
@@ -687,12 +749,12 @@ class Game{
         if(this.b[y][x]&&!isFalling){exploded.push({x,y});this.b[y][x]=0}}
     if(!exploded.length)return false;
     exploded.forEach(({x,y})=>this.parts.push({x:x*BS+BS/2,y:y*BS+BS/2,vx:(Math.random()-.5)*9,vy:-Math.random()*8-2,l:1.2,c:'#ffb86b'}));
-    this.powerCharges--;this.flash=1;shake(this.p);playExplosionSound();sfx(90,.4,'sawtooth',.12,.4);pop(this.p,'💣 BOOM!');return true}
+    if(!hasInfiniteAbilityEnergy())this.powerCharges--;this.flash=1;shake(this.p);playExplosionSound();sfx(90,.4,'sawtooth',.12,.4);pop(this.p,'💣 BOOM!');return true}
   activateShield(){this.shield++;pop(this.p,'🛡️ ESCUDO PRONTO!','#8deaff');return true}
   activateClear(){const y=this.b.reduce((best,row,index)=>row.filter(Boolean).length>this.b[best].filter(Boolean).length?index:best,0);
     if(!this.b[y].some(Boolean))return false;
     this.b.splice(y,1);this.b.unshift(Array(COLS).fill(0));this.lines++;this.lv=gameMode==='hardcore'?5+this.lines/10|0:1+this.lines/10|0;
-    this.add(100*this.lv);this.energy=Math.min(POWERS_CONFIG.energyMax,this.energy+POWERS_CONFIG.energyPerLine);
+    this.add(100*this.lv);if(!hasInfiniteAbilityEnergy())this.energy=Math.min(POWERS_CONFIG.energyMax,this.energy+POWERS_CONFIG.energyPerLine);
     this.flash=1;this.onLinesCleared(1);this.advanceMission(1);this.updateAbilityUI();pop(this.p,'🧹 LINHA LIMPA!');return true}
   activateSlow(){this.slowUntil=performance.now()+POWERS_CONFIG.slowDuration;pop(this.p,'🐢 TEMPO LENTO!','#8deaff');return true}
   activateDoubleScore(){this.doubleScoreUntil=performance.now()+POWERS_CONFIG.doubleScoreDuration;pop(this.p,'✨ PONTOS ×2!','#ffe66d');return true}
@@ -817,6 +879,7 @@ class Game{
     if(this.boomT!=null){this.boomT+=dt;if(this.boomT>1500){this.boomT=null;this.flash=0;} return}
     if(this.over||this.paused)return;
     if(this.trashActiveUntil&&performance.now()>=this.trashActiveUntil)this.cleanupTrash();
+    if(this.zenGravityAnimation){this.zenGravityAnimation.t+=dt;if(this.zenGravityAnimation.t>=this.zenGravityAnimation.duration)this.zenGravityAnimation=null}
     this.modeElapsedMs+=dt;this.updateSceneIntensity();
     if(performance.now()-this.abilityUiAt>=200){this.abilityUiAt=performance.now();this.updateAbilityUI()}
     if(this.fx){this.fxStep(dt);return}
@@ -843,11 +906,19 @@ class Game{
         if(this.idleCountdown<=0){this.triggerIdleExplosion();}
       }else if(this.idle){this.cancelIdle();}
     }
-    this.t+=dt;if(this.t>this.speed()){this.t=0;if(!this.mv(0,1))this.settle()}}
+    this.t+=dt;let gravityInterval=this.speed();
+    while(this.t>=gravityInterval&&this.ok()&&!this.anim&&!this.fx){
+      this.t-=gravityInterval;
+      if(!this.mv(0,1)){this.t=0;this.settle();break}
+      gravityInterval=this.speed()}}
   drawNext(){const p=this.pc,m=this.nxt.m,bs=20;p.clearRect(0,0,88,88);if(this.curseActive)return;p.save();p.translate((88-m[0].length*bs)/2,(88-m.length*bs)/2);m.forEach((r,j)=>r.forEach((v,i)=>v&&blk(p,i,j,v,bs)));p.restore()}
   draw(){const c=this.c,W=COLS*BS,H=ROWS*BS;c.clearRect(0,0,W,H);
     for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){c.fillStyle=(x+y)%2?'rgba(255,255,255,.05)':'rgba(255,255,255,.1)';c.fillRect(x*BS,y*BS,BS,BS)}
-    this.b.forEach((r,y)=>{const fl=this.anim&&this.anim.f.includes(y);r.forEach((v,x)=>{if(!v)return;if(fl){c.fillStyle=(this.anim.t/60|0)%2?'#fff':COL[v][0];c.fillRect(x*BS,y*BS,BS,BS)}else blk(c,x,y,v,BS)})});
+    this.b.forEach((r,y)=>{const fl=this.anim&&this.anim.f.includes(y),gravity=this.zenGravityAnimation&&y>0&&y<=this.zenGravityAnimation.row?
+        y-Math.pow(1-Math.min(1,this.zenGravityAnimation.t/this.zenGravityAnimation.duration),2):y;
+      r.forEach((v,x)=>{if(!v)return;if(fl&&this.anim.zenAbility){c.save();c.shadowColor='#71ead0';c.shadowBlur=18;c.fillStyle=(this.anim.t/70|0)%2?'#f4fff8':'#7fe4cf';c.fillRect(x*BS,y*BS,BS,BS);c.restore()}
+        else if(fl){c.fillStyle=(this.anim.t/60|0)%2?'#fff':COL[v][0];c.fillRect(x*BS,y*BS,BS,BS)}
+        else blk(c,x,gravity,v,BS)})});
     const k=this.cur;
     if(k&&!this.over&&!this.curseActive){let gy=k.y;while(!this.hit(k.m,k.x,gy+1))gy++;
       k.m.forEach((r,j)=>r.forEach((v,i)=>{if(!v)return;c.globalAlpha=.5;c.strokeStyle=COL[v][1];c.setLineDash([5,4]);c.lineWidth=3;c.beginPath();c.roundRect((k.x+i)*BS+3,(gy+j)*BS+3,BS-6,BS-6,8);c.stroke();c.setLineDash([]);c.globalAlpha=1}));
@@ -877,8 +948,8 @@ const tpl=i=>`<div class="pl${i>1?' hide':''}" id="pl${i}" style="--ry:${i==1?7:
 <div class="bw" id="bw${i}">${i===1?`<aside class="skill-side" aria-label="Habilidades e inventário">
 <h3>✦ HABILIDADES</h3><div class="skill-energy"><strong id="energy-label">ENERGIA 0/100</strong><div class="energy-meter" aria-label="Energia"><span id="energy-fill"></span></div></div>
 <button class="skill-menu-trigger" id="skills-open" type="button">ESCOLHER ✦</button><div class="selected-skill" id="selected-skill-label"><b>Selecionada</b>💣 BOMBA</div>
-<button class="skill-activate" id="selected-skill-activate" type="button">ATIVAR · V</button>
-<button class="holdCard" id="hold${i}" type="button" aria-label="Guardar ou trocar peça"><b>PEÇA GUARDADA</b><canvas id="hv${i}" width="88" height="88"></canvas><small id="holdHint${i}">Vazio · HOLD / C para guardar</small></button>
+<button class="skill-activate" id="selected-skill-activate" type="button">ATIVAR · F / V</button>
+<button class="holdCard" id="hold${i}" type="button" aria-label="Guardar ou trocar peça"><b>PEÇA GUARDADA</b><canvas id="hv${i}" width="88" height="88"></canvas><small id="holdHint${i}">Vazio · K / C para guardar</small></button>
 </aside>`:''}<canvas class="main" id="cv${i}" width="280" height="560"></canvas><div class="comboBadge" id="combo${i}"></div>
 <div class="sd"><div class="nx">PRÓXIMA<canvas id="pv${i}" width="88" height="88"></canvas>RECORDE<i id="hi${i}">0</i></div>
 <div class="soloExtras"><div class="missionCard"><b>MISSÃO</b><span id="missionText${i}">Limpe linhas</span><i id="missionProgress${i}">0/4</i><small id="dailyText${i}"></small></div>
@@ -890,7 +961,7 @@ $('hold1').onclick=event=>{event.preventDefault();event.stopPropagation();games[
 $('ability-list').innerHTML=abilityButtonsHTML();
 
 /* ───── estado e navegação (estilo controle de console) ───── */
-let games=[],count=1,mode='menu',gameMode='classic',selectedChallenge='lines4',matchEndTimestamp=0,matchPausedAt=null,ended=false,last=0,lightningTimer=null,timerBonusTimeout=null,selectedAbilityId='bomb',skillsMenuOpen=false;const lastDown=[0,0,0],touchRepeatTimers=new Set();
+let games=[],count=1,mode='menu',gameMode='classic',selectedChallenge='lines4',matchEndTimestamp=0,matchPausedAt=null,ended=false,last=0,lightningTimer=null,timerBonusTimeout=null,selectedAbilityId='bomb',skillsMenuOpen=false,skillsMenuPausedGame=null;const lastDown=[0,0,0],touchRepeatTimers=new Set();
 function clearTouchRepeats(){touchRepeatTimers.forEach(timer=>clearInterval(timer));touchRepeatTimers.clear()}
 function matchTimeRemaining(){return Math.max(0,matchEndTimestamp-performance.now())}
 function getMatchTimeBonusAmount(){return Math.max(0,Math.min(POWERS_CONFIG.timeBonus,POWERS_CONFIG.maxMatchDuration-matchTimeRemaining()))}
@@ -971,33 +1042,48 @@ function press(){const s=S(),it=s.items[s.idx],el=(['menu','modes','challenges']
 function nav(cmd,rep){const s=S(),n=s.items.length;
   if(cmd==='LEFT'||cmd==='RIGHT'){if(rep)return;s.idx=(s.idx+(cmd==='LEFT'?n-1:1))%n;sfx(500+s.idx*60,.07,'triangle',.07);mark()}
   else if(cmd==='DOWN'||cmd==='BTN_A'){if(!rep)press()}            // ▼ = clique / confirmar
-  else if(s.back&&(cmd==='UP'||cmd==='BTN_B'||cmd==='SELECT')){sfx(300,.1,'sine',.08);s.back()}} // ▲ = voltar
+  else if(s.back&&(cmd==='SKILLS'||cmd==='UP'||cmd==='BTN_B'||cmd==='SELECT')){if(rep)return;sfx(300,.1,'sine',.08);s.back()}} // E/▲ = voltar
 
 function markActivity(g){g.lastAct=performance.now();if(g.idle)g.cancelIdle()}
-function openSkillsMenu(){if(mode!=='game'||count!==1||ended)return;skillsMenuOpen=true;const modal=$('skill-modal');
-  modal.classList.add('open');modal.setAttribute('aria-hidden','false');games[0]?.updateAbilityUI();
+function setAbilityFeedback(message){const hint=$('ability-selection-hint');if(hint)hint.textContent=message}
+function openSkillsMenu(){if(mode!=='game'||count!==1||ended||skillsMenuOpen)return;
+  const game=games[0];if(!game||game.over)return;
+  if(game.fx||game.anim){pop(game.p,'AGUARDE A ANIMAÇÃO TERMINAR','#ffb86b');return}
+  skillsMenuOpen=true;skillsMenuPausedGame=game;game.paused=true;const modal=$('skill-modal');
+  modal.classList.add('open');modal.setAttribute('aria-hidden','false');game.updateAbilityUI();
+  const selected=ABILITIES.find(ability=>ability.id===selectedAbilityId),reason=game.abilityBlockReason(selected);
+  setAbilityFeedback(reason?`${reason} A partida fica pausada enquanto você escolhe.`:
+    `Partida pausada. ${selected.name}: ${selected.description} ${hasInfiniteAbilityEnergy()?'Energia infinita; sem custo.':`Custo: ${selected.cost} EN.`} Ative com F quando estiver pronto.`);
   modal.querySelector(`[data-ability="${selectedAbilityId}"]`)?.focus()}
-function closeSkillsMenu(){if(!skillsMenuOpen)return;skillsMenuOpen=false;const modal=$('skill-modal');
-  modal.classList.remove('open');modal.setAttribute('aria-hidden','true');$('skills-open')?.focus()}
+function closeSkillsMenu(){if(!skillsMenuOpen)return;skillsMenuOpen=false;const modal=$('skill-modal'),game=skillsMenuPausedGame;
+  skillsMenuPausedGame=null;modal.classList.remove('open');modal.setAttribute('aria-hidden','true');
+  if(game&&mode==='game'&&!ended){game.paused=false;game.lastAct=performance.now();game.updateAbilityUI()}
+  $('skills-open')?.focus()}
 function selectAbility(id){if(!ABILITIES.some(ability=>ability.id===id))return;selectedAbilityId=id;games[0]?.updateAbilityUI();
-  if(skillsMenuOpen)$('ability-list').querySelector(`[data-ability="${selectedAbilityId}"]`)?.focus()}
+  if(skillsMenuOpen){const ability=ABILITIES.find(item=>item.id===selectedAbilityId),game=games[0],reason=game?.abilityBlockReason(ability);
+    setAbilityFeedback(reason?`${reason} A partida continua pausada.`:
+      `${ability.name}: ${ability.description} ${hasInfiniteAbilityEnergy()?'Energia infinita; sem custo.':`Custo: ${ability.cost} EN.`} Pressione F para ativar.`);
+    $('ability-list').querySelector(`[data-ability="${selectedAbilityId}"]`)?.focus()}}
 function moveSelectedAbility(step){const index=ABILITIES.findIndex(ability=>ability.id===selectedAbilityId);
   selectAbility(ABILITIES[(index+step+ABILITIES.length)%ABILITIES.length].id)}
 function activateSelectedAbility(){const game=games[0];if(!game||mode!=='game')return false;
   const activated=game.activateAbility(selectedAbilityId);if(activated)closeSkillsMenu();return activated}
+function activatePlayerAbility(){const game=games[0];if(!game||mode!=='game')return false;
+  return activateSelectedAbility()}
 function input(p,cmd,rep){
   if(mode==='game'){
-    if(skillsMenuOpen){if(cmd==='SKILL'||cmd==='BTN_B'){activateSelectedAbility();return}
+    if(skillsMenuOpen){if(cmd==='SKILL'){if(!rep)activatePlayerAbility();return}
       if(cmd==='LEFT'||cmd==='UP'){moveSelectedAbility(-1);return}
       if(cmd==='RIGHT'||cmd==='DOWN'){moveSelectedAbility(1);return}
-      if(cmd==='SKILLS'||cmd==='SELECT')closeSkillsMenu();return}
+      if((cmd==='SKILLS'||cmd==='SELECT')&&!rep)closeSkillsMenu();return}
     if(cmd==='RESTART'){start(count,gameMode,selectedChallenge);return}
     const g=games[count===1?0:p-1];
     if(cmd==='SELECT')return pause();
     if(!g||g.over)return;
-    if(count===1&&cmd==='SKILLS'){openSkillsMenu();return}
-    if(count===1&&cmd==='SKILL'){markActivity(g);activateSelectedAbility();return}
-    if(count===1&&cmd==='POWER'){markActivity(g);g.activateSoloPower();return}
+    if(count===1&&cmd==='SKILLS'){if(!rep)openSkillsMenu();return}
+    if(count===1&&cmd==='SKILL'){if(!rep){markActivity(g);activatePlayerAbility()}return}
+    if(count===1&&gameMode==='zen'&&cmd==='POWER'){if(rep)return;markActivity(g);g.activateZenLineClear();return}
+    if(count===1&&cmd==='POWER'){if(rep)return;markActivity(g);g.activateSoloPower();return}
     if(count===1&&cmd==='BTN_A'){markActivity(g);g.holdPiece();return}
     if(count===2){
       if(g.pm){markActivity(g);g.pin(cmd,rep);return}
@@ -1011,7 +1097,7 @@ function input(p,cmd,rep){
   if(['menu','modes','challenges','dlg'].includes(mode))nav(cmd,rep)}
 
 function installControls(){
-  const commandForKey={ArrowLeft:'LEFT',ArrowRight:'RIGHT',ArrowDown:'DOWN',ArrowUp:'UP',a:'LEFT',d:'RIGHT',s:'DOWN',w:'UP',c:'BTN_A',x:'POWER',v:'SKILL',i:'SKILLS',r:'RESTART', ' ':'BTN_B',Escape:'SELECT',Enter:'BTN_A'};
+  const commandForKey={ArrowLeft:'LEFT',ArrowRight:'RIGHT',ArrowDown:'DOWN',ArrowUp:'UP',a:'LEFT',d:'RIGHT',s:'DOWN',w:'UP',c:'BTN_A',e:'SKILLS',f:'SKILL',x:'POWER',v:'SKILL',i:'SKILLS',r:'RESTART', ' ':'BTN_B',Escape:'SELECT',Enter:'BTN_A'};
   addEventListener('keydown',event=>{const key=event.key.length===1?event.key.toLowerCase():event.key,cmd=commandForKey[key];
     if(event.key==='Escape'&&skillsMenuOpen){event.preventDefault();event.stopPropagation();closeSkillsMenu();return}
     if(!cmd||mode==='game'&&count!==1)return;
@@ -1030,6 +1116,8 @@ function installControls(){
     event.preventDefault();event.stopPropagation();selectAbility(button.dataset.ability)});
   $('selected-skill-activate').addEventListener('click',event=>{event.preventDefault();event.stopPropagation();activateSelectedAbility()});
   $('modal-skill-activate').addEventListener('click',event=>{event.preventDefault();event.stopPropagation();activateSelectedAbility()});
+  $('zen-clear-button').addEventListener('click',event=>{event.preventDefault();input(1,'POWER',false)});
+  $('zen-pause-button').addEventListener('click',event=>{event.preventDefault();pause()});
 }
 
 /* ───── fluxo ───── */
@@ -1042,7 +1130,9 @@ function start(n,soloMode='classic',challengeId=selectedChallenge){clearTouchRep
   $('menu').classList.add('hide');$('game').classList.remove('hide');
   $('pl2').classList.toggle('hide',n<2);$('vs').classList.toggle('hide',n<2);
   document.querySelectorAll('.soloExtras').forEach(element=>element.classList.toggle('hide',n!==1));
-  $('timer').classList.toggle('hide',n===1&&(gameMode==='classic'||gameMode==='zen'));$('arena').classList.toggle('one',n<2);$('mobile-controls').classList.toggle('hide',n!==1);
+  const zenMode=n===1&&gameMode==='zen',powerButton=document.querySelector('.touch-button[data-command="POWER"]');
+  $('timer').classList.toggle('hide',n===1&&(gameMode==='classic'||gameMode==='zen'));$('arena').classList.toggle('one',n<2);$('arena').classList.toggle('zen',zenMode);$('mobile-controls').classList.toggle('hide',n!==1);
+  if(powerButton){powerButton.textContent=zenMode?'🌿 LIMPAR LINHA':'💣';powerButton.setAttribute('aria-label',zenMode?'Limpar uma linha com blocos':'Usar bomba')}
   games=[1,2].slice(0,n).map(p=>new Game(p));if(n===2){games[0].opp=games[1];games[1].opp=games[0]}
   $('mode-label').textContent=n===2?'MULTIJOGADOR':SOLO_MODES.find(m=>m.id===gameMode)?.name||'CLÁSSICO';
   $('timer').classList.remove('u');$('timer').textContent=n===2||gameMode==='timeAttack'?'2:00':'0:00';
@@ -1051,19 +1141,22 @@ function toMenu(){clearTouchRepeats();closeSkillsMenu();cleanupPowerEffects();if
   $('timer').classList.remove('timer-pop','green','timer-bonus','u');delete $('timer').dataset.bonus;closeDlg();tsnd.pause();tsnd.currentTime=0;games.forEach(g=>{g.hideIdleAlert();if(g.idleAudioTimer){clearTimeout(g.idleAudioTimer);g.idleAudioTimer=null}});
   activeAlerts=0;stopAlertSound(true);stopTntSound();document.querySelectorAll('.idle-alert').forEach(e=>e.remove());games=[];matchPausedAt=null;$('game').classList.add('hide');$('menu').classList.remove('hide');mode='menu';menu.idx=0;playMusicForCurrentMode();mark();applyScene('menu')}
 function resume(){if(matchPausedAt!==null){matchEndTimestamp+=performance.now()-matchPausedAt;matchPausedAt=null}
-  closeDlg();games.forEach(g=>{g.paused=false;g.lastAct=performance.now();g.resumeIdleVideo()});if(activeAlerts>0)scheduleTntSound();mode='game';if(count===2||gameMode==='timeAttack')updateMatchTimer();playMusicForCurrentMode()}
-function pause(){if((count===2||gameMode==='timeAttack')&&matchPausedAt===null)matchPausedAt=performance.now();games.forEach(g=>{g.paused=true;g.pauseIdleVideo()});tsnd.pause();stopTntSound(false);dlg('PAUSADO','Respira e volta com tudo! 🧘',[{t:'CONTINUAR',c:'green',f:resume},{t:'SAIR',c:'red',f:toMenu}],resume)}
+  const now=performance.now();closeDlg();games.forEach(g=>{if(gameMode==='zen'&&g.zenClearPauseRemaining!==null){g.zenClearReadyAt=now+g.zenClearPauseRemaining;g.zenClearPauseRemaining=null}
+    g.paused=false;g.lastAct=now;g.resumeIdleVideo()});if(activeAlerts>0)scheduleTntSound();mode='game';if(gameMode==='zen')games[0]?.updateZenAbilityUI();if(count===2||gameMode==='timeAttack')updateMatchTimer();playMusicForCurrentMode()}
+function pause(){if((count===2||gameMode==='timeAttack')&&matchPausedAt===null)matchPausedAt=performance.now();games.forEach(g=>{if(gameMode==='zen'&&g.zenClearPauseRemaining===null)g.zenClearPauseRemaining=Math.max(0,g.zenClearReadyAt-performance.now());
+    g.paused=true;g.pauseIdleVideo();if(gameMode==='zen')g.updateZenAbilityUI()});tsnd.pause();stopTntSound(false);dlg('PAUSADO','Respira e volta com tudo! 🧘',[{t:'CONTINUAR',c:'green',f:resume},{t:'SAIR',c:'red',f:toMenu}],resume)}
 function showCtrl(){const close=()=>{closeDlg();mode='menu';mark()};
   dlg('CONTROLES',`<div class="cg"><span><b class="k">◀</b><b class="k">▶</b></span><i style="font-style:normal">Mover a peça · escolher no menu</i>
   <span><b class="k">▲</b></span><i style="font-style:normal">Girar a peça · voltar</i>
   <span><b class="k">▼</b></span><i style="font-style:normal">Descer (segure = mais rápido) · CLICAR</i>
   <span><b class="k">B</b></span><i style="font-style:normal">Queda instantânea ⚡</i>
-  <span><b class="k">A / C</b></span><i style="font-style:normal">Arduino A / teclado C: guardar peça (1P) · abrir poderes (2P)</i>
-  <span><b class="k">X</b></span><i style="font-style:normal">Bomba (teclado) · botão 💣 no touch</i>
+  <span><b class="k">K / C</b></span><i style="font-style:normal">Joystick K / teclado C: guardar peça (1P) · abrir poderes (2P)</i>
+  <span><b class="k">E</b></span><i style="font-style:normal">Voltar nos menus · abrir habilidades durante a partida (inclui Zen)</i>
+  <span><b class="k">F</b></span><i style="font-style:normal">Ativar habilidade selecionada · limpar linha no Zen</i>
+  <span><b class="k">X</b></span><i style="font-style:normal">Poder carregado · limpar linha no Zen</i>
   <span><b class="k">R</b></span><i style="font-style:normal">Reiniciar a partida (teclado)</i>
-  <span><b class="k">STR</b></span><i style="font-style:normal">Usar bomba carregada (1P)</i>
-  <span><b class="k">◀▶ ▼</b></span><i style="font-style:normal">Nos poderes: ◀▶ escolhe, ▼ usa, ▲/A fecha</i>
-  <span><b class="k">SEL</b></span><i style="font-style:normal">Pausar ⏸</i></div>`,[{t:'ENTENDI!',c:'green',f:close}],close)}
+  <span><b class="k">◀▶ ▼</b></span><i style="font-style:normal">Nos poderes: ◀▶ escolhe, ▼ usa, ▲/K fecha</i>
+  <span><b class="k">ESC</b></span><i style="font-style:normal">Pausar ⏸</i></div>`,[{t:'ENTENDI!',c:'green',f:close}],close)}
 function end(o,reason){if(ended)return;closeSkillsMenu();clearTouchRepeats();
   const endReason=reason||((count===2||gameMode==='timeAttack')&&matchTimeRemaining()<=0?'time':o?.idle?'idle':'topout');
   ended=true;mode='wait';playMusicForCurrentMode();matchPausedAt=null;cleanupPowerEffects();if(timerBonusTimeout){clearTimeout(timerBonusTimeout);timerBonusTimeout=null}
@@ -1094,6 +1187,7 @@ function end(o,reason){if(ended)return;closeSkillsMenu();clearTouchRepeats();
 
 function loop(t){const dt=Math.min(50,t-last);last=t;
   if(games.length){
+    if(skillsMenuOpen&&games[0]&&performance.now()-games[0].abilityUiAt>=200){games[0].abilityUiAt=performance.now();games[0].updateAbilityUI()}
     if(mode==='game'&&!ended&&(count===2||gameMode!=='classic'&&gameMode!=='zen'))updateMatchTimer();
     games.forEach(g=>{g.update(dt);g.draw()});
     if(!ended&&mode==='game'){const o=games.find(g=>g.over);const waitingForExplosion=games.some(g=>g.idleExploded&&!g.idleVideoDone);
@@ -1102,22 +1196,26 @@ function loop(t){const dt=Math.min(50,t-last);last=t;
 
 /* ───── Arduino (Web Serial) — o jogador é detectado pelo prefixo P1:/P2: ───── */
 function setPill(p,on){const e=$('pp'+p);e.classList.toggle('ok',on);e.textContent=`P${p} · ${on?'conectado ✓':'sem controle'}`}
-function fromSerial(p,cmd){const rep=cmd.endsWith('_HOLD');input(p,rep?cmd.slice(0,-5):cmd,rep)}
+function fromSerial(p,cmd){const rep=cmd.endsWith('_HOLD'),received=rep?cmd.slice(0,-5):cmd;
+  const command={E:'SKILLS',F:'SKILL',K:'BTN_A'}[received]||received;
+  if(new URLSearchParams(location.search).get('debug')==='1'&&['E','F','K'].includes(received))
+    console.info(`Arduino P${p}: botão ${received} → ${command}`);
+  input(p,command,rep)}
 async function openPort(port){let who=0;
   try{await port.open({baudRate:9600});const rd=port.readable.pipeThrough(new TextDecoderStream()).getReader();let buf='';
     for(;;){const{value,done}=await rd.read();if(done)break;buf+=value;const ls_=buf.split('\n');buf=ls_.pop();
-      for(const l of ls_){const m=l.trim().match(/P([12])(?::(\w+))?/);if(!m)continue;
-        if(who!==+m[1]){who=+m[1];setPill(who,true);sfx(700,.15,'triangle',.08,1.5)}
-        if(m[2])fromSerial(who,m[2])}}
-  }catch(e){}
+      for(const l of ls_){const line=l.trim(),ready=line.match(/^ARDUINO_P([12])_READY$/),m=line.match(/^P([12]):(\w+)$/),player=ready?.[1]||m?.[1];if(!player)continue;
+        if(who!==+player){who=+player;setPill(who,true);sfx(700,.15,'triangle',.08,1.5)}
+        if(m)fromSerial(who,m[2])}}
+  }catch(e){console.error('Arduino serial connection failed',e)}
   if(who)setPill(who,false)}
 $('cn').onclick=async()=>{startAudio();
   if(!('serial' in navigator))return alert('Web Serial API não suportada!\nUse Chrome ou Edge.');
   try{openPort(await navigator.serial.requestPort())}catch(e){if(e.name!=='NotFoundError')alert('Erro ao conectar: '+e.message)}};
-navigator.serial?.getPorts().then(ps=>ps.forEach(openPort)).catch(()=>{});
+navigator.serial?.getPorts().then(ps=>ps.forEach(openPort)).catch(error=>console.error('Unable to list Arduino serial ports',error));
 
 addEventListener('pointerdown',startAudio);
-addEventListener('beforeunload',()=>navigator.serial?.getPorts().then(ps=>ps.forEach(p=>p.close().catch(()=>{}))));
+addEventListener('beforeunload',()=>navigator.serial?.getPorts().then(ps=>ps.forEach(p=>p.close().catch(error=>console.error('Unable to close Arduino serial port',error)))));
 
 applyTheme();refreshDailyProgress();$('player-level').textContent=`NÍVEL ${playerProgress.level} · ${playerProgress.xp} XP`;
 installControls();mark();requestAnimationFrame(loop);
