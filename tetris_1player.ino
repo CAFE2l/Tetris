@@ -3,10 +3,10 @@
 //
 // Joystick Shield:
 //   A / D2 → cima; B / D3 → direita; C / D4 → baixo; D / D5 → esquerda
-//   E / D6 → abrir habilidades (exceto no Zen)
-//   F / D7 → ativar habilidade selecionada (ou habilidade Zen)
-//   K / D8 → guardar/trocar peça
-//   No duelo 2P, E / D6 e F / D7 também guardam/trocam a peça.
+//   E / D6 → abrir habilidades (exceto no Zen); especial 360° no X1.
+//   F / D7 → ativar habilidade selecionada (ou habilidade Zen); guardar no X1.
+//   K / D8 → guardar/trocar peça em 1P; abrir inventário em 2P.
+//   No multiplayer clássico, E / D6 e F / D7 guardam/trocam a peça.
 //   A0 / A1 → X / Y analógicos para carregar o giro 360° no X1.
 //   D9    → queda instantânea (entrada auxiliar, se conectada)
 //

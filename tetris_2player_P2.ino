@@ -3,10 +3,10 @@
 //
 // Joystick Shield:
 //   A / D2 → cima; B / D3 → direita; C / D4 → baixo; D / D5 → esquerda
-//   E / D6 → evento E
-//   F / D7 → evento F
-//   K / D8 → ação BTN_A existente (inventário / poder carregado no X1)
-//   No duelo 2P, E / D6 e F / D7 guardam/trocam a peça.
+//   E / D6 → evento E (especial 360° no X1)
+//   F / D7 → evento F (guardar/trocar peça no X1)
+//   K / D8 → ação BTN_A existente (inventário)
+//   No multiplayer clássico, E / D6 e F / D7 guardam/trocam a peça.
 //   A0 / A1 → X / Y analógicos para carregar o giro 360° no X1.
 //   D9    → queda instantânea (entrada auxiliar, se conectada)
 //
@@ -25,8 +25,8 @@
 #define BTN_HARD 9
 
 const unsigned long DEBOUNCE_MS = 35;
-const unsigned long HOLD_DELAY_MS = 220;
-const unsigned long HOLD_REPEAT_MS = 75;
+const unsigned long HOLD_DELAY_MS = 300;
+const unsigned long HOLD_REPEAT_MS = 140;
 const unsigned long PING_MS = 2000;
 const unsigned long JOYSTICK_REPORT_MS = 40;
 
